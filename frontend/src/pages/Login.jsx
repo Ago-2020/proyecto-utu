@@ -1,4 +1,4 @@
-import Contact from "@/components/Contact.jsx";
+import Contact from '@/components/Contact.jsx';
 
 export default function Login() {
   return (
