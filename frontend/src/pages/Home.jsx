@@ -10,9 +10,6 @@ export default function Home() {
     <div
       style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}
     >
-      {/* Navbar */}
-      <Navbar />
-
       {/* Hero */}
       <section
         style={{
@@ -249,9 +246,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <Footer />
     </div>
   )
 }

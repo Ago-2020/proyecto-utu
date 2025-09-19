@@ -7,8 +7,6 @@ export default function Terms() {
     <div
       style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}
     >
-      <Navbar />
-
       <main style={{ flexGrow: 1, padding: '64px 16px', textAlign: 'center' }}>
         <h1
           style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '24px' }}
@@ -20,8 +18,6 @@ export default function Terms() {
           visibilidad y conectar con su comunidad de manera sencilla y efectiva.
         </p>
       </main>
-
-      <Footer />
     </div>
   )
 }
