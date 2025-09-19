@@ -1,9 +1,36 @@
 import { Link } from 'react-router-dom'
 import leftImage from '../img/izquierda.png'
 import logo from '../img/logo.png'
-import React from 'react'
+import React, { useState } from 'react'
 
 export default function Login() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [response, setResponse] = useState(null)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    try {
+      const res = await fetch('http://localhost:8000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      })
+
+      const data = await res.json()
+      setResponse(data)
+    } catch (error) {
+      console.error('Error:', error)
+      setResponse({ success: false, message: 'Error en la conexión' })
+    }
+  }
+
   return (
     <div className="flex min-h-screen">
       {/* Mitad izquierda con imagen */}
@@ -55,7 +82,7 @@ export default function Login() {
             Iniciar Sesión
           </h2>
 
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             {/* Email */}
             <div>
               <label
@@ -70,6 +97,8 @@ export default function Login() {
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                 style={{ borderColor: '#5D5D5D', color: '#5D5D5D' }}
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
@@ -104,6 +133,8 @@ export default function Login() {
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                 style={{ borderColor: '#5D5D5D', color: '#5D5D5D' }}
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
