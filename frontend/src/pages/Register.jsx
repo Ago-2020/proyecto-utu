@@ -2,11 +2,11 @@ import { Link } from "react-router-dom";
 import leftImage from "../img/izquierda.png";
 import logo from "../img/logo.png";
 
-export default function Login() {
+export default function Register() {
   return (
     <div className="flex min-h-screen">
       
-                                                                                  {/* Mitad izquierda con imagen */}
+                                                                                    {/* Mitad izquierda con imagen */}
       <div
         className="w-1/2"
         style={{
@@ -16,12 +16,12 @@ export default function Login() {
         }}
       ></div>
 
-                                                                                  {/* Mitad derecha con logo y formulario */}
+                                                                                    {/* Mitad derecha con logo y formulario */}
       <div
         className="w-1/2 flex items-center justify-center relative"
         style={{ backgroundColor: "#FF3131" }}
       >
-                                                                                   {/* Logo que lleva a Home */}
+                                                                                    {/* Logo que lleva a Home */}
         <Link to="/">
           <img
             src={logo}
@@ -52,7 +52,7 @@ export default function Login() {
             className="text-4xl font-bold mb-8 text-center"
             style={{ color: "#000000" }}
           >
-            Iniciar Sesión
+            Registro de Usuario
           </h2>
 
           <form className="space-y-4">
@@ -107,16 +107,57 @@ export default function Login() {
               />
             </div>
 
-                                                                                    {/* Botón principal */}
+                                                                                    {/* Confirmar Contraseña */}
+            <div>
+              <label
+                className="block text-sm font-medium mb-1"
+                style={{ color: "#5D5D5D" }}
+              >
+                Confirmar Contraseña
+              </label>
+              <input
+                type="password"
+                placeholder="Vuelve a escribir tu contraseña"
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                style={{ borderColor: "#5D5D5D", color: "#5D5D5D" }}
+                required
+              />
+            </div>
+
+                                                                                    {/* Casilla de términos */}
+            <div className="flex items-center justify-center mt-4">
+              <input
+                type="checkbox"
+                id="terms"
+                className="h-4 w-4 rounded focus:outline-none"
+                style={{ accentColor: "#FF3131", borderColor: "#C31313" }}
+                required
+              />
+              <label
+                htmlFor="terms"
+                className="ml-2 text-sm"
+                style={{ color: "#000000" }}
+              >
+                Acepto los{" "}
+                <a
+                  href="/terminos"
+                  style={{ color: "#FF3131", textDecoration: "underline" }}
+                >
+                  Términos y Condiciones
+                </a>
+              </label>
+            </div>
+
+                                                                                    {/* Botón de registro */}
             <button
               type="submit"
               className="w-full py-2 rounded-lg text-white font-bold mt-4"
               style={{ background: "linear-gradient(90deg, #FF3131, #C31313)" }}
             >
-              Iniciar Sesión
+              Regístrate ahora
             </button>
 
-                                                                                    {/* Botón secundario - Google */}
+                                                                                    {/* Botón de Google */}
             <button
               type="button"
               className="w-full py-2 rounded-lg border border-gray-300 flex items-center justify-center gap-2 font-medium mt-2 hover:bg-gray-100 transition"
@@ -130,17 +171,17 @@ export default function Login() {
               Iniciar con Google
             </button>
 
-                                                                                      {/* Link a registro */}
+                                                                                    {/* Link a login */}
             <div
               className="text-center mt-4 text-sm"
               style={{ color: "#000000" }}
             >
-              ¿No tienes cuenta?{" "}
+              ¿Ya tenés una cuenta?{" "}
               <Link
-                to="/register"
+                to="/login"
                 style={{ color: "#FF3131", textDecoration: "underline" }}
               >
-                Regístrate
+                Iniciar sesión
               </Link>
             </div>
           </form>
