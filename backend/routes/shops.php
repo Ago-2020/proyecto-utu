@@ -35,9 +35,9 @@ $data = json_decode(file_get_contents("php://input"));
 
 
 switch (true) {
-    // --- REGISTRAR UNA TIENDA (POST) ---
+    // Registro de un local
     case preg_match('%/api/shops/?$%', $requestUri) && $requestMethod == 'POST':
-        // Middleware: Verificar el token y obtener datos del usuario
+        // Middleware de verificacion del token y obtener datos del usuario
         $userData = verifyToken();
 
         if (!empty($data->nombre) && !empty($data->direccion)) {

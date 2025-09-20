@@ -11,9 +11,9 @@ $db = $database->getConnection();
 // Decodificar el cuerpo de la petición JSON
 $data = json_decode(file_get_contents("php://input"));
 
-// Enrutamiento para /api/auth/...
+// Rutas de autenticación
 switch (true) {
-    // --- RUTA DE REGISTRO ---
+    // Registro de usuario
     case preg_match('%/api/auth/register%', $requestUri) && $requestMethod == 'POST':
         if (
             !empty($data->email) &&
@@ -44,7 +44,7 @@ switch (true) {
         }
         break;
 
-    // --- RUTA DE LOGIN ---
+    // Inicio de sesión de usuario
     case preg_match('%/api/auth/login%', $requestUri) && $requestMethod == 'POST':
         if (!empty($data->email) && !empty($data->password)) {
             $query = "SELECT id_usuario, email, nombre, password FROM usuario_new WHERE email = :email LIMIT 0,1";
