@@ -5,7 +5,7 @@ require_once __DIR__ . '/../config/Database.php';
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
-// --- FUNCIÓN DE MIDDLEWARE PARA VERIFICAR TOKEN ---
+// Verificacion del Token de usuario
 function verifyToken() {
     $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
     $arr = explode(" ", $authHeader);
@@ -63,17 +63,55 @@ switch (true) {
         }
         break;
 
+    // ver despues V V V
+
     // --- ELIMINAR UNA TIENDA (DELETE) ---
     case preg_match('%/api/shops/?$%', $requestUri) && $requestMethod == 'DELETE':
          $userData = verifyToken(); // Proteger la ruta
 
-         // Aquí iría la lógica para eliminar, por ejemplo, usando un ID de la URL o del body
-         // $id_local = $data->id;
-         // DELETE FROM local WHERE IDLocal = ? AND EmailUsuario = ? (para asegurar que solo el dueño borra)
+         // logica para nerds
 
          http_response_code(200);
          echo json_encode(['success' => true, 'message' => 'Local eliminado con éxito (lógica pendiente)', 'code' => 200]);
+    break;
+
+    // --- OBTENER TODOS LOS LOCALES (GET) ---
+    case preg_match('%/api/shops/?$%', $requestUri) && $requestMethod == 'GET':
+        $userData = verifyToken(); // Proteger la ruta
+
+        $query = "SELECT * FROM local WHERE EmailUsuario = :email_usuario";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':email_usuario', $userData->email);
+        $stmt->execute();
+
+        $locals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode($locals);
         break;
 
-    // Aquí podrías agregar las rutas GET y PUT de manera similar
+    // --- ACTUALIZAR UN LOCAL (PUT) ---
+    case preg_match('%/api/shops/?$%', $requestUri) && $requestMethod == 'PUT':
+        $userData = verifyToken(); // Proteger la ruta
+
+        if (!empty($data->id) && !empty($data->nombre) && !empty($data->direccion)) {
+            $query = "UPDATE local SET nombre = :nombre, direccion = :direccion WHERE IDLocal = :id_local AND EmailUsuario = :email_usuario";
+            $stmt = $db->prepare($query);
+
+            // Vincular datos
+            $stmt->bindParam(":nombre", $data->nombre);
+            $stmt->bindParam(":direccion", $data->direccion);
+            $stmt->bindParam(":id_local", $data->id);
+            $stmt->bindParam(":email_usuario", $userData->email);
+
+            if ($stmt->execute()) {
+                http_response_code(200);
+                echo json_encode(['success' => true, 'message' => 'Local actualizado con éxito', 'code' => 200]);
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'Error al actualizar el local', 'code' => 500]);
+            }
+        } else {
+            http_response_code(400);
+            echo json_encode(['message' => 'Datos incompletos.']);
+        }
+        break;
 }
