@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 
 export default function Register() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email_usuario, setEmail] = useState('')
+  const [password_usuario, setPassword] = useState('')
   const [response, setResponse] = useState(null)
 
   const handleSubmit = async (e) => {
@@ -15,8 +15,8 @@ export default function Register() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email,
-          password,
+          email_usuario,
+          password_usuario,
         }),
       })
 
@@ -36,14 +36,14 @@ export default function Register() {
         <input
           type="email"
           placeholder="Correo"
-          value={email}
+          value={email_usuario}
           onChange={(e) => setEmail(e.target.value)}
         />
         <br />
         <input
           type="password"
           placeholder="Contraseña"
-          value={password}
+          value={password_usuario}
           onChange={(e) => setPassword(e.target.value)}
         />
         <br />
