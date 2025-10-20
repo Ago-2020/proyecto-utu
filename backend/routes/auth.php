@@ -15,24 +15,21 @@ $data = json_decode(file_get_contents("php://input"));
 switch (true) {
     // Registro de usuario
     case preg_match('%/api/auth/register%', $requestUri) && $requestMethod == 'POST':
-        if (!empty($data->email) && !empty($data->nombre) && !empty($data->password)) {
-
-            /* Se cambio el usuario_new por usuario y los nombres de columnas reales */
-            $query = "INSERT INTO usuario (email_usuario, nombre_usuario, password_usuario, tipo_usuario) 
-                      VALUES (:email, :nombre, :password, :tipo)";
+        if (
+            !empty($data->email) &&
+            !empty($data->nombre) &&
+            !empty($data->password)
+        ) {
+            $query = "INSERT INTO usuario_new (email, nombre, password) VALUES (:email, :nombre, :password)";
             $stmt = $db->prepare($query);
 
             // Hashear la contraseña
             $passwordHash = password_hash($data->password, PASSWORD_BCRYPT);
 
-            /* Por defecto tipo_usuario = 2 (CLIENT) */
-            $tipoUsuario = 2;
-
             // Vincular datos
             $stmt->bindParam(":email", $data->email);
             $stmt->bindParam(":nombre", $data->nombre);
             $stmt->bindParam(":password", $passwordHash);
-            $stmt->bindParam(":tipo", $tipoUsuario);
 
             if ($stmt->execute()) {
                 http_response_code(201);
@@ -41,7 +38,6 @@ switch (true) {
                 http_response_code(500);
                 echo json_encode(['success' => false, 'message' => 'Error al registrar el usuario', 'code' => 500]);
             }
-
         } else {
             http_response_code(400);
             echo json_encode(['message' => 'Datos incompletos.']);
@@ -51,19 +47,18 @@ switch (true) {
     // Inicio de sesión de usuario
     case preg_match('%/api/auth/login%', $requestUri) && $requestMethod == 'POST':
         if (!empty($data->email) && !empty($data->password)) {
-
-            /* Se cambio el usuario_new por usuario y los nombres de columnas reales */
-            $query = "SELECT id_usuario, email_usuario, nombre_usuario, password_usuario 
-                      FROM usuario WHERE email_usuario = :email LIMIT 1";
+            $query = "SELECT id_usuario, email, nombre, password FROM usuario_new WHERE email = :email LIMIT 0,1";
             $stmt = $db->prepare($query);
             $stmt->bindParam(':email', $data->email);
             $stmt->execute();
 
-            if ($stmt->rowCount() > 0) {
+            $num = $stmt->rowCount();
+
+            if ($num > 0) {
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
                 $id_usuario = $row['id_usuario'];
-                $nombre = $row['nombre_usuario'];
-                $password2 = $row['password_usuario'];
+                $nombre = $row['nombre'];
+                $password2 = $row['password'];
 
                 if (password_verify($data->password, $password2)) {
                     $secret_key = $_ENV['JWT_SECRET'];
@@ -98,8 +93,8 @@ switch (true) {
                 echo json_encode(['message' => 'Credenciales inválidas']);
             }
         } else {
-            http_response_code(400);
-            echo json_encode(['message' => 'Email y contraseña requeridos.']);
+             http_response_code(400);
+             echo json_encode(['message' => 'Email y contraseña requeridos.']);
         }
         break;
 }
