@@ -14,9 +14,6 @@ require_once __DIR__ . '/vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
-// Prueba para mostrar la variable de entorno DB_DATABASE (para ver si hay alguna)
-echo getenv('DB_DATABASE');
-
 // Analizar la URL para el enrutamiento
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $requestMethod = $_SERVER['REQUEST_METHOD'];
