@@ -147,20 +147,6 @@ export default function Login() {
               Iniciar Sesión
             </button>
 
-            {/* Botón secundario - Google */}
-            <button
-              type="button"
-              className="w-full py-2 rounded-lg border border-gray-300 flex items-center justify-center gap-2 font-medium mt-2 hover:bg-gray-100 transition"
-              style={{ background: 'linear-gradient(90deg, #FF3131, #C31313)' }}
-            >
-              <img
-                src="https://www.svgrepo.com/show/380993/google-logo-search-new.svg"
-                alt="Google logo"
-                className="w-5 h-5"
-              />
-              Iniciar con Google
-            </button>
-
             {/* Link a registro */}
             <div
               className="text-center mt-4 text-sm"

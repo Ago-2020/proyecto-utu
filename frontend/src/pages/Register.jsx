@@ -8,6 +8,7 @@ export default function Register() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [response, setResponse] = useState(null)
+  const [showSuccess, setShowSuccess] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -27,6 +28,14 @@ export default function Register() {
 
       const data = await res.json()
       setResponse(data)
+
+      if (res.ok) {
+        setShowSuccess(true)
+        setTimeout(() => setShowSuccess(false), 3000)
+        setNombre('')
+        setEmail('')
+        setPassword('')
+      }
     } catch (error) {
       console.error('Error:', error)
       setResponse({ success: false, message: 'Error en la conexión' })
@@ -34,7 +43,27 @@ export default function Register() {
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen relative">
+      {/* Cartel centrado de éxito */}
+      {showSuccess && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 animate-fade-in">
+          <div
+            className="bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center p-8 border border-green-500"
+            style={{
+              minWidth: '350px',
+              textAlign: 'center',
+              animation: 'pop 0.3s ease',
+            }}
+          >
+            <div className="text-green-600 text-5xl mb-3">:D</div>
+            <h3 className="text-xl font-bold text-green-700 mb-1">
+              ¡Usuario registrado!
+            </h3>
+            <p className="text-gray-600 text-sm">Tu cuenta fue creada con éxito</p>
+          </div>
+        </div>
+      )}
+
       {/* Mitad izquierda con imagen */}
       <div
         className="w-1/2"
@@ -50,7 +79,6 @@ export default function Register() {
         className="w-1/2 flex items-center justify-center relative"
         style={{ backgroundColor: '#FF3131' }}
       >
-        {/* Logo que lleva a Home */}
         <Link to="/">
           <img
             src={logo}
@@ -67,7 +95,6 @@ export default function Register() {
           />
         </Link>
 
-        {/* Contenedor del formulario */}
         <div
           className="p-8 rounded-lg shadow-lg border"
           style={{
@@ -192,20 +219,6 @@ export default function Register() {
               Regístrate ahora
             </button>
 
-            {/* Botón de Google */}
-            <button
-              type="button"
-              className="w-full py-2 rounded-lg border border-gray-300 flex items-center justify-center gap-2 font-medium mt-2 hover:bg-gray-100 transition"
-              style={{ background: 'linear-gradient(90deg, #FF3131, #C31313)' }}
-            >
-              <img
-                src="https://www.svgrepo.com/show/380993/google-logo-search-new.svg"
-                alt="Google logo"
-                className="w-5 h-5"
-              />
-              Iniciar con Google
-            </button>
-
             {/* Link a login */}
             <div
               className="text-center mt-4 text-sm"
@@ -222,6 +235,23 @@ export default function Register() {
           </form>
         </div>
       </div>
+
+      {/* Animaciones */}
+      <style>
+        {`
+          @keyframes pop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          .animate-fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+          }
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+        `}
+      </style>
     </div>
   )
 }
