@@ -4,8 +4,8 @@ import logo from '../img/logo.png'
 import React, { useState } from 'react'
 
 export default function Login() {
-  const [email_usuario, setEmail] = useState('')
-  const [password_usuario, setPassword] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [response, setResponse] = useState(null)
 
   const handleSubmit = async (e) => {
@@ -18,8 +18,8 @@ export default function Login() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email_usuario,
-          password_usuario,
+          email,
+          password,
         }),
       })
 
@@ -97,7 +97,7 @@ export default function Login() {
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                 style={{ borderColor: '#5D5D5D', color: '#5D5D5D' }}
                 required
-                value={email_usuario}
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
@@ -133,7 +133,7 @@ export default function Login() {
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                 style={{ borderColor: '#5D5D5D', color: '#5D5D5D' }}
                 required
-                value={password_usuario}
+                value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>

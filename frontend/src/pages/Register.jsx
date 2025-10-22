@@ -4,10 +4,9 @@ import logo from '../img/logo.png'
 import React, { useState } from 'react'
 
 export default function Register() {
-  const [nombre_usuario, setNombre] = useState('')
-  const [email_usuario, setEmail] = useState('')
-  const [password_usuario, setPassword] = useState('')
-  const [tipo_usuario, setTipo] = useState('')
+  const [nombre, setNombre] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [response, setResponse] = useState(null)
   const [showSuccess, setShowSuccess] = useState(false)
 
@@ -21,10 +20,9 @@ export default function Register() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          nombre_usuario,
-          email_usuario,
-          password_usuario,
-          tipo_usuario: '1',
+          nombre,
+          email,
+          password,
         }),
       })
 
@@ -128,7 +126,7 @@ export default function Register() {
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                 style={{ borderColor: '#5D5D5D', color: '#5D5D5D' }}
                 required
-                value={email_usuario}
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
@@ -147,7 +145,7 @@ export default function Register() {
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                 style={{ borderColor: '#5D5D5D', color: '#5D5D5D' }}
                 required
-                value={nombre_usuario}
+                value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
               />
             </div>
@@ -166,7 +164,7 @@ export default function Register() {
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                 style={{ borderColor: '#5D5D5D', color: '#5D5D5D' }}
                 required
-                value={password_usuario}
+                value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
