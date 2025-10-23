@@ -1,11 +1,28 @@
 import { Link } from 'react-router-dom'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import ShopCard from '@/components/ShopCard'
 import banner from '@/img/caption.jpg'
 import cardImage from '@/img/card.jpg'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 export default function Home() {
+  const [shops, setShops] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('http://localhost:8000/api/shops/all')
+      .then((response) => response.json())
+      .then((data) => {
+        setShops(data)
+        setLoading(false)
+      })
+      .catch((error) => {
+        console.error('Error fetching shops:', error)
+        setLoading(false)
+      })
+  }, [])
+
   return (
     <div
       style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}
@@ -133,7 +150,6 @@ export default function Home() {
           ofertas.
         </p>
 
-        {/* Card de negocio */}
         <div
           style={{
             display: 'flex',
@@ -142,109 +158,20 @@ export default function Home() {
             flexWrap: 'wrap',
           }}
         >
-          <div
-            style={{
-              maxWidth: '280px',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              boxShadow: '0 4px 6px #0000001a',
-              border: '1px solid #ddd',
-              backgroundColor: '#FFFFFF',
-            }}
-          >
-            <img
-              src={cardImage}
-              alt="Negocio"
-              style={{ width: '100%', height: '180px', objectFit: 'cover' }}
+          {/* Card de negocio */}
+          {shops.map((shop) => (
+            <ShopCard
+              key={shop.id}
+              title={shop.nombre_local}
+              description={shop.descripcion}
             />
-            <div style={{ padding: '16px', textAlign: 'left' }}>
-              <h3
-                style={{
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  color: '#000000',
-                }}
-              >
-                El Desafío
-              </h3>
-              <p
-                style={{
-                  color: '#fbbf24',
-                  fontSize: '14px',
-                  marginBottom: '8px',
-                }}
-              >
-                ⭐⭐⭐⭐☆ 4.8
-              </p>
-              <p
-                style={{
-                  color: '#666666',
-                  fontSize: '14px',
-                  marginBottom: '16px',
-                }}
-              >
-                Un restaurante ideal para disfrutar de buena comida con amigos y
-                familia.
-              </p>
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '8px',
-                  flexWrap: 'wrap',
-                  marginBottom: '16px',
-                }}
-              >
-                <span
-                  style={{
-                    backgroundColor: '#A8343433',
-                    color: '#A83434',
-                    padding: '4px 8px',
-                    borderRadius: '9999px',
-                    fontSize: '12px',
-                  }}
-                >
-                  Restaurante
-                </span>
-                <span
-                  style={{
-                    backgroundColor: '#A8343433',
-                    color: '#A83434',
-                    padding: '4px 8px',
-                    borderRadius: '9999px',
-                    fontSize: '12px',
-                  }}
-                >
-                  Comida
-                </span>
-                <span
-                  style={{
-                    backgroundColor: '#A8343433',
-                    color: '#A83434',
-                    padding: '4px 8px',
-                    borderRadius: '9999px',
-                    fontSize: '12px',
-                  }}
-                >
-                  Café
-                </span>
-              </div>
-              <button
-                style={{
-                  width: '100%',
-                  padding: '8px 0',
-                  backgroundColor: '#dc2626',
-                  color: '#FFFFFF',
-                  borderRadius: '6px',
-                  border: 'none',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                }}
-              >
-                Ver más
-              </button>
-            </div>
-          </div>
+          ))}
         </div>
+
+        <ShopCard
+          title="El Desafío"
+          description="Un restaurante ideal para disfrutar de buena comida con amigos y familia."
+        />
       </section>
     </div>
   )
