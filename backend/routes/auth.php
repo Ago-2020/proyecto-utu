@@ -3,6 +3,8 @@
 
 require_once __DIR__ . '/../config/Database.php';
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
 
 // Obtener la conexión a la base de datos
 $database = new Database();
@@ -107,5 +109,36 @@ switch (true) {
              http_response_code(400);
              echo json_encode(['message' => 'Email y contraseña requeridos.']);
         }
-        break;
+    break;
+
+    // Obtener información del usuario autenticado
+    case preg_match('%/api/auth/user%', $requestUri) && $requestMethod == 'GET':
+        $headers = getallheaders();
+        if (isset($headers['Authorization'])) {
+            $authHeader = $headers['Authorization'];
+            list($jwt) = sscanf($authHeader, 'Bearer %s');
+
+            if ($jwt) {
+                try {
+                    $secret_key = $_ENV['JWT_SECRET'];
+                    $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
+
+                    http_response_code(200);
+                    echo json_encode([
+                        'id' => $decoded->data->id,
+                        'nombre_usuario' => $decoded->data->username
+                    ]);
+                } catch (Exception $e) {
+                    http_response_code(401);
+                    echo json_encode(['message' => 'Acceso denegado', 'error' => $e->getMessage()]);
+                }
+            } else {
+                http_response_code(400);
+                echo json_encode(['message' => 'Token no proporcionado.']);
+            }
+        } else {
+            http_response_code(400);
+            echo json_encode(['message' => 'Cabecera de autorización no encontrada.']);
+        }
+    break;
 }

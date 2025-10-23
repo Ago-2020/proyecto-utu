@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export default function Register() {
   const [email_usuario, setEmail] = useState('')
   const [password_usuario, setPassword] = useState('')
   const [response, setResponse] = useState(null)
+
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -22,6 +25,13 @@ export default function Register() {
 
       const data = await res.json()
       setResponse(data)
+
+      if (res.ok && data.token) {
+        localStorage.setItem('token', data.token)
+        navigate('/')
+      } else {
+        console.error('No se recibió token válido:', data)
+      }
     } catch (error) {
       console.error('Error:', error)
       setResponse({ success: false, message: 'Error en la conexión' })

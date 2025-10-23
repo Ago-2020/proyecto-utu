@@ -102,23 +102,6 @@ export default function Login() {
               />
             </div>
 
-            {/* Nombre de usuario */}
-            <div>
-              <label
-                className="block text-sm font-medium mb-1"
-                style={{ color: '#5D5D5D' }}
-              >
-                Nombre de usuario
-              </label>
-              <input
-                type="text"
-                placeholder="Tu nombre de usuario"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none"
-                style={{ borderColor: '#5D5D5D', color: '#5D5D5D' }}
-                required
-              />
-            </div>
-
             {/* Contraseña */}
             <div>
               <label

@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import logo from '../img/logo.png'
 {
@@ -9,6 +10,42 @@ import profile from '../img/profile.png'
 }
 
 export default function Navbar() {
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        console.warn('No hay token en localStorage')
+        return
+      }
+
+      try {
+        const res = await fetch('http://localhost:8000/api/auth/user', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+
+        console.log('Status:', res.status)
+        const data = await res.json()
+        console.log('Respuesta del backend:', data)
+
+        if (res.ok) {
+          setUser(data)
+        } else {
+          console.error('Error del backend:', data.message)
+        }
+      } catch (error) {
+        console.error('Error al obtener usuario:', error)
+      }
+    }
+
+    fetchUser()
+  }, [])
+
   return (
     <nav
       style={{
@@ -81,7 +118,7 @@ export default function Navbar() {
       {/* Perfil */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ fontSize: '14px', color: '#fff' }}>
-          Bienvenido, Invitado
+          Bienvenido, {user ? user.nombre_usuario : 'Invitado'}
         </span>
         <Link to="/profile">
           <img
