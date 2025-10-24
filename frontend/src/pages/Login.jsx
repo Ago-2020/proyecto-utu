@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import leftImage from '../img/izquierda.png'
 import logo from '../img/logo.png'
 import React, { useState } from 'react'
@@ -7,6 +7,7 @@ export default function Login() {
   const [email_usuario, setEmail] = useState('')
   const [password_usuario, setPassword] = useState('')
   const [response, setResponse] = useState(null)
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -25,6 +26,16 @@ export default function Login() {
 
       const data = await res.json()
       setResponse(data)
+
+      if (res.ok && data.token) {
+        localStorage.setItem('token', data.token)
+        navigate('/')
+      } else {
+        setResponse({
+          success: false,
+          message: data.message || 'Credenciales incorrectas',
+        })
+      }
     } catch (error) {
       console.error('Error:', error)
       setResponse({ success: false, message: 'Error en la conexión' })
@@ -144,6 +155,17 @@ export default function Login() {
               </Link>
             </div>
           </form>
+
+          {/* Alerta centrada */}
+          {response && (
+            <div
+              className={`mt-6 p-4 rounded-lg text-center font-semibold ${
+                response.success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+              }`}
+            >
+              {response.message || (response.success ? 'Inicio de sesión exitoso' : 'Error en el inicio de sesión')}
+            </div>
+          )}
         </div>
       </div>
     </div>
