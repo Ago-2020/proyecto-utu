@@ -143,7 +143,7 @@ export default function Home() {
             marginBottom: '8px',
           }}
         >
-          Negocios cerca tuyo
+          Negocios cercanos
         </h2>
         <p style={{ color: '#000000', marginBottom: '48px' }}>
           Descubre los comercios que están a tu alrededor y aprovecha sus
