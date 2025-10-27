@@ -7,12 +7,18 @@ export default function Register() {
   const [nombre_usuario, setNombre] = useState('')
   const [email_usuario, setEmail] = useState('')
   const [password_usuario, setPassword] = useState('')
-  const [tipo_usuario, setTipo] = useState('')
+  const [confirm_password, setConfirmPassword] = useState('')
   const [response, setResponse] = useState(null)
   const [showSuccess, setShowSuccess] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    // Validar que las contraseñas coincidan
+    if (password_usuario !== confirm_password) {
+      setResponse({ success: false, message: 'Las contraseñas no coinciden' })
+      return
+    }
 
     try {
       const res = await fetch('http://localhost:8000/api/auth/register', {
@@ -28,6 +34,9 @@ export default function Register() {
         }),
       })
 
+      // Mostrar información del status
+      console.log('Status:', res.status, res.statusText)
+
       const data = await res.json()
       setResponse(data)
 
@@ -37,10 +46,11 @@ export default function Register() {
         setNombre('')
         setEmail('')
         setPassword('')
+        setConfirmPassword('')
       }
     } catch (error) {
-      console.error('Error:', error)
-      setResponse({ success: false, message: 'Error en la conexión' })
+      console.error('Error en la conexión con el backend:', error)
+      setResponse({ success: false, message: 'Error en la conexión con el backend' })
     }
   }
 
@@ -106,20 +116,14 @@ export default function Register() {
             marginTop: '95px',
           }}
         >
-          <h2
-            className="text-4xl font-bold mb-8 text-center"
-            style={{ color: '#000000' }}
-          >
+          <h2 className="text-4xl font-bold mb-8 text-center" style={{ color: '#000000' }}>
             Registro de Usuario
           </h2>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             {/* Email */}
             <div>
-              <label
-                className="block text-sm font-medium mb-1"
-                style={{ color: '#5D5D5D' }}
-              >
+              <label className="block text-sm font-medium mb-1" style={{ color: '#5D5D5D' }}>
                 Email
               </label>
               <input
@@ -135,10 +139,7 @@ export default function Register() {
 
             {/* Nombre de usuario */}
             <div>
-              <label
-                className="block text-sm font-medium mb-1"
-                style={{ color: '#5D5D5D' }}
-              >
+              <label className="block text-sm font-medium mb-1" style={{ color: '#5D5D5D' }}>
                 Nombre de usuario
               </label>
               <input
@@ -154,10 +155,7 @@ export default function Register() {
 
             {/* Contraseña */}
             <div>
-              <label
-                className="block text-sm font-medium mb-1"
-                style={{ color: '#5D5D5D' }}
-              >
+              <label className="block text-sm font-medium mb-1" style={{ color: '#5D5D5D' }}>
                 Contraseña
               </label>
               <input
@@ -173,10 +171,7 @@ export default function Register() {
 
             {/* Confirmar Contraseña */}
             <div>
-              <label
-                className="block text-sm font-medium mb-1"
-                style={{ color: '#5D5D5D' }}
-              >
+              <label className="block text-sm font-medium mb-1" style={{ color: '#5D5D5D' }}>
                 Confirmar Contraseña
               </label>
               <input
@@ -185,6 +180,8 @@ export default function Register() {
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                 style={{ borderColor: '#5D5D5D', color: '#5D5D5D' }}
                 required
+                value={confirm_password}
+                onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
 
@@ -197,16 +194,9 @@ export default function Register() {
                 style={{ accentColor: '#FF3131', borderColor: '#C31313' }}
                 required
               />
-              <label
-                htmlFor="terms"
-                className="ml-2 text-sm"
-                style={{ color: '#000000' }}
-              >
+              <label htmlFor="terms" className="ml-2 text-sm" style={{ color: '#000000' }}>
                 Acepto los{' '}
-                <a
-                  href="/terminos"
-                  style={{ color: '#FF3131', textDecoration: 'underline' }}
-                >
+                <a href="/terminos" style={{ color: '#FF3131', textDecoration: 'underline' }}>
                   Términos y Condiciones
                 </a>
               </label>
@@ -222,18 +212,17 @@ export default function Register() {
             </button>
 
             {/* Link a login */}
-            <div
-              className="text-center mt-4 text-sm"
-              style={{ color: '#000000' }}
-            >
+            <div className="text-center mt-4 text-sm" style={{ color: '#000000' }}>
               ¿Ya tenés una cuenta?{' '}
-              <Link
-                to="/login"
-                style={{ color: '#FF3131', textDecoration: 'underline' }}
-              >
+              <Link to="/login" style={{ color: '#FF3131', textDecoration: 'underline' }}>
                 Iniciar sesión
               </Link>
             </div>
+
+            {/* Mensaje de error o respuesta */}
+            {response && !response.success && (
+              <p className="mt-2 text-center text-red-600">{response.message}</p>
+            )}
           </form>
         </div>
       </div>
