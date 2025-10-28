@@ -9,7 +9,8 @@ import About from '@/pages/About'
 import Contact from '@/pages/Contact'
 import Terms from '@/pages/Terms'
 import Profile from '@/pages/Profile'
-import PerfilUsuario from "@/pages/PerfilUsuario";
+import PerfilUsuario from "@/pages/PerfilUsuario"
+import Local from "@/pages/Local"
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/perfilusuario" element={<PerfilUsuario />} />
+          <Route path="/local" element={<Local />} />
         </Route>
       </Routes>
     </BrowserRouter>
