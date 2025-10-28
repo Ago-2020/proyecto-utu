@@ -12,6 +12,18 @@ import profile from '../img/profile.png'
 export default function Navbar() {
   const [user, setUser] = useState(null)
 
+  const handleLogout = () => {
+    // Elimina el usuario del estado
+    setUser(null)
+
+    // Elimina el token o los datos del usuario almacenados
+    localStorage.removeItem('user')
+    localStorage.removeItem('token')
+
+    // Redirige al inicio o login (si usas react-router)
+    navigate('/login')
+  }
+
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem('token')
@@ -117,37 +129,78 @@ export default function Navbar() {
 
       {/* Perfil */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ fontSize: '14px', color: '#fff' }}>
-          Bienvenido, {user ? user.nombre_usuario : 'Invitado'}
-        </span>
-        <Link to="/profile">
-          <img
-            src={profile}
-            alt="profile"
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              cursor: 'pointer',
-            }}
-          />
-        </Link>
-        <Link to="/login">
-          <button
-            style={{
-              marginLeft: '8px',
-              padding: '6px 12px',
-              borderRadius: '6px',
-              border: 'none',
-              backgroundColor: '#fff',
-              color: '#dc2626',
-              cursor: 'pointer',
-              fontWeight: '500',
-            }}
-          >
-            Iniciar sesión
-          </button>
-        </Link>
+        {user ? (
+          // Si hay usuario logueado
+          <>
+            <span>{user.nombre_usuario}</span>
+            <Link to="/profile">
+              <img
+                src={profile}
+                alt="profile"
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  marginLeft: '8px',
+                }}
+              />
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              style={{
+                marginLeft: '8px',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                border: 'none',
+                backgroundColor: '#fff',
+                color: '#dc2626',
+                cursor: 'pointer',
+                fontWeight: '500',
+              }}
+            >
+              Cerrar sesión
+            </button>
+          </>
+        ) : (
+          // Si NO hay usuario logueado
+          <>
+            <Link to="/register">
+              <button
+                style={{
+                  marginLeft: '8px',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  backgroundColor: '#fff',
+                  color: '#dc2626',
+                  cursor: 'pointer',
+                  fontWeight: '500',
+                }}
+              >
+                Regístrate
+              </button>
+            </Link>
+
+            <Link to="/login">
+              <button
+                style={{
+                  marginLeft: '8px',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  backgroundColor: '#fff',
+                  color: '#dc2626',
+                  cursor: 'pointer',
+                  fontWeight: '500',
+                }}
+              >
+                Iniciar sesión
+              </button>
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   )

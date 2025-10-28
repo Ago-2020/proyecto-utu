@@ -161,7 +161,8 @@ export default function Home() {
           {/* Card de negocio */}
           {shops.map((shop) => (
             <ShopCard
-              key={shop.id}
+              key={shop.id_local}
+              id={shop.id_local}
               title={shop.nombre_local}
               description={shop.descripcion}
             />

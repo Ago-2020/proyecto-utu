@@ -252,6 +252,12 @@ switch (true) {
         $id_local = $matches[1] ?? null;
 
         $query = "SELECT * FROM resenas WHERE id_local = :id_local";
+        $query = "
+        SELECT r.*, u.nombre_usuario 
+        FROM resenas r
+        INNER JOIN usuario u ON r.id_usuario = u.id_usuario
+        WHERE r.id_local = :id_local
+    ";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':id_local', $id_local);
         $stmt->execute();

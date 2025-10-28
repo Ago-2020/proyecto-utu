@@ -1,7 +1,10 @@
+import { useNavigate } from 'react-router-dom'
 import cardImage from '@/img/card.jpg'
 import React from 'react'
 
-export default function ShopCard({ title, description }) {
+export default function ShopCard({ id, title, description }) {
+  const navigate = useNavigate()
+
   return (
     <div
       style={{
@@ -97,6 +100,7 @@ export default function ShopCard({ title, description }) {
             </span>
           </div>
           <button
+            onClick={() => navigate(`/local/${id}`)}
             style={{
               width: '100%',
               padding: '8px 0',
