@@ -28,6 +28,40 @@ function verifyToken() {
     }
 }
 
+// Subida de imagenes
+function uploadImage($file, $folder = 'uploads/', $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'], $maxSize = 5 * 1024 * 1024) {
+    // Verificar que se haya enviado el archivo
+    if (!isset($file) || $file['error'] != 0) {
+        return ['success' => false, 'message' => 'No se subió ningún archivo o ocurrió un error.'];
+    }
+
+    // Verificar tamaño
+    if ($file['size'] > $maxSize) {
+        return ['success' => false, 'message' => 'El archivo es demasiado grande. Máx: ' . ($maxSize / (1024*1024)) . ' MB'];
+    }
+
+    // Verificar tipo
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if (!in_array($ext, $allowedTypes)) {
+        return ['success' => false, 'message' => 'Tipo de archivo no permitido.'];
+    }
+
+    // Crear carpeta si no existe
+    if (!is_dir($folder)) {
+        mkdir($folder, 0755, true);
+    }
+
+    // Generar nombre único
+    $newName = uniqid('img_', true) . '.' . $ext;
+    $destination = $folder . $newName;
+
+    // Mover archivo
+    if (move_uploaded_file($file['tmp_name'], $destination)) {
+        return ['success' => true, 'path' => $destination];
+    } else {
+        return ['success' => false, 'message' => 'Error al guardar la imagen.'];
+    }
+}
 
 $database = new Database();
 $db = $database->getConnection();
@@ -182,6 +216,24 @@ switch (true) {
         } else {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Datos incompletos.', 'code' => 400]);
+        }
+    break;
+
+    // Obtener productos de un local
+    case preg_match('%/api/shops/(\d+)/products$%', $requestUri, $matches) && $requestMethod == 'GET':
+        $id_local = $matches[1] ?? null;
+
+        if (!empty($id_local)) {
+            $query = "SELECT * FROM productos WHERE id_local = :id_local";
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':id_local', $id_local);
+            $stmt->execute();
+
+            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode($products);
+        } else {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'ID del local no proporcionada.', 'code' => 400]);
         }
     break;
 
@@ -375,4 +427,24 @@ switch (true) {
              echo json_encode(['success' => false, 'message' => 'Error al reportar la reseña', 'code' => 500]);
          }
     break;
+    
+    case preg_match('%/api/shops/upload-test$%', $requestUri) && $requestMethod == 'POST':
+    
+        if (!isset($_FILES['imagen'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'No se envió ninguna imagen.']);
+            break;
+        }
+    
+        $uploadResult = uploadImage($_FILES['imagen']);
+    
+        if ($uploadResult['success']) {
+            http_response_code(201);
+            echo json_encode(['success' => true, 'message' => 'Imagen subida correctamente', 'path' => $uploadResult['path']]);
+        } else {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => $uploadResult['message']]);
+        }
+    break;
 }
+

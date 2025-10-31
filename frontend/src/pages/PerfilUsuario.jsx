@@ -14,7 +14,7 @@ const PerfilUsuario = () => {
       }
 
       try {
-        const res = await fetch('http://localhost:8000/api/auth/user', {
+        const res = await fetch('http://localhost:8000/api/users/', {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -27,7 +27,7 @@ const PerfilUsuario = () => {
         console.log('Respuesta del backend:', data)
 
         if (res.ok) {
-          setUser(data)
+          setUser(data.data)
         } else {
           console.error('Error del backend:', data.message)
         }
@@ -95,14 +95,17 @@ const PerfilUsuario = () => {
             {/* Info de usuario */}
             <div className="flex flex-col items-center mb-8">
               <img
-                src="https://i.pinimg.com/originals/8f/8e/11/8f8e11ecf1b0a2da7b15efc21d92a7d5.jpg"
+                src={user?.foto}
                 alt="Avatar"
                 className="w-28 h-28 rounded-full border-4 border-red-600 mb-4 object-cover"
               />
+
               <h2 className="text-xl font-medium">
                 {user?.nombre_usuario || 'Invitado'}
               </h2>
-              <p className="text-gray-600">{user?.email || 'Sin Email'}</p>
+              <p className="text-gray-600">
+                {user?.email_usuario || 'Sin Email'}
+              </p>
             </div>
 
             {/* Formulario de cambio de contraseña */}

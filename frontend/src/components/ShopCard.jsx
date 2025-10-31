@@ -40,11 +40,13 @@ export default function ShopCard({ id, title, description, estrellas }) {
           >
             {title}
           </h3>
-          <div className="flex text-yellow-500 mt-1 items-center">
-            {[...Array(5)].map((_, i) =>
-              i < estrellas ? <FaStar key={i} /> : <FaRegStar key={i} />,
-            )}
-            <p className="text-gray-700 mt-2">{estrellas}</p>
+          <div className="flex items-center gap-2 mt-2">
+            <div className="flex text-yellow-500 mt-1 items-center">
+              {[...Array(5)].map((_, i) =>
+                i < estrellas ? <FaStar key={i} /> : <FaRegStar key={i} />,
+              )}
+            </div>
+            <p className="text-gray-700">{estrellas ? estrellas : '0.0'}</p>
           </div>
           <p
             style={{

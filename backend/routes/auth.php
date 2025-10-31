@@ -72,6 +72,7 @@ switch (true) {
                 $id_usuario = $row['id_usuario'];
                 $nombre = $row['nombre_usuario'];
                 $password2 = $row['password_usuario'];
+                $email = $row['email_usuario'];
 
                 if (password_verify($data->password_usuario, $password2)) {
                     $secret_key = $_ENV['JWT_SECRET'];
@@ -85,7 +86,7 @@ switch (true) {
                         "exp" => $expire_claim,
                         "data" => array(
                             "id" => $id_usuario,
-                            "username" => $nombre
+                            "username" => $nombre,
                         )
                     );
 
@@ -126,7 +127,7 @@ switch (true) {
                     http_response_code(200);
                     echo json_encode([
                         'id' => $decoded->data->id,
-                        'nombre_usuario' => $decoded->data->username
+                        'nombre_usuario' => $decoded->data->username,
                     ]);
                 } catch (Exception $e) {
                     http_response_code(401);

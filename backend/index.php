@@ -30,6 +30,17 @@ switch (true) {
         require __DIR__ . '/routes/shops.php';
         break;
 
+    // Rutas de usuarios
+    case strpos($requestUri, '/api/users') !== false:
+        require __DIR__ . '/routes/users.php';
+        break;
+
+    // Rutas de administración
+    case strpos($requestUri, '/api/admin') !== false:
+        require __DIR__ . '/routes/admin.php';
+        break;
+
+
     // Ruta no encontrada
     default:
         http_response_code(404);

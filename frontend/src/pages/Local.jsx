@@ -5,6 +5,7 @@ import cardImage from '@/img/card.jpg'
 import banner from '@/img/caption.jpg'
 import profile_example from '@/img/profilepro.jpg'
 import ReviewCard from '@/components/ReviewCard'
+import ProductCard from '@/components/ProductCard'
 
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -14,22 +15,28 @@ export default function Local() {
   const [local, setLocal] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [productos, setProductos] = useState(null)
   const [reseñas, setReseñas] = useState(null)
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [localRes, reviewRes] = await Promise.all([
+        const [localRes, reviewRes, productRes] = await Promise.all([
           fetch(`http://localhost:8000/api/shops/${id}`).then((r) => r.json()),
           fetch(`http://localhost:8000/api/shops/${id}/review`).then((r) =>
+            r.json(),
+          ),
+          fetch(`http://localhost:8000/api/shops/${id}/products`).then((r) =>
             r.json(),
           ),
         ])
 
         setLocal(localRes)
         setReseñas(reviewRes)
+        setProductos(productRes)
       } catch (err) {
         console.error('Error al cargar datos:', err)
+        setError('Hubo un error al cargar los datos del local.')
       } finally {
         setLoading(false)
       }
@@ -42,33 +49,6 @@ export default function Local() {
   if (error) return <div className="p-10 text-center text-red-500">{error}</div>
   if (!local)
     return <div className="p-10 text-center">No se encontró el local.</div>
-
-  const productos = [
-    {
-      id: 1,
-      nombre: 'Muffin artesanal',
-      descripcion: 'Delicioso muffin de vainilla con chips de chocolate.',
-      precio: 120,
-      imagen: cardImage,
-      etiqueta: 'Café',
-    },
-    {
-      id: 2,
-      nombre: 'Tarta de frutilla',
-      descripcion: 'Base crocante con crema pastelera y frutillas frescas.',
-      precio: 180,
-      imagen: cardImage,
-      etiqueta: 'Postre',
-    },
-    {
-      id: 3,
-      nombre: 'Budín casero',
-      descripcion: 'Suave, esponjoso y con el toque justo de limón.',
-      precio: 150,
-      imagen: cardImage,
-      etiqueta: 'Dulce',
-    },
-  ]
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-gray-800">
@@ -133,49 +113,23 @@ export default function Local() {
 
           {/* Publicaciones tipo tarjetas */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center">
-            {productos.map((producto) => (
-              <div
-                key={producto.id}
-                className="bg-white border border-gray-200 shadow-lg rounded-2xl w-[380px] h-[460px] flex flex-col overflow-hidden"
-              >
-                {/* Etiqueta centrada */}
-                <div className="p-4 flex justify-center">
-                  <span
-                    style={{
-                      backgroundColor: '#ffe2e2ff',
-                      color: '#A83434',
-                      padding: '4px 10px',
-                      borderRadius: '9999px',
-                      fontSize: '12px',
-                    }}
-                  >
-                    {producto.etiqueta}
-                  </span>
-                </div>
-
-                {/* Imagen reducida y centrada */}
-                <img
-                  src={producto.imagen}
-                  alt={producto.nombre}
-                  className="w-[320px] h-[200px] object-cover mx-auto rounded-lg"
+            {Array.isArray(productos) && productos.length > 0 ? (
+              productos.map((producto) => (
+                <ProductCard
+                  key={producto.id_producto}
+                  id={producto.id_producto}
+                  nombre={producto.titulo}
+                  precio={producto.precio}
+                  descripcion={producto.descripcion}
+                  tipo_producto={producto.tipo_producto}
+                  imagen={producto.imagen}
                 />
-
-                {/* Contenido */}
-                <div className="px-6 py-4 flex justify-between items-start flex-1">
-                  <div className="text-left">
-                    <h3 className="font-semibold text-lg text-gray-900">
-                      {producto.nombre}
-                    </h3>
-                    <p className="text-sm text-gray-600 mt-1 w-60">
-                      {producto.descripcion}
-                    </p>
-                  </div>
-                  <p className="text-red-600 font-bold text-lg">
-                    ${producto.precio}
-                  </p>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-gray-600">
+                No hay productos disponibles en este local.
+              </p>
+            )}
           </div>
         </section>
 
@@ -192,7 +146,6 @@ export default function Local() {
                 </p>
               ) : (
                 reseñas.map((review) => (
-                  // ✅ aquí review sí está definido porque lo pasamos como parámetro
                   <ReviewCard key={review.id_resena} review={review} />
                 ))
               )}
