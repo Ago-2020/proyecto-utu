@@ -13,14 +13,11 @@ export default function Navbar() {
   const [user, setUser] = useState(null)
 
   const handleLogout = () => {
-    // Elimina el usuario del estado
     setUser(null)
 
-    // Elimina el token o los datos del usuario almacenados
     localStorage.removeItem('user')
     localStorage.removeItem('token')
 
-    // Redirige al inicio o login (si usas react-router)
     navigate('/login')
   }
 
@@ -166,23 +163,6 @@ export default function Navbar() {
         ) : (
           // Si NO hay usuario logueado
           <>
-            <Link to="/register">
-              <button
-                style={{
-                  marginLeft: '8px',
-                  padding: '6px 12px',
-                  borderRadius: '6px',
-                  border: 'none',
-                  backgroundColor: '#fff',
-                  color: '#dc2626',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                }}
-              >
-                Regístrate
-              </button>
-            </Link>
-
             <Link to="/login">
               <button
                 style={{
@@ -197,6 +177,23 @@ export default function Navbar() {
                 }}
               >
                 Iniciar sesión
+              </button>
+            </Link>
+
+            <Link to="/register">
+              <button
+                style={{
+                  marginLeft: '8px',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  backgroundColor: '#fff',
+                  color: '#dc2626',
+                  cursor: 'pointer',
+                  fontWeight: '500',
+                }}
+              >
+                Regístrate
               </button>
             </Link>
           </>

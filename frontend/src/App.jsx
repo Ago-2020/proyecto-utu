@@ -11,6 +11,7 @@ import Terms from '@/pages/Terms'
 import Profile from '@/pages/Profile'
 import PerfilUsuario from '@/pages/PerfilUsuario'
 import Local from '@/pages/Local'
+import NotFound from '@/pages/NotFound'
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/profile" element={<PerfilUsuario />} />
           <Route path="/local/:id" element={<Local />} />
         </Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   )

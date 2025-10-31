@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import cardImage from '@/img/card.jpg'
+import { FaStar, FaRegStar, FaUser, FaHeart } from 'react-icons/fa'
 import React from 'react'
 
-export default function ShopCard({ id, title, description }) {
+export default function ShopCard({ id, title, description, estrellas }) {
   const navigate = useNavigate()
 
   return (
@@ -39,15 +40,12 @@ export default function ShopCard({ id, title, description }) {
           >
             {title}
           </h3>
-          <p
-            style={{
-              color: '#fbbf24',
-              fontSize: '14px',
-              marginBottom: '8px',
-            }}
-          >
-            ⭐⭐⭐⭐☆ 4.8
-          </p>
+          <div className="flex text-yellow-500 mt-1 items-center">
+            {[...Array(5)].map((_, i) =>
+              i < estrellas ? <FaStar key={i} /> : <FaRegStar key={i} />,
+            )}
+            <p className="text-gray-700 mt-2">{estrellas}</p>
+          </div>
           <p
             style={{
               color: '#666666',

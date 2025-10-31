@@ -165,6 +165,7 @@ export default function Home() {
               id={shop.id_local}
               title={shop.nombre_local}
               description={shop.descripcion}
+              estrellas={shop.estrellas}
             />
           ))}
         </div>

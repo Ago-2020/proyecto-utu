@@ -90,9 +90,35 @@ switch (true) {
          }
     break;
 
+    // Obtener promedio de estrellas de un local
+    case preg_match('%/api/shops/(\d+)/reviews/average$%', $requestUri, $matches) && $requestMethod == 'GET':
+        $id_local = $matches[1] ?? null;
+
+        if (!empty($id_local)) {
+            $query = "SELECT AVG(estrellas) as promedio_estrellas FROM resenas WHERE id_local = :id_local";
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':id_local', $id_local);
+            $stmt->execute();
+
+            $average = $stmt->fetch(PDO::FETCH_ASSOC);
+            echo json_encode($average);
+        } else {
+            http_response_code(400);
+            echo json_encode(['message' => 'ID de local no proporcionado.']);
+        }
+    break;
+
     // Obtener todos los locales
     case preg_match('%/api/shops/all?$%', $requestUri) && $requestMethod == 'GET':
-        $query = "SELECT * FROM local";
+        $query = "
+            SELECT 
+                l.*, 
+                ROUND(AVG(r.estrellas), 1) AS estrellas
+            FROM local l
+            LEFT JOIN resenas r ON r.id_local = l.id_local
+            GROUP BY l.id_local
+        ";
+
         $stmt = $db->prepare($query);
         $stmt->execute();
 

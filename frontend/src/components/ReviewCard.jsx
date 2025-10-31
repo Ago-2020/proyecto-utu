@@ -2,7 +2,7 @@ import { FaStar, FaRegStar, FaUser, FaHeart } from 'react-icons/fa'
 import React from 'react'
 
 export default function Review({ review }) {
-  const { nombre_usuario, fecha, estrellas, texto, votacion } = review
+  const { nombre_usuario, fecha, estrellas, comentario, likes } = review
 
   return (
     <div
@@ -15,20 +15,20 @@ export default function Review({ review }) {
         </div>
         <div className="text-left">
           <h4 className="font-semibold text-gray-900">{nombre_usuario}</h4>
-          <p className="text-sm text-gray-500">{review.fecha}</p>
+          <p className="text-sm text-gray-500">{fecha}</p>
           <div className="flex text-yellow-500 mt-1">
             {[...Array(5)].map((_, i) =>
-              i < review.estrellas ? <FaStar key={i} /> : <FaRegStar key={i} />,
+              i < estrellas ? <FaStar key={i} /> : <FaRegStar key={i} />,
             )}
           </div>
-          <p className="text-gray-700 mt-2">{texto}</p>
+          <p className="text-gray-700 mt-2">{comentario}</p>
         </div>
       </div>
 
       {/* Likes */}
       <div className="flex items-center text-gray-600 gap-2 self-end sm:self-start">
         <FaHeart className="text-red-500" />
-        <span>{votacion}</span>
+        <span>{likes}</span>
       </div>
     </div>
   )

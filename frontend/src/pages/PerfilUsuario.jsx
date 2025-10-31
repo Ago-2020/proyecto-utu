@@ -1,11 +1,46 @@
-import React from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import React, { useState, useEffect } from 'react'
+import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 
 const PerfilUsuario = () => {
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        console.warn('No hay token en localStorage')
+        return
+      }
+
+      try {
+        const res = await fetch('http://localhost:8000/api/auth/user', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+
+        console.log('Status:', res.status)
+        const data = await res.json()
+        console.log('Respuesta del backend:', data)
+
+        if (res.ok) {
+          setUser(data)
+        } else {
+          console.error('Error del backend:', data.message)
+        }
+      } catch (error) {
+        console.error('Error al obtener usuario:', error)
+      }
+    }
+
+    fetchUser()
+  }, [])
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
-
       <div className="flex flex-1">
         {/* Sidebar */}
         <aside className="w-64 bg-red-600 text-white flex flex-col justify-between">
@@ -18,33 +53,33 @@ const PerfilUsuario = () => {
                 Perfil de Usuario
               </span>
               <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
-                 Información general
+                Información general
               </button>
               <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
-                 Locales favoritos
+                Locales favoritos
               </button>
               <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
-                 Borrar cuenta
+                Borrar cuenta
               </button>
 
               <span className="font-semibold text-sm mt-4 mb-1 uppercase opacity-80">
                 Administración
               </span>
               <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
-                 Mis locales
+                Mis locales
               </button>
               <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
-                 Registrar local
+                Registrar local
               </button>
               <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
-                 Comentarios
+                Comentarios
               </button>
 
               <span className="font-semibold text-sm mt-4 mb-1 uppercase opacity-80">
                 Moderación y Reportes
               </span>
               <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
-                 Ver reportes
+                Ver reportes
               </button>
             </nav>
           </div>
@@ -64,8 +99,10 @@ const PerfilUsuario = () => {
                 alt="Avatar"
                 className="w-28 h-28 rounded-full border-4 border-red-600 mb-4 object-cover"
               />
-              <h2 className="text-xl font-medium">PatricioGastronomico42</h2>
-              <p className="text-gray-600">LPatricioz@Gmail.com</p>
+              <h2 className="text-xl font-medium">
+                {user?.nombre_usuario || 'Invitado'}
+              </h2>
+              <p className="text-gray-600">{user?.email || 'Sin Email'}</p>
             </div>
 
             {/* Formulario de cambio de contraseña */}
@@ -123,7 +160,7 @@ const PerfilUsuario = () => {
         </main>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default PerfilUsuario;
+export default PerfilUsuario
