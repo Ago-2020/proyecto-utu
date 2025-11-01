@@ -1,0 +1,63 @@
+import { Link } from 'react-router-dom'
+import React from 'react'
+
+export default function SideBar() {
+  return (
+    <aside className="w-64 bg-red-600 text-white flex flex-col justify-between">
+      <div>
+        <h2 className="text-xl font-bold text-center py-4 border-b border-red-500">
+          Panel de Usuario
+        </h2>
+        <nav className="flex flex-col p-4 space-y-2">
+          <span className="font-semibold text-sm mb-1 uppercase opacity-80">
+            Perfil de Usuario
+          </span>
+
+          <Link to="/profile">
+            <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
+              Información general
+            </button>
+          </Link>
+          <Link to="/profile/favorites">
+            <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
+              Locales favoritos
+            </button>
+          </Link>
+          <Link to="/profile/delete">
+            <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
+              Borrar cuenta
+            </button>
+          </Link>
+
+          <span className="font-semibold text-sm mt-4 mb-1 uppercase opacity-80">
+            Administración
+          </span>
+          <Link to="/profile/myshops">
+            <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
+              Mis locales
+            </button>
+          </Link>
+          <Link to="/profile/newshop">
+            <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
+              Registrar local
+            </button>
+          </Link>
+          <Link to="/profile/comments">
+            <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
+              Comentarios
+            </button>
+          </Link>
+
+          <span className="font-semibold text-sm mt-4 mb-1 uppercase opacity-80">
+            Moderación y Reportes
+          </span>
+          <Link to="/profile/reports">
+            <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
+              Ver reportes
+            </button>
+          </Link>
+        </nav>
+      </div>
+    </aside>
+  )
+}
