@@ -12,6 +12,7 @@ import Profile from '@/layouts/Profile'
 import PerfilUsuario from '@/pages/PerfilUsuario'
 import Local from '@/pages/Local'
 import NotFound from '@/pages/NotFound'
+import Discover from '@/pages/Discover'
 
 import FavoriteShops from '@/pages/FavoriteShops'
 import DeleteAcc from '@/pages/DeleteAcc'
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/local/:id" element={<Local />} />
+          <Route path="/discover" element={<Discover />} />
           <Route path="/profile" element={<Profile />}>
             <Route path="/profile" element={<PerfilUsuario />} />
             <Route path="/profile/favorites" element={<FavoriteShops />} />

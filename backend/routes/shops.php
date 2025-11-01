@@ -29,7 +29,10 @@ function verifyToken() {
 }
 
 // Subida de imagenes
-function uploadImage($file, $folder = 'uploads/', $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'], $maxSize = 5 * 1024 * 1024) {
+function uploadImage($file, $folder = '../uploads/', $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'], $maxSize = 5 * 1024 * 1024) {
+    // Ruta absoluta (sube un nivel desde backend/)
+    $uploadPath = realpath(__DIR__ . '/..') . '/' . trim($folder, '/');
+
     // Verificar que se haya enviado el archivo
     if (!isset($file) || $file['error'] != 0) {
         return ['success' => false, 'message' => 'No se subió ningún archivo o ocurrió un error.'];
@@ -47,21 +50,24 @@ function uploadImage($file, $folder = 'uploads/', $allowedTypes = ['jpg', 'jpeg'
     }
 
     // Crear carpeta si no existe
-    if (!is_dir($folder)) {
-        mkdir($folder, 0755, true);
+    if (!is_dir($uploadPath)) {
+        mkdir($uploadPath, 0755, true);
     }
 
     // Generar nombre único
     $newName = uniqid('img_', true) . '.' . $ext;
-    $destination = $folder . $newName;
+    $destination = $uploadPath . '/' . $newName;
 
     // Mover archivo
     if (move_uploaded_file($file['tmp_name'], $destination)) {
-        return ['success' => true, 'path' => $destination];
+        // Retornar ruta relativa (para guardar en DB)
+        $relativePath = 'users/' . $newName; 
+        return ['success' => true, 'path' => $relativePath];
     } else {
         return ['success' => false, 'message' => 'Error al guardar la imagen.'];
     }
 }
+
 
 $database = new Database();
 $db = $database->getConnection();

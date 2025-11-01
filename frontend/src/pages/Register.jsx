@@ -30,7 +30,7 @@ export default function Register() {
           nombre_usuario,
           email_usuario,
           password_usuario,
-          tipo_usuario: '1',
+          tipo_usuario: '2',
         }),
       })
 
@@ -50,7 +50,10 @@ export default function Register() {
       }
     } catch (error) {
       console.error('Error en la conexión con el backend:', error)
-      setResponse({ success: false, message: 'Error en la conexión con el backend' })
+      setResponse({
+        success: false,
+        message: 'Error en la conexión con el backend',
+      })
     }
   }
 
@@ -71,7 +74,9 @@ export default function Register() {
             <h3 className="text-xl font-bold text-green-700 mb-1">
               ¡Usuario registrado!
             </h3>
-            <p className="text-gray-600 text-sm">Tu cuenta fue creada con éxito</p>
+            <p className="text-gray-600 text-sm">
+              Tu cuenta fue creada con éxito
+            </p>
           </div>
         </div>
       )}
@@ -116,14 +121,20 @@ export default function Register() {
             marginTop: '95px',
           }}
         >
-          <h2 className="text-4xl font-bold mb-8 text-center" style={{ color: '#000000' }}>
+          <h2
+            className="text-4xl font-bold mb-8 text-center"
+            style={{ color: '#000000' }}
+          >
             Registro de Usuario
           </h2>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium mb-1" style={{ color: '#5D5D5D' }}>
+              <label
+                className="block text-sm font-medium mb-1"
+                style={{ color: '#5D5D5D' }}
+              >
                 Email
               </label>
               <input
@@ -139,7 +150,10 @@ export default function Register() {
 
             {/* Nombre de usuario */}
             <div>
-              <label className="block text-sm font-medium mb-1" style={{ color: '#5D5D5D' }}>
+              <label
+                className="block text-sm font-medium mb-1"
+                style={{ color: '#5D5D5D' }}
+              >
                 Nombre de usuario
               </label>
               <input
@@ -155,7 +169,10 @@ export default function Register() {
 
             {/* Contraseña */}
             <div>
-              <label className="block text-sm font-medium mb-1" style={{ color: '#5D5D5D' }}>
+              <label
+                className="block text-sm font-medium mb-1"
+                style={{ color: '#5D5D5D' }}
+              >
                 Contraseña
               </label>
               <input
@@ -171,7 +188,10 @@ export default function Register() {
 
             {/* Confirmar Contraseña */}
             <div>
-              <label className="block text-sm font-medium mb-1" style={{ color: '#5D5D5D' }}>
+              <label
+                className="block text-sm font-medium mb-1"
+                style={{ color: '#5D5D5D' }}
+              >
                 Confirmar Contraseña
               </label>
               <input
@@ -194,9 +214,16 @@ export default function Register() {
                 style={{ accentColor: '#FF3131', borderColor: '#C31313' }}
                 required
               />
-              <label htmlFor="terms" className="ml-2 text-sm" style={{ color: '#000000' }}>
+              <label
+                htmlFor="terms"
+                className="ml-2 text-sm"
+                style={{ color: '#000000' }}
+              >
                 Acepto los{' '}
-                <a href="/terminos" style={{ color: '#FF3131', textDecoration: 'underline' }}>
+                <a
+                  href="/terminos"
+                  style={{ color: '#FF3131', textDecoration: 'underline' }}
+                >
                   Términos y Condiciones
                 </a>
               </label>
@@ -212,16 +239,24 @@ export default function Register() {
             </button>
 
             {/* Link a login */}
-            <div className="text-center mt-4 text-sm" style={{ color: '#000000' }}>
+            <div
+              className="text-center mt-4 text-sm"
+              style={{ color: '#000000' }}
+            >
               ¿Ya tenés una cuenta?{' '}
-              <Link to="/login" style={{ color: '#FF3131', textDecoration: 'underline' }}>
+              <Link
+                to="/login"
+                style={{ color: '#FF3131', textDecoration: 'underline' }}
+              >
                 Iniciar sesión
               </Link>
             </div>
 
             {/* Mensaje de error o respuesta */}
             {response && !response.success && (
-              <p className="mt-2 text-center text-red-600">{response.message}</p>
+              <p className="mt-2 text-center text-red-600">
+                {response.message}
+              </p>
             )}
           </form>
         </div>

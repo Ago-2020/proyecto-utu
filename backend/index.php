@@ -40,6 +40,10 @@ switch (true) {
         require __DIR__ . '/routes/admin.php';
         break;
 
+    // Ruta para obtener imágenes
+    case strpos($requestUri, '/getimg.php') !== false:
+        require __DIR__ . '/getimg.php';
+        break;
 
     // Ruta no encontrada
     default:

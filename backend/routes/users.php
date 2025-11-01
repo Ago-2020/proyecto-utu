@@ -33,39 +33,27 @@ function verifyToken() {
 }
 
 // Subida de imagenes
-function uploadImage($file, $folder = 'uploads/', $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'], $maxSize = 5 * 1024 * 1024) {
-    // Verificar que se haya enviado el archivo
-    if (!isset($file) || $file['error'] != 0) {
-        return ['success' => false, 'message' => 'No se subió ningún archivo o ocurrió un error.'];
+function uploadImage($file, $subfolder = 'users/', $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'], $maxSize = 5 * 1024 * 1024) {
+    // Subir dos niveles → /proyecto-utu/uploads/
+    $uploadBase = dirname(dirname(__DIR__)) . '/uploads/';
+    $uploadPath = $uploadBase . trim($subfolder, '/');
+
+    if (!is_dir($uploadPath)) {
+        mkdir($uploadPath, 0755, true);
     }
 
-    // Verificar tamaño
-    if ($file['size'] > $maxSize) {
-        return ['success' => false, 'message' => 'El archivo es demasiado grande. Máx: ' . ($maxSize / (1024*1024)) . ' MB'];
-    }
-
-    // Verificar tipo
     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    if (!in_array($ext, $allowedTypes)) {
-        return ['success' => false, 'message' => 'Tipo de archivo no permitido.'];
-    }
-
-    // Crear carpeta si no existe
-    if (!is_dir($folder)) {
-        mkdir($folder, 0755, true);
-    }
-
-    // Generar nombre único
     $newName = uniqid('img_', true) . '.' . $ext;
-    $destination = $folder . $newName;
+    $destination = $uploadPath . '/' . $newName;
 
-    // Mover archivo
     if (move_uploaded_file($file['tmp_name'], $destination)) {
-        return ['success' => true, 'path' => $destination];
+        // Devuelve la ruta relativa (por ejemplo, users/img_123.png)
+        return ['success' => true, 'path' => $subfolder . $newName];
     } else {
         return ['success' => false, 'message' => 'Error al guardar la imagen.'];
     }
 }
+
 
 // Decodificar el cuerpo de la petición JSON
 $data = json_decode(file_get_contents("php://input"));
@@ -77,17 +65,23 @@ switch (true) {
         $userData = verifyToken();
         $id_usuario = $userData->id;
 
-        $query = "SELECT id_usuario, nombre_usuario, email_usuario, foto 
-                FROM usuario 
-                WHERE id_usuario = :id_usuario 
-                LIMIT 0,1";
+        $query = "SELECT 
+                    u.id_usuario, 
+                    u.nombre_usuario, 
+                    u.email_usuario, 
+                    u.foto,
+                    t.nombre AS tipo_usuario
+                FROM usuario u
+                INNER JOIN usuario_tipos t ON u.tipo_usuario = t.id
+                WHERE u.id_usuario = :id_usuario
+                LIMIT 1";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':id_usuario', $id_usuario);
         $stmt->execute();
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user && !empty($user['foto'])) {
-            // Construye la URL completa a la imagen
+            // Si el campo 'foto' en la base de datos guarda "users/img_....png"
             $baseUrl = "http://localhost:8000/getimg.php?file=";
             $user['foto'] = $baseUrl . urlencode($user['foto']);
         }
@@ -110,7 +104,7 @@ switch (true) {
     if (!empty($id_usuario)) {
         $imagePath = null;
         if (isset($_FILES['imagen'])) {
-            $uploadResult = uploadImage($_FILES['imagen'], 'uploads/users/');
+            $uploadResult = uploadImage($_FILES['imagen']);
             if ($uploadResult['success']) {
                 $imagePath = $uploadResult['path'];
             } else {

@@ -1,4 +1,5 @@
 <?php
+$path = realpath(__DIR__ . '/../uploads/' . $filename);
 // getimg.php
 
 if (!isset($_GET['file'])) {
@@ -9,32 +10,32 @@ if (!isset($_GET['file'])) {
 
 $filename = $_GET['file']; // ej: users/img_test.png
 
-// Seguridad: bloquea rutas maliciosas
+// Seguridad: bloquear rutas maliciosas
 if (strpos($filename, '..') !== false) {
     http_response_code(400);
     echo "Ruta no permitida";
     exit;
 }
 
-// Ruta absoluta (ajusta si uploads está dentro o fuera del backend)
+// Ruta absoluta hacia el archivo en uploads
 $path = realpath(__DIR__ . '/../uploads/' . $filename);
 
-// Verifica existencia
+
 if (!$path || !file_exists($path)) {
     http_response_code(404);
     echo "Archivo no encontrado: $filename";
     exit;
 }
 
-// Detecta tipo MIME real
+// Detectar tipo MIME real
 $finfo = finfo_open(FILEINFO_MIME_TYPE);
 $mime = finfo_file($finfo, $path);
 finfo_close($finfo);
 
-// Limpia cualquier salida previa
+// Limpiar salida previa
 if (ob_get_length()) ob_end_clean();
 
-// Envía cabeceras
+// Enviar headers y archivo
 header('Content-Type: ' . $mime);
 header('Content-Length: ' . filesize($path));
 readfile($path);

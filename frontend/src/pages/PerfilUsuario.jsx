@@ -44,7 +44,7 @@ export default function PerfilUsuario() {
       <main className="flex-1 p-8">
         <div className="bg-white shadow-md rounded-xl p-8">
           <h1 className="text-2xl font-semibold text-center mb-8">
-            Cuenta de <span className="text-red-600">Emprendedor</span>
+            Cuenta de <span className="text-red-600">{user?.tipo_usuario}</span>
           </h1>
 
           {/* Info de usuario */}
