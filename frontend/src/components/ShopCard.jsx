@@ -1,10 +1,50 @@
 import { useNavigate } from 'react-router-dom'
 import cardImage from '@/img/card.jpg'
-import { FaStar, FaRegStar, FaUser, FaHeart } from 'react-icons/fa'
-import React from 'react'
+import { FaStar, FaRegStar, FaUser, FaHeart, FaRegHeart } from 'react-icons/fa'
+import React, { useEffect, useState, useCallback } from 'react'
 
-export default function ShopCard({ id, title, description, estrellas }) {
+export default function ShopCard({ id, title, description, estrellas, onFavoriteChange }) {
   const navigate = useNavigate()
+  const [isFavorite, setIsFavorite] = useState(false)
+
+  const STORAGE_KEY = 'favorite_shops'
+
+  const readFavorites = useCallback(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      return raw ? JSON.parse(raw) : []
+    } catch (e) {
+      return []
+    }
+  }, [])
+
+  const writeFavorites = useCallback((arr) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(arr))
+    } catch (e) {
+      console.error('Error writing favorites', e)
+    }
+  }, [])
+
+  useEffect(() => {
+    const favs = readFavorites()
+    setIsFavorite(favs.includes(Number(id) || id))
+  }, [id, readFavorites])
+
+  const toggleFavorite = () => {
+    const favs = readFavorites()
+    const key = Number(id) || id
+    let next
+    if (favs.includes(key)) {
+      next = favs.filter((i) => i !== key)
+      setIsFavorite(false)
+    } else {
+      next = [...favs, key]
+      setIsFavorite(true)
+    }
+    writeFavorites(next)
+    if (typeof onFavoriteChange === 'function') onFavoriteChange(next)
+  }
 
   return (
     <div
@@ -17,6 +57,7 @@ export default function ShopCard({ id, title, description, estrellas }) {
     >
       <div
         style={{
+          position: 'relative',
           maxWidth: '280px',
           borderRadius: '8px',
           overflow: 'hidden',
@@ -25,9 +66,35 @@ export default function ShopCard({ id, title, description, estrellas }) {
           backgroundColor: '#FFFFFF',
         }}
       >
+        {/* Boton de favoritos */}
+        <button
+          aria-label={isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+          onClick={toggleFavorite}
+          style={{
+            position: 'absolute',
+            top: '8px',
+            right: '8px',
+            zIndex: 10,
+            background: 'rgba(255,255,255,0.9)',
+            border: 'none',
+            borderRadius: '9999px',
+            padding: '6px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {isFavorite ? (
+            <FaHeart style={{ color: '#ef4444' }} />
+          ) : (
+            <FaRegHeart style={{ color: '#ef4444' }} />
+          )}
+        </button>
+
         <img
           src={cardImage}
-          alt="Negocio"
+          alt={title || 'Negocio'}
           style={{ width: '100%', height: '180px', objectFit: 'cover' }}
         />
         <div style={{ padding: '16px', textAlign: 'left' }}>
