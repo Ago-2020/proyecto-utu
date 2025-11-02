@@ -9,6 +9,9 @@ import React, { useEffect, useState } from 'react'
 export default function Home() {
   const [shops, setShops] = useState([])
   const [loading, setLoading] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [userName, setUserName] = useState(null)
+  const [authChecked, setAuthChecked] = useState(false)
 
   useEffect(() => {
     fetch('http://localhost:8000/api/shops/all')
@@ -21,6 +24,39 @@ export default function Home() {
         console.error('Error fetching shops:', error)
         setLoading(false)
       })
+  }, [])
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      setAuthChecked(true)
+      return
+    }
+
+    const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
+    fetch(`${BASE}/api/auth/user`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(async (res) => {
+        const data = await res.json().catch(() => null)
+        if (res.ok && data) {
+          setIsAuthenticated(true)
+          setUserName(data.nombre_usuario || data.nombre || null)
+        } else {
+          localStorage.removeItem('token')
+          setIsAuthenticated(false)
+        }
+      })
+      .catch((err) => {
+        console.error('Error checking auth:', err)
+        setIsAuthenticated(false)
+      })
+      .finally(() => setAuthChecked(true))
   }, [])
 
   return (
@@ -64,51 +100,81 @@ export default function Home() {
             color: '#FFFFFF',
           }}
         >
-          <h1
-            style={{
-              fontSize: '28px',
-              fontWeight: 'bold',
-              marginBottom: '16px',
-            }}
-          >
-            Haz que tu negocio llegue a más personas sin complicaciones
-          </h1>
-          <p style={{ marginBottom: '24px' }}>
-            Crea tu perfil gratis y empieza a darte a conocer en tu comunidad.
-            ¡Es rápido, sencillo y totalmente online!
-          </p>
-          <div
-            style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}
-          >
-            <button
-              style={{
-                backgroundColor: '#FFFFFF',
-                color: '#dc2626',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                fontWeight: '500',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-            >
-              Conocer más
-            </button>
-            <Link to="/register">
-              <button
+          {isAuthenticated ? (
+            <div>
+              <h1 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '16px' }}>
+                {userName ? `Bienvenido a SaborUY, ${userName}!` : 'Bienvenido a SaborUY!'}
+              </h1>
+              <p style={{ marginBottom: '24px' }}>
+                Encuentra y administra tus locales desde tu panel.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+                <Link to="/profile">
+                  <button
+                    style={{
+                      backgroundColor: '#FFFFFF',
+                      color: '#dc2626',
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      fontWeight: '500',
+                      border: 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Ir a mi perfil
+                  </button>
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <>
+              <h1
                 style={{
-                  backgroundColor: '#b91c1c',
-                  color: '#FFFFFF',
-                  padding: '8px 16px',
-                  borderRadius: '6px',
-                  fontWeight: '500',
-                  border: 'none',
-                  cursor: 'pointer',
+                  fontSize: '28px',
+                  fontWeight: 'bold',
+                  marginBottom: '16px',
                 }}
               >
-                Regístrate
-              </button>
-            </Link>
-          </div>
+                Haz que tu negocio llegue a más personas sin complicaciones
+              </h1>
+              <p style={{ marginBottom: '24px' }}>
+                Crea tu perfil gratis y empieza a darte a conocer en tu comunidad.
+                ¡Es rápido, sencillo y totalmente online!
+              </p>
+              <div
+                style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}
+              >
+                <button
+                  style={{
+                    backgroundColor: '#FFFFFF',
+                    color: '#dc2626',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontWeight: '500',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Conocer más
+                </button>
+                <Link to="/register">
+                  <button
+                    style={{
+                      backgroundColor: '#b91c1c',
+                      color: '#FFFFFF',
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      fontWeight: '500',
+                      border: 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Regístrate
+                  </button>
+                </Link>
+              </div>
+            </>
+          )}
         </div>
       </section>
 
