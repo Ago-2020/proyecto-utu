@@ -8,6 +8,7 @@ export default function Register() {
   const [email_usuario, setEmail] = useState('')
   const [password_usuario, setPassword] = useState('')
   const [confirm_password, setConfirmPassword] = useState('')
+  const [tipo_usuario, setTipoUsuario] = useState('2')
   const [response, setResponse] = useState(null)
   const [showSuccess, setShowSuccess] = useState(false)
 
@@ -27,11 +28,11 @@ export default function Register() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          nombre_usuario,
-          email_usuario,
-          password_usuario,
-          tipo_usuario: '2',
-        }),
+            nombre_usuario,
+            email_usuario,
+            password_usuario,
+            tipo_usuario: tipo_usuario,
+          }),
       })
 
       // Mostrar información del status
@@ -203,6 +204,37 @@ export default function Register() {
                 value={confirm_password}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
+            </div>
+
+            {/* Tipo de usuario (Normal / Emprendedor) */}
+            <div className="mt-2">
+              <label className="block text-sm font-medium mb-1" style={{ color: '#5D5D5D' }}>
+                Soy:
+              </label>
+              <div className="flex flex-col gap-2">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="tipo_usuario"
+                    value="2"
+                    checked={tipo_usuario === '2'}
+                    onChange={(e) => setTipoUsuario(e.target.value)}
+                    className="h-4 w-4"
+                  />
+                  <span style={{ color: '#000' }}>Usuario normal</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="tipo_usuario"
+                    value="3"
+                    checked={tipo_usuario === '3'}
+                    onChange={(e) => setTipoUsuario(e.target.value)}
+                    className="h-4 w-4"
+                  />
+                  <span style={{ color: '#000' }}>Emprendedor</span>
+                </label>
+              </div>
             </div>
 
             {/* Casilla de términos */}
