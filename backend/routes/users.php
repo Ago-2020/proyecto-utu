@@ -90,7 +90,6 @@ switch (true) {
     break;
 
 
-
     // Editar usuario
     case preg_match('%/api/users/?$%', $requestUri)
      && ($requestMethod == 'PUT' || ($requestMethod == 'POST' && ($_POST['_method'] ?? '') === 'PUT')):
@@ -136,7 +135,7 @@ switch (true) {
     } else {
         echo json_encode(['success' => false, 'message' => 'ID de usuario requerido']);
     }
-break;
+    break;
 
 
     // Cambiar de contraseña
@@ -147,5 +146,22 @@ break;
     // Eliminar usuario
     case preg_match('%/api/users/%', $requestUri) && $requestMethod == 'POST':
         
+    break;
+
+    // Ver locales favoritos del usuario
+    case preg_match('%/api/users/favorites$%', $requestUri) && $requestMethod == 'GET':
+        $userData = verifyToken();
+        $id_usuario = $userData->id;
+
+        $query = "SELECT l.id_local, l.nombre_local, l.descripcion, l.foto, l.etiquetas, l.numero
+                  FROM favoritos f
+                  INNER JOIN local l ON f.id_local = l.id_local
+                  WHERE f.id_usuario = :id_usuario";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':id_usuario', $id_usuario);
+        $stmt->execute();
+        $favorites = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode(['success' => true, 'data' => $favorites]);
     break;
 }

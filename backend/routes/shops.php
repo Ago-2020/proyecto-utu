@@ -286,7 +286,7 @@ switch (true) {
         }
     break;
 
-    // Ver publicaciones de un local
+    // Ver publicacion de un local
     case preg_match('%/api/shops/(\d+)/posts/(\d+)$%', $requestUri, $matches) && $requestMethod == 'GET':
         $id_local = $matches[1] ?? null;
         $id_post = $matches[2] ?? null;
@@ -391,7 +391,7 @@ switch (true) {
     
     // Eliminar reseña de un local
     case preg_match('%/api/shops/(\d+)/review?$%', $requestUri, $matches) && $requestMethod == 'DELETE':
-        $userData = verifyToken(); // Proteger la ruta
+        $userData = verifyToken();
 
         $id_local = $matches[1] ?? null;
 
@@ -409,11 +409,9 @@ switch (true) {
          }
     break;
 
-    // Por revisar V V V
-
     // Reportar reseña de un local
     case preg_match('%/api/shops/(\d+)/review/(\d+)$%', $requestUri, $matches) && $requestMethod == 'PUT':
-        $userData = verifyToken(); // Proteger la ruta
+        $userData = verifyToken();
 
         $id_local = $matches[1] ?? null;
         $id_usuario = $matches[2] ?? null;
@@ -451,6 +449,68 @@ switch (true) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => $uploadResult['message']]);
         }
+    break;
+
+    // Agregar local a favoritos
+    case preg_match('%/api/shops/(\d+)/favorite$%', $requestUri, $matches) && $requestMethod == 'POST':
+        $userData = verifyToken();
+
+        $id_local = $matches[1] ?? null;
+
+        $checkQuery = "SELECT COUNT(*) FROM favoritos WHERE id_usuario = :id_usuario AND id_local = :id_local";
+        $checkStmt = $db->prepare($checkQuery);
+        $checkStmt->bindParam(":id_usuario", $userData->id);
+        $checkStmt->bindParam(":id_local", $id_local);
+        $checkStmt->execute();
+        $exists = $checkStmt->fetchColumn();
+
+        if ($exists > 0) {
+            http_response_code(409);
+            echo json_encode(['success' => false, 'message' => 'Este local ya está en tus favoritos', 'code' => 409]);
+            break;
+        }
+
+        $query = "INSERT INTO favoritos (id_usuario, id_local) VALUES (:id_usuario, :id_local)";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(":id_usuario", $userData->id);
+        $stmt->bindParam(":id_local", $id_local);
+
+        if ($stmt->execute()) {
+            http_response_code(201);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Local agregado a favoritos con éxito',
+                'code' => 201
+            ]);
+        } else {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Error al agregar el local a favoritos',
+                'code' => 500
+            ]);
+        }
+    break;
+
+
+    // Eliminar local de favoritos
+    case preg_match('%/api/shops/(\d+)/favorite$%', $requestUri, $matches) && $requestMethod == 'DELETE':
+        $userData = verifyToken(); // Proteger la ruta
+
+        $id_local = $matches[1] ?? null;
+
+        $query = "DELETE FROM favoritos WHERE id_usuario = :id_usuario AND id_local = :id_local";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(":id_usuario", $userData->id);
+        $stmt->bindParam(":id_local", $id_local);
+        
+        if ($stmt->execute()) {
+             http_response_code(200);
+             echo json_encode(['success' => true, 'message' => 'Local eliminado de favoritos con éxito', 'code' => 200]);
+         } else {
+             http_response_code(500);
+             echo json_encode(['success' => false, 'message' => 'Error al eliminar el local de favoritos', 'code' => 500]);
+         }
     break;
 }
 

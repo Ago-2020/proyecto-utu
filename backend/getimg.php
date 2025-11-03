@@ -1,5 +1,4 @@
 <?php
-$path = realpath(__DIR__ . '/../uploads/' . $filename);
 // getimg.php
 
 if (!isset($_GET['file'])) {
