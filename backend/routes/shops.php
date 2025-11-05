@@ -29,45 +29,25 @@ function verifyToken() {
 }
 
 // Subida de imagenes
-function uploadImage($file, $folder = '../uploads/', $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'], $maxSize = 5 * 1024 * 1024) {
-    // Ruta absoluta (sube un nivel desde backend/)
-    $uploadPath = realpath(__DIR__ . '/..') . '/' . trim($folder, '/');
+function uploadImage($file, $subfolder = 'users/', $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'], $maxSize = 5 * 1024 * 1024) {
+    $uploadBase = dirname(dirname(__DIR__)) . '/uploads/'; // Carpeta donde se suben las imagenes
+    $uploadPath = $uploadBase . trim($subfolder, '/');
 
-    // Verificar que se haya enviado el archivo
-    if (!isset($file) || $file['error'] != 0) {
-        return ['success' => false, 'message' => 'No se subió ningún archivo o ocurrió un error.'];
-    }
-
-    // Verificar tamaño
-    if ($file['size'] > $maxSize) {
-        return ['success' => false, 'message' => 'El archivo es demasiado grande. Máx: ' . ($maxSize / (1024*1024)) . ' MB'];
-    }
-
-    // Verificar tipo
-    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    if (!in_array($ext, $allowedTypes)) {
-        return ['success' => false, 'message' => 'Tipo de archivo no permitido.'];
-    }
-
-    // Crear carpeta si no existe
     if (!is_dir($uploadPath)) {
         mkdir($uploadPath, 0755, true);
     }
 
-    // Generar nombre único
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
     $newName = uniqid('img_', true) . '.' . $ext;
     $destination = $uploadPath . '/' . $newName;
 
-    // Mover archivo
     if (move_uploaded_file($file['tmp_name'], $destination)) {
-        // Retornar ruta relativa (para guardar en DB)
-        $relativePath = 'users/' . $newName; 
-        return ['success' => true, 'path' => $relativePath];
+        // Devuelve la ruta relativa
+        return ['success' => true, 'path' => $subfolder . $newName];
     } else {
         return ['success' => false, 'message' => 'Error al guardar la imagen.'];
     }
 }
-
 
 $database = new Database();
 $db = $database->getConnection();
@@ -75,22 +55,76 @@ $data = json_decode(file_get_contents("php://input"));
 
 
 switch (true) {
-    // Registro de un local
+// Registro de un local
     case preg_match('%/api/shops/?$%', $requestUri) && $requestMethod == 'POST':
-        // Middleware de verificacion del token y obtener datos del usuario
+
+        // Middleware de verificación del token
         $userData = verifyToken();
 
-        if (!empty($data->nombre_local) && !empty($data->ubicacion)) {
-            $query = "INSERT INTO local (id_usuario, ubicacion, descripcion, nombre_local) VALUES (:id_usuario, :ubicacion, :descripcion, :nombre_local)";
+        // Si se envió un formulario con multipart/form-data (para imagen)
+        if (isset($_POST['nombre_local'])) {
+            // multipart/form-data
+            $nombre_local = $_POST['nombre_local'];
+            $ubicacion = $_POST['ubicacion'];
+            $descripcion = $_POST['descripcion'];
+            $slogan = $_POST['slogan'];
+            $numero = $_POST['numero'];
+        } else {
+            // JSON normal
+            $data = json_decode(file_get_contents("php://input"));
+            $nombre_local = $data->nombre_local ?? null;
+            $ubicacion = $data->ubicacion ?? null;
+            $descripcion = $data->descripcion ?? null;
+            $slogan = $data->slogan ?? null;
+            $numero = $data->numero ?? null;
+        }
+
+        error_log(print_r($_FILES, true));
+        error_log(print_r($_POST, true));
+
+
+        // Validar campos requeridos
+        if (!empty($nombre_local) && !empty($ubicacion)) {
+
+            $logoPath = null;
+            $bannerPath = null;
+
+            // Subir logo si existe
+            if (isset($_FILES['logo'])) {
+                $uploadLogo = uploadImage($_FILES['logo'], 'locals/logos/');
+                if ($uploadLogo['success']) {
+                    $logoPath = $uploadLogo['path'];
+                } else {
+                    echo json_encode(['success' => false, 'message' => $uploadLogo['message']]);
+                    break;
+                }
+            }
+
+            // Subir banner si existe
+            if (isset($_FILES['banner'])) {
+                $uploadBanner = uploadImage($_FILES['banner'], 'locals/banners/');
+                if ($uploadBanner['success']) {
+                    $bannerPath = $uploadBanner['path'];
+                } else {
+                    echo json_encode(['success' => false, 'message' => $uploadBanner['message']]);
+                    break;
+                }
+            }
+
+            // Insertar local en la base de datos
+            $query = "INSERT INTO local (id_usuario, ubicacion, descripcion, nombre_local, logo, banner, slogan, numero)
+                    VALUES (:id_usuario, :ubicacion, :descripcion, :nombre_local, :logo, :banner, :slogan, :numero)";
             $stmt = $db->prepare($query);
 
-            // Falta ver que tener unico para que no se repitan los locales Lol,,,,,,
-
-            // Vincular datos
             $stmt->bindParam(":id_usuario", $userData->id);
-            $stmt->bindParam(":ubicacion", $data->ubicacion);
-            $stmt->bindParam(":descripcion", $data->descripcion);
-            $stmt->bindParam(":nombre_local", $data->nombre_local);
+            $stmt->bindParam(":nombre_local", $nombre_local);
+            $stmt->bindParam(":logo", $logoPath);
+            $stmt->bindParam(":banner", $bannerPath);
+            $stmt->bindParam(":slogan", $slogan);
+            $stmt->bindParam(":descripcion", $descripcion);
+            $stmt->bindParam(":numero", $numero);
+            $stmt->bindParam(":ubicacion", $ubicacion);
+
 
             if ($stmt->execute()) {
                 http_response_code(201);
@@ -99,11 +133,12 @@ switch (true) {
                 http_response_code(500);
                 echo json_encode(['success' => false, 'message' => 'Error al registrar el local', 'code' => 500]);
             }
+
         } else {
             http_response_code(400);
-            echo json_encode(['message' => 'Datos incompletos.']);
+            echo json_encode(['success' => false, 'message' => 'Datos incompletos.', 'code' => 400]);
         }
-        break;
+    break;
 
     // Eliminar un local
     case preg_match('%/api/shops/(\d+)$%', $requestUri, $matches) && $requestMethod == 'DELETE':
@@ -126,7 +161,7 @@ switch (true) {
              }
          } else {
              http_response_code(400);
-             echo json_encode(['message' => 'ID de local no proporcionado.']);
+             echo json_encode(['message' => 'ID de local no proporcionado.', 'code' => 400]);
          }
     break;
 
@@ -144,7 +179,7 @@ switch (true) {
             echo json_encode($average);
         } else {
             http_response_code(400);
-            echo json_encode(['message' => 'ID de local no proporcionado.']);
+            echo json_encode(['message' => 'ID de local no proporcionado.', 'code' => 400]);
         }
     break;
 
@@ -371,15 +406,17 @@ switch (true) {
         break;
         }
 
-        // Pegarle una mirada a la estructura de la tabla reseñas: reportado no es boolean && verificar los nombres de las variables - ago2020
+        $likes = 0;
+        $reportado = 0;
 
-        $query = "INSERT INTO resenas (id_local, id_usuario, texto, votacion, reportado) VALUES (:id_local, :id_usuario, :texto, :votacion, :reportado)";
+        $query = "INSERT INTO resenas (id_local, id_usuario, comentario, estrellas, reportado, likes) VALUES (:id_local, :id_usuario, :comentario, :estrellas, :reportado, :likes)";
         $stmt = $db->prepare($query);
         $stmt->bindParam(":id_usuario", $userData->id);
         $stmt->bindParam(":id_local", $id_local);
-        $stmt->bindParam(":texto", $data->texto);
-        $stmt->bindParam(":votacion", $data->votacion);
-        $stmt->bindParam(":reportado", $data->reportado);
+        $stmt->bindParam(":comentario", $data->comentario);
+        $stmt->bindParam(":estrellas", $data->estrellas);
+        $stmt->bindValue(":likes", 0);
+        $stmt->bindValue(":reportado", 0);
         if ($stmt->execute()) {
             http_response_code(201);
             echo json_encode(['success' => true, 'message' => 'Reseña registrada con éxito', 'code' => 201]);

@@ -2,10 +2,18 @@ import { useNavigate } from 'react-router-dom'
 import cardImage from '@/img/card.jpg'
 import { FaStar, FaRegStar, FaUser, FaHeart, FaRegHeart } from 'react-icons/fa'
 import React, { useEffect, useState, useCallback } from 'react'
+import { useAuth } from '@/AuthProvider'
 
-export default function ShopCard({ id, title, description, estrellas, onFavoriteChange }) {
+export default function ShopCard({
+  id,
+  title,
+  description,
+  estrellas,
+  onFavoriteChange,
+}) {
   const navigate = useNavigate()
   const [isFavorite, setIsFavorite] = useState(false)
+  const { token } = useAuth()
 
   const STORAGE_KEY = 'favorite_shops'
 
@@ -67,30 +75,34 @@ export default function ShopCard({ id, title, description, estrellas, onFavorite
         }}
       >
         {/* Boton de favoritos */}
-        <button
-          aria-label={isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}
-          onClick={toggleFavorite}
-          style={{
-            position: 'absolute',
-            top: '8px',
-            right: '8px',
-            zIndex: 10,
-            background: 'rgba(255,255,255,0.9)',
-            border: 'none',
-            borderRadius: '9999px',
-            padding: '6px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {isFavorite ? (
-            <FaHeart style={{ color: '#ef4444' }} />
-          ) : (
-            <FaRegHeart style={{ color: '#ef4444' }} />
-          )}
-        </button>
+        {token && (
+          <button
+            aria-label={
+              isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'
+            }
+            onClick={toggleFavorite}
+            style={{
+              position: 'absolute',
+              top: '8px',
+              right: '8px',
+              zIndex: 10,
+              background: 'rgba(255,255,255,0.9)',
+              border: 'none',
+              borderRadius: '9999px',
+              padding: '6px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {isFavorite ? (
+              <FaHeart style={{ color: '#ef4444' }} />
+            ) : (
+              <FaRegHeart style={{ color: '#ef4444' }} />
+            )}
+          </button>
+        )}
 
         <img
           src={cardImage}

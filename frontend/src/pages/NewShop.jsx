@@ -31,7 +31,7 @@ export default function NewShop() {
     }
 
     try {
-      const res = await fetch('http://localhost:8000/api/locales/', {
+      const res = await fetch('http://localhost:8000/api/shops/', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -42,7 +42,7 @@ export default function NewShop() {
       const data = await res.json()
       if (res.ok) {
         alert('Local registrado correctamente 🎉')
-        window.location.href = '/perfil'
+        window.location.href = '/profile/myshops'
       } else {
         alert(data.message || 'Error al registrar el local')
       }

@@ -34,8 +34,7 @@ function verifyToken() {
 
 // Subida de imagenes
 function uploadImage($file, $subfolder = 'users/', $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'], $maxSize = 5 * 1024 * 1024) {
-    // Subir dos niveles → /proyecto-utu/uploads/
-    $uploadBase = dirname(dirname(__DIR__)) . '/uploads/';
+    $uploadBase = dirname(dirname(__DIR__)) . '/uploads/'; // Carpeta donde se suben las imagenes
     $uploadPath = $uploadBase . trim($subfolder, '/');
 
     if (!is_dir($uploadPath)) {
@@ -47,7 +46,7 @@ function uploadImage($file, $subfolder = 'users/', $allowedTypes = ['jpg', 'jpeg
     $destination = $uploadPath . '/' . $newName;
 
     if (move_uploaded_file($file['tmp_name'], $destination)) {
-        // Devuelve la ruta relativa (por ejemplo, users/img_123.png)
+        // Devuelve la ruta relativa
         return ['success' => true, 'path' => $subfolder . $newName];
     } else {
         return ['success' => false, 'message' => 'Error al guardar la imagen.'];

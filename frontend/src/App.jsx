@@ -1,4 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { AuthProvider } from '@/AuthProvider'
+import ProtectedRoute from '@/ProtectedRoute'
+
 import Dashboard from '@/layouts/Dashboard'
 import Login from '@/pages/Login'
 import LoginDev from '@/pages/TestLogin'
@@ -24,30 +27,40 @@ import Reports from '@/pages/Reports'
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/registerdev" element={<RegisterDev />} />
-        <Route path="/logindev" element={<LoginDev />} />
-        <Route element={<Dashboard />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/local/:id" element={<Local />} />
-          <Route path="/discover" element={<Discover />} />
-          <Route path="/profile" element={<Profile />}>
-            <Route path="/profile" element={<PerfilUsuario />} />
-            <Route path="/profile/favorites" element={<FavoriteShops />} />
-            <Route path="/profile/delete" element={<DeleteAcc />} />
-            <Route path="/profile/myshops" element={<MyShops />} />
-            <Route path="/profile/newshop" element={<NewShop />} />
-            <Route path="/profile/comments" element={<ShopComments />} />
-            <Route path="/profile/reports" element={<Reports />} />
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/registerdev" element={<RegisterDev />} />
+          <Route path="/logindev" element={<LoginDev />} />
+          <Route element={<Dashboard />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/local/:id" element={<Local />} />
+            <Route path="/discover" element={<Discover />} />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/profile" element={<PerfilUsuario />} />
+              <Route path="/profile/favorites" element={<FavoriteShops />} />
+              <Route path="/profile/delete" element={<DeleteAcc />} />
+              <Route path="/profile/myshops" element={<MyShops />} />
+              <Route path="/profile/newshop" element={<NewShop />} />
+              <Route path="/profile/comments" element={<ShopComments />} />
+              <Route path="/profile/reports" element={<Reports />} />
+            </Route>
           </Route>
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

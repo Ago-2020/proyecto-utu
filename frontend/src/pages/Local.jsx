@@ -1,22 +1,60 @@
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
 import { FaStar, FaRegStar, FaUser, FaHeart } from 'react-icons/fa'
-import cardImage from '@/img/card.jpg'
 import banner from '@/img/caption.jpg'
 import profile_example from '@/img/profilepro.jpg'
 import ReviewCard from '@/components/ReviewCard'
 import ProductCard from '@/components/ProductCard'
+import NewReview from '@/components/NewReview'
+import { useAuth } from '@/AuthProvider'
+import { Link } from 'react-router-dom'
 
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 export default function Local() {
+  const { token } = useAuth()
   const { id } = useParams()
   const [local, setLocal] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [productos, setProductos] = useState(null)
   const [reseñas, setReseñas] = useState(null)
+
+  const handleSubmit = async ({ estrellas, comentario }) => {
+    const token = localStorage.getItem('token')
+    if (!token) return alert('Debe iniciar sesión para enviar una reseña.')
+
+    try {
+      const res = await fetch(`http://localhost:8000/api/shops/${id}/review`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ estrellas, comentario }),
+      })
+
+      // Leemos primero como texto para evitar el error
+      const text = await res.text()
+
+      let data
+      try {
+        data = JSON.parse(text)
+      } catch {
+        console.error('Respuesta no JSON:', text)
+        throw new Error('El servidor no devolvió JSON válido')
+      }
+
+      if (res.ok) {
+        alert('Reseña enviada correctamente 🎉')
+        window.location.reload()
+      } else {
+        alert(data.message || 'Error al enviar la reseña')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Error de conexión con el servidor')
+    }
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -50,12 +88,15 @@ export default function Local() {
   if (!local)
     return <div className="p-10 text-center">No se encontró el local.</div>
 
+  const logoURL = `http://localhost:8000/api/getimg.php?file=${local.logo}`
+  const bannerURL = `http://localhost:8000/api/getimg.php?file=${local.banner}`
+
   return (
     <div className="flex flex-col min-h-screen bg-white text-gray-800">
       {/* Banner grande con degradado oscuro */}
       <div
         className="relative w-full h-[600px] md:h-[200px] lg:h-[450px] bg-cover bg-center"
-        style={{ backgroundImage: `url(${banner})` }}
+        style={{ backgroundImage: `url(${bannerURL})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
 
@@ -63,7 +104,7 @@ export default function Local() {
         <div className="absolute bottom-0 left-0 w-full p-6 md:p-10 flex flex-col sm:flex-row sm:items-end sm:justify-between text-white">
           <div className="flex items-center gap-6">
             <img
-              src={profile_example}
+              src={logoURL}
               alt="Perfil del local"
               className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover"
             />
@@ -71,15 +112,13 @@ export default function Local() {
               <h1 className="text-4xl font-bold drop-shadow-lg">
                 {local.nombre_local}
               </h1>
-              <p className="text-sm text-gray-200">
-                Restaurante familiar — Parrillada & Pastas
-              </p>
+              <p className="text-sm text-gray-200">{local.slogan}</p>
               <p className="text-sm mt-1 text-gray-200">📍 {local.ubicacion}</p>
             </div>
           </div>
 
           <div className="mt-6 sm:mt-0 text-right">
-            <p className="text-gray-200 font-medium">📞 +598 99 123 456</p>
+            <p className="text-gray-200 font-medium">📞 {local.numero}</p>
             <p className="text-gray-200 font-medium">
               @instagramejemploeldesafio.uy
             </p>
@@ -137,9 +176,13 @@ export default function Local() {
         <section className="text-center">
           <h2 className="text-3xl font-bold mb-10 text-gray-900">
             Reseñas del Local
+            {token && <NewReview onSubmit={handleSubmit} />}
+            {!token && (
+              <p>
+                <Link to="/login">Inicia sesión</Link> para dejar una reseña.
+              </p>
+            )}
             <div className="space-y-6 max-w-3xl mx-auto">
-              {/*Tabla de ejemplo*/}
-
               {reseñas.length === 0 ? (
                 <p className="text-gray-600">
                   Este local aún no tiene reseñas.
