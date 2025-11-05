@@ -1,45 +1,41 @@
-import React from 'react'
-import cardImage from '@/img/card.jpg'
+import React from "react";
 
-export default function ProductCard({
-  id,
-  nombre,
-  descripcion,
-  precio,
-  tipo_producto,
-}) {
+export default function ProductCard({ titulo, descripcion, precio, foto }) {
+  const imageSrc = foto
+    ? foto.startsWith("data:")
+      ? foto // imagen del FileRead
+      : `http://localhost:8000/uploads/${foto}` // imagen del backend
+    : "/default-product.jpg";
+
   return (
-    <div className="bg-white border border-gray-200 shadow-lg rounded-2xl w-[380px] h-[460px] flex flex-col overflow-hidden">
-      {/* Etiqueta centrada */}
-      <div className="p-4 flex justify-center">
-        <span
-          style={{
-            backgroundColor: '#ffe2e2ff',
-            color: '#A83434',
-            padding: '4px 10px',
-            borderRadius: '9999px',
-            fontSize: '12px',
-          }}
-        >
-          {tipo_producto}
-        </span>
+    <div className="bg-white border border-gray-200 shadow-lg rounded-2xl w-[360px] sm:w-[380px] h-auto flex flex-col overflow-hidden hover:shadow-2xl transition-all duration-300">
+      {/* Imagen */}
+      <div className="flex justify-center">
+        <img
+          src={imageSrc}
+          alt={titulo}
+          className="w-[320px] h-[200px] object-cover rounded-lg mt-4"
+        />
       </div>
-
-      {/* Imagen reducida y centrada */}
-      <img
-        src={cardImage}
-        alt={nombre}
-        className="w-[320px] h-[200px] object-cover mx-auto rounded-lg"
-      />
 
       {/* Contenido */}
       <div className="px-6 py-4 flex justify-between items-start flex-1">
         <div className="text-left">
-          <h3 className="font-semibold text-lg text-gray-900">{nombre}</h3>
-          <p className="text-sm text-gray-600 mt-1 w-60">{descripcion}</p>
+          <h3 className="font-semibold text-lg text-gray-900 line-clamp-1">
+            {titulo}
+          </h3>
+          {descripcion && (
+            <p className="text-sm text-gray-600 mt-1 line-clamp-2 w-56 sm:w-60">
+              {descripcion}
+            </p>
+          )}
         </div>
-        <p className="text-red-600 font-bold text-lg">${precio}</p>
+        {precio > 0 && (
+          <p className="text-red-600 font-bold text-lg whitespace-nowrap">
+            ${precio}
+          </p>
+        )}
       </div>
     </div>
-  )
+  );
 }
