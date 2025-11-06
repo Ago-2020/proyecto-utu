@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import leftImage from '../img/izquierda.png'
+import kyotoImage from '../img/kyoto-sushi-and-grill.jpg'
 import logo from '../img/logo.png'
 import React, { useState } from 'react'
 
@@ -24,15 +24,13 @@ export default function Register() {
     try {
       const res = await fetch('http://localhost:8000/api/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            nombre_usuario,
-            email_usuario,
-            password_usuario,
-            tipo_usuario: tipo_usuario,
-          }),
+          nombre_usuario,
+          email_usuario,
+          password_usuario,
+          tipo_usuario,
+        }),
       })
 
       // Mostrar información del status
@@ -59,89 +57,68 @@ export default function Register() {
   }
 
   return (
-    <div className="flex min-h-screen relative">
-      {/* Cartel centrado de éxito */}
-      {showSuccess && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 animate-fade-in">
-          <div
-            className="bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center p-8 border border-green-500"
-            style={{
-              minWidth: '350px',
-              textAlign: 'center',
-              animation: 'pop 0.3s ease',
-            }}
-          >
-            <div className="text-green-600 text-5xl mb-3">:D</div>
-            <h3 className="text-xl font-bold text-green-700 mb-1">
-              ¡Usuario registrado!
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Tu cuenta fue creada con éxito
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Mitad izquierda con imagen */}
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
+      {/* Fondo full-screen */}
       <div
-        className="w-1/2"
-        style={{
-          backgroundImage: `url(${leftImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      ></div>
-
-      {/* Mitad derecha con logo y formulario */}
-      <div
-        className="w-1/2 flex items-center justify-center relative"
-        style={{ backgroundColor: '#FF3131' }}
+        className="absolute inset-0 bg-center bg-cover z-0"
+        style={{ backgroundImage: `url(${kyotoImage})` }}
       >
-        <Link to="/">
-          <img
-            src={logo}
-            alt="Logo"
-            style={{
-              position: 'absolute',
-              top: '30px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: '120px',
-              height: '120px',
-              cursor: 'pointer',
-            }}
-          />
-        </Link>
+        <div className="absolute inset-0 backdrop-blur-md bg-black/20"></div>
+      </div>
 
-        <div
-          className="p-8 rounded-lg shadow-lg border"
+      {/* Logo responsive */}
+      <Link to="/">
+        <img
+          src={logo}
+          alt="Logo"
+          className="z-50 rounded-full border-2 border-black shadow-lg"
           style={{
-            backgroundColor: '#FFFFFF',
-            width: '600px',
-            padding: '75px',
-            marginTop: '95px',
+            width: '60px',
+            height: '60px',
+            position: 'absolute',
+            top: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            cursor: 'pointer',
           }}
+        />
+      </Link>
+
+      {/* Contenedor formulario */}
+      <div className="z-10 flex flex-col items-center justify-center w-full px-4 py-8">
+        <div
+          className="bg-white/67 backdrop-blur-md rounded-2xl shadow-2xl w-full max-w-md border border-black p-6 md:p-10"
+          style={{ marginTop: '100px', marginBottom: '50px' }}
         >
-          <h2
-            className="text-4xl font-bold mb-8 text-center"
-            style={{ color: '#000000' }}
-          >
+          {showSuccess && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 animate-fade-in">
+              <div
+                className="bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center p-6 border border-green-500"
+                style={{ minWidth: '280px', textAlign: 'center', animation: 'pop 0.3s ease' }}
+              >
+                <div className="text-green-600 text-5xl mb-3">:D</div>
+                <h3 className="text-xl font-bold text-green-700 mb-1">
+                  ¡Usuario registrado!
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  Tu cuenta fue creada con éxito
+                </p>
+              </div>
+            </div>
+          )}
+
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center text-black">
             Registro de Usuario
           </h2>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             {/* Email */}
             <div>
-              <label
-                className="block text-sm font-medium mb-1"
-                style={{ color: '#5D5D5D' }}
-              >
-                Email
-              </label>
+              <label className="block text-sm font-medium mb-1 text-gray-700">Email</label>
               <input
                 type="email"
                 placeholder="ejemplo@correo.com"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition"
                 style={{ borderColor: '#5D5D5D', color: '#5D5D5D' }}
                 required
                 value={email_usuario}
@@ -151,16 +128,11 @@ export default function Register() {
 
             {/* Nombre de usuario */}
             <div>
-              <label
-                className="block text-sm font-medium mb-1"
-                style={{ color: '#5D5D5D' }}
-              >
-                Nombre de usuario
-              </label>
+              <label className="block text-sm font-medium mb-1 text-gray-700">Nombre de usuario</label>
               <input
                 type="text"
                 placeholder="Tu nombre de usuario"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition"
                 style={{ borderColor: '#5D5D5D', color: '#5D5D5D' }}
                 required
                 value={nombre_usuario}
@@ -170,16 +142,11 @@ export default function Register() {
 
             {/* Contraseña */}
             <div>
-              <label
-                className="block text-sm font-medium mb-1"
-                style={{ color: '#5D5D5D' }}
-              >
-                Contraseña
-              </label>
+              <label className="block text-sm font-medium mb-1 text-gray-700">Contraseña</label>
               <input
                 type="password"
                 placeholder="Escribe tu contraseña"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition"
                 style={{ borderColor: '#5D5D5D', color: '#5D5D5D' }}
                 required
                 value={password_usuario}
@@ -189,16 +156,11 @@ export default function Register() {
 
             {/* Confirmar Contraseña */}
             <div>
-              <label
-                className="block text-sm font-medium mb-1"
-                style={{ color: '#5D5D5D' }}
-              >
-                Confirmar Contraseña
-              </label>
+              <label className="block text-sm font-medium mb-1 text-gray-700">Confirmar Contraseña</label>
               <input
                 type="password"
                 placeholder="Vuelve a escribir tu contraseña"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition"
                 style={{ borderColor: '#5D5D5D', color: '#5D5D5D' }}
                 required
                 value={confirm_password}
@@ -208,9 +170,7 @@ export default function Register() {
 
             {/* Tipo de usuario (Normal / Emprendedor) */}
             <div className="mt-2">
-              <label className="block text-sm font-medium mb-1" style={{ color: '#5D5D5D' }}>
-                Soy:
-              </label>
+              <label className="block text-sm font-medium mb-1 text-gray-700">Soy:</label>
               <div className="flex flex-col gap-2">
                 <label className="flex items-center gap-2">
                   <input
@@ -221,7 +181,7 @@ export default function Register() {
                     onChange={(e) => setTipoUsuario(e.target.value)}
                     className="h-4 w-4"
                   />
-                  <span style={{ color: '#000' }}>Usuario normal</span>
+                  <span>Usuario normal</span>
                 </label>
                 <label className="flex items-center gap-2">
                   <input
@@ -232,12 +192,12 @@ export default function Register() {
                     onChange={(e) => setTipoUsuario(e.target.value)}
                     className="h-4 w-4"
                   />
-                  <span style={{ color: '#000' }}>Emprendedor</span>
+                  <span>Emprendedor</span>
                 </label>
               </div>
             </div>
 
-            {/* Casilla de términos */}
+            {/* Términos */}
             <div className="flex items-center justify-center mt-4">
               <input
                 type="checkbox"
@@ -246,16 +206,9 @@ export default function Register() {
                 style={{ accentColor: '#FF3131', borderColor: '#C31313' }}
                 required
               />
-              <label
-                htmlFor="terms"
-                className="ml-2 text-sm"
-                style={{ color: '#000000' }}
-              >
+              <label htmlFor="terms" className="ml-2 text-sm text-black">
                 Acepto los{' '}
-                <a
-                  href="/terminos"
-                  style={{ color: '#FF3131', textDecoration: 'underline' }}
-                >
+                <a href="/terms" style={{ color: '#FF3131', textDecoration: 'underline' }}>
                   Términos y Condiciones
                 </a>
               </label>
@@ -264,31 +217,23 @@ export default function Register() {
             {/* Botón de registro */}
             <button
               type="submit"
-              className="w-full py-2 rounded-lg text-white font-bold mt-4"
+              className="w-full py-2 rounded-lg text-white font-bold mt-4 transition transform hover:scale-105 hover:brightness-110"
               style={{ background: 'linear-gradient(90deg, #FF3131, #C31313)' }}
             >
               Regístrate ahora
             </button>
 
             {/* Link a login */}
-            <div
-              className="text-center mt-4 text-sm"
-              style={{ color: '#000000' }}
-            >
+            <div className="text-center mt-4 text-sm text-black">
               ¿Ya tenés una cuenta?{' '}
-              <Link
-                to="/login"
-                style={{ color: '#FF3131', textDecoration: 'underline' }}
-              >
+              <Link to="/login" style={{ color: '#FF3131', textDecoration: 'underline' }}>
                 Iniciar sesión
               </Link>
             </div>
 
             {/* Mensaje de error o respuesta */}
             {response && !response.success && (
-              <p className="mt-2 text-center text-red-600">
-                {response.message}
-              </p>
+              <p className="mt-2 text-center text-red-600">{response.message}</p>
             )}
           </form>
         </div>

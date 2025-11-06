@@ -1,14 +1,10 @@
 import { FaStar, FaRegStar, FaUser, FaHeart } from 'react-icons/fa'
-import banner from '@/img/caption.jpg'
-import profile_example from '@/img/profilepro.jpg'
 import ReviewCard from '@/components/ReviewCard'
 import ProductCard from '@/components/ProductCard'
 import NewReview from '@/components/NewReview'
 import { useAuth } from '@/AuthProvider'
-import { Link } from 'react-router-dom'
-
+import { Link, useParams } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
 
 export default function Local() {
   const { token } = useAuth()
@@ -16,8 +12,8 @@ export default function Local() {
   const [local, setLocal] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [productos, setProductos] = useState(null)
-  const [reseñas, setReseñas] = useState(null)
+  const [productos, setProductos] = useState([])
+  const [reseñas, setReseñas] = useState([])
 
   const handleSubmit = async ({ estrellas, comentario }) => {
     const token = localStorage.getItem('token')
@@ -33,9 +29,7 @@ export default function Local() {
         body: JSON.stringify({ estrellas, comentario }),
       })
 
-      // Leemos primero como texto para evitar el error
       const text = await res.text()
-
       let data
       try {
         data = JSON.parse(text)
@@ -61,12 +55,8 @@ export default function Local() {
       try {
         const [localRes, reviewRes, productRes] = await Promise.all([
           fetch(`http://localhost:8000/api/shops/${id}`).then((r) => r.json()),
-          fetch(`http://localhost:8000/api/shops/${id}/review`).then((r) =>
-            r.json(),
-          ),
-          fetch(`http://localhost:8000/api/shops/${id}/products`).then((r) =>
-            r.json(),
-          ),
+          fetch(`http://localhost:8000/api/shops/${id}/review`).then((r) => r.json()),
+          fetch(`http://localhost:8000/api/shops/${id}/products`).then((r) => r.json()),
         ])
 
         setLocal(localRes)
@@ -93,7 +83,7 @@ export default function Local() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-gray-800">
-      {/* Banner grande con degradado oscuro */}
+      {/* Banner grande */}
       <div
         className="relative w-full h-[600px] md:h-[200px] lg:h-[450px] bg-cover bg-center"
         style={{ backgroundImage: `url(${bannerURL})` }}
@@ -129,31 +119,29 @@ export default function Local() {
         </div>
       </div>
 
-      {/* Tabs centradas */}
+      {/* Tabs */}
       <div className="bg-white border-b border-gray-300 shadow-sm">
         <div className="max-w-6xl mx-auto flex justify-center gap-12 py-4 text-gray-600 font-medium">
           <button className="text-red-600 border-b-2 border-red-600 pb-1 transition">
             Reseñas y Publicaciones
           </button>
-          <button className="hover:text-red-600 transition">Descripción</button>
         </div>
       </div>
 
       {/* Contenido */}
       <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-16">
-        {/* Productos del Local */}
-        <section className="mb-16 text-center">
-          <h2 className="text-3xl font-bold mb-4 text-gray-900">
+        {/* Productos */}
+        <section className="mb-16 w-full text-center">
+          <h2 className="text-3xl font-bold mb-4 text-gray-900 text-center">
             Productos del Local
           </h2>
-          <p className="text-gray-600 mb-10">
+          <p className="text-gray-600 mb-10 text-center">
             Descubrí nuestros sabores caseros, preparados con amor y dedicación.
           </p>
 
-          {/* Publicaciones tipo tarjetas */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center">
-            {Array.isArray(productos) && productos.length > 0 ? (
-              productos.map((producto) => (
+          {productos.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+              {productos.map((producto) => (
                 <ProductCard
                   key={producto.id_producto}
                   id={producto.id_producto}
@@ -163,37 +151,41 @@ export default function Local() {
                   tipo_producto={producto.tipo_producto}
                   imagen={producto.imagen}
                 />
-              ))
-            ) : (
-              <p className="text-gray-600">
-                No hay productos disponibles en este local.
-              </p>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-600 text-center w-full mb-10">
+              No hay productos disponibles en este local.
+            </p>
+          )}
         </section>
 
-        {/* Reseñas del Local */}
-        <section className="text-center">
-          <h2 className="text-3xl font-bold mb-10 text-gray-900">
+        {/* Reseñas */}
+        <section className="w-full text-center">
+          <h2 className="text-3xl font-bold mb-4 text-gray-900 text-center">
             Reseñas del Local
-            {token && <NewReview onSubmit={handleSubmit} />}
-            {!token && (
-              <p>
-                <Link to="/login">Inicia sesión</Link> para dejar una reseña.
-              </p>
-            )}
-            <div className="space-y-6 max-w-3xl mx-auto">
-              {reseñas.length === 0 ? (
-                <p className="text-gray-600">
-                  Este local aún no tiene reseñas.
-                </p>
-              ) : (
-                reseñas.map((review) => (
-                  <ReviewCard key={review.id_resena} review={review} />
-                ))
-              )}
-            </div>
           </h2>
+
+          {/* Formulario de nueva reseña */}
+          {token && <NewReview onSubmit={handleSubmit} />}
+          {!token && (
+            <p className="mb-4">
+              <Link to="/login" className="text-red-600 font-medium">
+                Inicia sesión
+              </Link>{' '}
+              para dejar una reseña.
+            </p>
+          )}
+
+          <div className="space-y-6 max-w-3xl mx-auto mt-6">
+            {reseñas.length === 0 ? (
+              <p className="text-gray-600 text-center">Este local aún no tiene reseñas.</p>
+            ) : (
+              reseñas.map((review) => (
+                <ReviewCard key={review.id_resena} review={review} />
+              ))
+            )}
+          </div>
         </section>
       </main>
     </div>

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import leftImage from '../img/izquierda.png'
+import kyotoImage from '../img/kyoto-sushi-and-grill.jpg'
 import logo from '../img/logo.png'
 import React, { useState } from 'react'
 
@@ -23,7 +23,6 @@ export default function Login() {
           password_usuario,
         }),
       })
-
       const data = await res.json()
       setResponse(data)
 
@@ -43,69 +42,50 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen">
-      {/* Mitad izquierda con imagen */}
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
+      {/* Fondo full-screen */}
       <div
-        className="w-1/2"
-        style={{
-          backgroundImage: `url(${leftImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      ></div>
-
-      {/* Mitad derecha con logo y formulario */}
-      <div
-        className="w-1/2 flex items-center justify-center relative"
-        style={{ backgroundColor: '#FF3131' }}
+        className="absolute inset-0 bg-cover bg-center z-0"
+        style={{ backgroundImage: `url(${kyotoImage})` }}
       >
-        {/* Logo que lleva a Home */}
-        <Link to="/">
-          <img
-            src={logo}
-            alt="Logo"
-            style={{
-              position: 'absolute',
-              top: '30px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: '120px',
-              height: '120px',
-              cursor: 'pointer',
-            }}
-          />
-        </Link>
+        <div className="absolute inset-0 backdrop-blur-md bg-black/20"></div>
+      </div>
 
-        {/* Contenedor del formulario */}
-        <div
-          className="p-8 rounded-lg shadow-lg border"
+      {/* Logo */}
+      <Link to="/">
+        <img
+          src={logo}
+          alt="Logo"
+          className="z-50 rounded-full border-2 border-black shadow-lg"
           style={{
-            backgroundColor: '#FFFFFF',
-            width: '600px',
-            padding: '75px',
-            marginTop: '95px',
+            width: '60px',
+            height: '60px',
+            position: 'absolute',
+            top: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            cursor: 'pointer',
           }}
+        />
+      </Link>
+
+      {/* Contenedor formulario */}
+      <div className="z-10 flex flex-col items-center justify-center w-full px-4 py-8">
+        <div
+          className="bg-white/60 backdrop-blur-md rounded-2xl shadow-2xl w-full max-w-md border border-black p-6 md:p-10"
+          style={{ marginTop: '100px', marginBottom: '50px' }}
         >
-          <h2
-            className="text-4xl font-bold mb-8 text-center"
-            style={{ color: '#000000' }}
-          >
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center text-black">
             Iniciar Sesión
           </h2>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
-            {/* Email */}
             <div>
-              <label
-                className="block text-sm font-medium mb-1"
-                style={{ color: '#5D5D5D' }}
-              >
-                Email
-              </label>
+              <label className="block text-sm font-medium mb-1 text-gray-700">Email</label>
               <input
                 type="email"
                 placeholder="ejemplo@correo.com"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition"
                 style={{ borderColor: '#5D5D5D', color: '#5D5D5D' }}
                 required
                 value={email_usuario}
@@ -113,18 +93,12 @@ export default function Login() {
               />
             </div>
 
-            {/* Contraseña */}
             <div>
-              <label
-                className="block text-sm font-medium mb-1"
-                style={{ color: '#5D5D5D' }}
-              >
-                Contraseña
-              </label>
+              <label className="block text-sm font-medium mb-1 text-gray-700">Contraseña</label>
               <input
                 type="password"
                 placeholder="Escribe tu contraseña"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition"
                 style={{ borderColor: '#5D5D5D', color: '#5D5D5D' }}
                 required
                 value={password_usuario}
@@ -132,42 +106,44 @@ export default function Login() {
               />
             </div>
 
-            {/* Botón principal */}
             <button
               type="submit"
-              className="w-full py-2 rounded-lg text-white font-bold mt-4"
+              className="w-full py-2 rounded-lg text-white font-bold mt-4 transition transform hover:scale-105 hover:brightness-110"
               style={{ background: 'linear-gradient(90deg, #FF3131, #C31313)' }}
             >
               Iniciar Sesión
             </button>
 
-            {/* Link a registro */}
-            <div
-              className="text-center mt-4 text-sm"
-              style={{ color: '#000000' }}
-            >
+            <div className="text-center mt-4 text-sm text-black">
               ¿No tienes cuenta?{' '}
-              <Link
-                to="/register"
-                style={{ color: '#FF3131', textDecoration: 'underline' }}
-              >
+              <Link to="/register" style={{ color: '#FF3131', textDecoration: 'underline' }}>
                 Regístrate
               </Link>
             </div>
-          </form>
 
-          {/* Alerta centrada */}
-          {response && (
-            <div
-              className={`mt-6 p-4 rounded-lg text-center font-semibold ${
-                response.success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-              }`}
-            >
-              {response.message || (response.success ? 'Inicio de sesión exitoso' : 'Error en el inicio de sesión')}
-            </div>
-          )}
+            {response && (
+              <div
+                className={`mt-6 p-4 rounded-lg text-center font-semibold ${
+                  response.success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                }`}
+              >
+                {response.message || (response.success ? 'Inicio de sesión exitoso' : 'Error en el inicio de sesión')}
+              </div>
+            )}
+          </form>
         </div>
       </div>
+
+      <style>
+        {`
+          @keyframes pop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+          @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        `}
+      </style>
     </div>
   )
 }

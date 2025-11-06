@@ -17,7 +17,6 @@ import Local from '@/pages/Local'
 import NotFound from '@/pages/NotFound'
 import Discover from '@/pages/Discover'
 
-
 import FavoriteShops from '@/pages/FavoriteShops'
 import DeleteAcc from '@/pages/DeleteAcc'
 import MyShops from '@/pages/MyShops'
@@ -26,6 +25,7 @@ import ShopComments from '@/pages/ShopComments'
 import Reports from '@/pages/Reports'
 import Publication from '@/pages/Publication'
 
+import CursorFollower from '@/components/CursorFollower'
 
 export default function App() {
   return (
@@ -70,6 +70,9 @@ export default function App() {
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+
+        {/* seguidor del cursor */}
+        <CursorFollower />
       </AuthProvider>
     </BrowserRouter>
   )
