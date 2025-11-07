@@ -112,9 +112,6 @@ export default function Local() {
             <p className="text-gray-200 font-medium">
               @instagramejemploeldesafio.uy
             </p>
-            <p className="bg-red-600 px-4 py-2 mt-2 inline-block rounded-lg font-medium shadow-md">
-              Abierto ahora
-            </p>
           </div>
         </div>
       </div>

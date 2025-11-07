@@ -58,13 +58,20 @@ export default function PerfilUsuario() {
         </div>
 
         {/* Botón crear local */}
-        <div className="flex justify-center mb-12">
+        <div className="flex justify-center mb-12 gap-6">
           <button
             onClick={() => navigate('/profile/newshop')}
             className="bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 rounded-lg shadow-md transition-all transform hover:scale-105"
           >
             Crear Local
           </button>
+          <button
+            onClick={() => navigate('/profile/delete')}
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 rounded-lg shadow-md transition-all transform hover:scale-105"
+          >
+            Borrar cuenta
+          </button>
+
         </div>
 
         {/* Formulario de cambio de contraseña */}
@@ -76,8 +83,6 @@ export default function PerfilUsuario() {
             {[
               'Contraseña Antigua',
               'Contraseña Nueva',
-              'Confirmar Contraseña Antigua',
-              'Confirmar Contraseña Nueva',
             ].map((label, i) => (
               <div key={i} className="flex flex-col">
                 <label className="text-sm mb-2 font-medium text-gray-700">

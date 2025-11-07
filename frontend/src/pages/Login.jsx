@@ -72,7 +72,7 @@ export default function Login() {
       {/* Contenedor formulario */}
       <div className="z-10 flex flex-col items-center justify-center w-full px-4 py-8">
         <div
-          className="bg-white/60 backdrop-blur-md rounded-2xl shadow-2xl w-full max-w-md border border-black p-6 md:p-10"
+          className="bg-white/85 backdrop-blur-md rounded-2xl shadow-2xl w-full max-w-md border border-black p-6 md:p-10"
           style={{ marginTop: '100px', marginBottom: '50px' }}
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center text-black">
