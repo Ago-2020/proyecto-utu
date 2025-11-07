@@ -236,10 +236,6 @@ export default function Home() {
           ))}
         </div>
 
-        <ShopCard
-          title="El Desafío"
-          description="Un restaurante ideal para disfrutar de buena comida con amigos y familia."
-        />
       </section>
     </div>
   )
