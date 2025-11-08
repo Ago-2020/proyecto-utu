@@ -260,22 +260,80 @@ switch (true) {
         }
     break;
 
-    // Obtener productos de un local
-    case preg_match('%/api/shops/(\d+)/products$%', $requestUri, $matches) && $requestMethod == 'GET':
+    // Registrar producto de un local
+    case preg_match('%/api/shops/(\d+)/products$%', $requestUri, $matches) && $requestMethod == 'POST':
         $id_local = $matches[1] ?? null;
 
         if (!empty($id_local)) {
-            $query = "SELECT * FROM productos WHERE id_local = :id_local";
+            $fotoPath = null;
+
+            // Subir foto si existe
+            if (isset($_FILES['foto'])) {
+                $uploadFoto = uploadImage($_FILES['foto'], 'locals/fotos/');
+                if ($uploadFoto['success']) {
+                    $fotoPath = $uploadFoto['path'];
+                } else {
+                    echo json_encode(['success' => false, 'message' => $uploadFoto['message']]);
+                    break;
+                }
+            }
+
+            $titulo = $_POST['titulo'] ?? null;
+            $precio = $_POST['precio'] ?? null;
+            $descripcion = $_POST['descripcion_producto'] ?? null;
+            $etiqueta = $_POST['etiqueta_producto'] ?? null;
+
+            if (!$titulo || !$descripcion) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Campos requeridos faltantes.']);
+                break;
+            }
+
+            $query = "INSERT INTO productos (id_local, titulo, foto, precio, descripcion_producto, etiqueta_producto)
+                    VALUES (:id_local, :titulo, :foto, :precio, :descripcion_producto, :etiqueta_producto)";
             $stmt = $db->prepare($query);
             $stmt->bindParam(':id_local', $id_local);
-            $stmt->execute();
+            $stmt->bindParam(':foto', $fotoPath);
+            $stmt->bindParam(':titulo', $titulo);
+            $stmt->bindParam(':precio', $precio);
+            $stmt->bindParam(':descripcion_producto', $descripcion);
+            $stmt->bindParam(':etiqueta_producto', $etiqueta);
 
-            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            echo json_encode($products);
+            if ($stmt->execute()) {
+                http_response_code(201);
+                echo json_encode(['success' => true, 'message' => 'Producto creado con éxito', 'code' => 201]);
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'Error al crear el producto', 'code' => 500]);
+            }
         } else {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'ID del local no proporcionada.', 'code' => 400]);
         }
+    break;
+
+    // Obtener productos de un local
+    case preg_match('%/api/shops/(\d+)/products$%', $requestUri, $matches) && $requestMethod == 'GET':
+        $id_local = $matches[1] ?? null;
+
+        $query = "
+            SELECT 
+                p.id_producto,
+                p.titulo,
+                p.precio,
+                p.descripcion_producto,
+                p.etiqueta_producto,
+                p.foto
+            FROM productos p
+            WHERE p.id_local = :id_local
+        ";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':id_local', $matches[1]);
+        $stmt->execute();
+
+        $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode($productos);
     break;
 
     // Registrar publicacion de un local --- [NO CHECKEADO]
@@ -283,11 +341,23 @@ switch (true) {
         $id_local = $matches[1] ?? null;
 
         if (!empty($id_local)) {
-                $query = "INSERT INTO publicacion (id_local, fecha_inicio, fecha_fin, descripcion) VALUES (:id_local, :fecha_inicio, :fecha_fin, :descripcion)";
+                $fotoPath = null;
+
+                // Subir logo si existe
+                if (isset($_FILES['logo'])) {
+                    $uploadLogo = uploadImage($_FILES['logo'], 'locals/logos/');
+                    if ($uploadLogo['success']) {
+                        $fotoPath = $uploadLogo['path'];
+                    } else {
+                        echo json_encode(['success' => false, 'message' => $uploadLogo['message']]);
+                        break;
+                    }
+                }
+
+                $query = "INSERT INTO publicacion (id_local, foto, descripcion) VALUES (:id_local, :foto, :descripcion)";
                 $stmt = $db->prepare($query);
                 $stmt->bindParam(':id_local', $id_local);
-                $stmt->bindParam(':fecha_inicio', $data->fecha_inicio);
-                $stmt->bindParam(':fecha_fin', $data->fecha_fin);
+                $stmt->bindParam(':foto', $fotoPath);
                 $stmt->bindParam(':descripcion', $data->descripcion);
 
                 if ($stmt->execute()) {
@@ -548,6 +618,47 @@ switch (true) {
              http_response_code(500);
              echo json_encode(['success' => false, 'message' => 'Error al eliminar el local de favoritos', 'code' => 500]);
          }
+    break;
+
+    // Buscar tienda por nombre
+    case preg_match('%/api/shops/search/?$%', $requestUri) && $requestMethod === 'GET':
+        $searchTerm = trim($_GET['q'] ?? '');
+
+        if ($searchTerm === '') {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Término de búsqueda no proporcionado.',
+                'code' => 400
+            ]);
+            exit;
+        }
+
+        $query = "
+            SELECT 
+                l.id_local,
+                l.nombre_local,
+                l.ubicacion,
+                l.numero,
+                ROUND(AVG(r.estrellas), 1) AS estrellas_promedio
+            FROM local l
+            LEFT JOIN resenas r ON r.id_local = l.id_local
+            WHERE l.nombre_local LIKE :searchTerm
+            GROUP BY l.id_local, l.nombre_local, l.ubicacion, l.numero
+            ORDER BY estrellas_promedio DESC
+            LIMIT 50
+        ";
+
+        $stmt = $db->prepare($query);
+        $likeTerm = '%' . $searchTerm . '%';
+        $stmt->bindValue(':searchTerm', $likeTerm, PDO::PARAM_STR);
+        $stmt->execute();
+
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode([
+            'success' => true,
+            'data' => $results
+        ]);
     break;
 }
 

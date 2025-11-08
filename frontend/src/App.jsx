@@ -45,7 +45,7 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/local/:id" element={<Local />} />
-            <Route path="/discover" element={<Discover />} />
+            <Route path="/search" element={<Discover />} />
 
             {/* Zona protegida del perfil */}
             <Route

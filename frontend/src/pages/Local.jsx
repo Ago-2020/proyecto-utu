@@ -55,8 +55,12 @@ export default function Local() {
       try {
         const [localRes, reviewRes, productRes] = await Promise.all([
           fetch(`http://localhost:8000/api/shops/${id}`).then((r) => r.json()),
-          fetch(`http://localhost:8000/api/shops/${id}/review`).then((r) => r.json()),
-          fetch(`http://localhost:8000/api/shops/${id}/products`).then((r) => r.json()),
+          fetch(`http://localhost:8000/api/shops/${id}/review`).then((r) =>
+            r.json(),
+          ),
+          fetch(`http://localhost:8000/api/shops/${id}/products`).then((r) =>
+            r.json(),
+          ),
         ])
 
         setLocal(localRes)
@@ -141,12 +145,10 @@ export default function Local() {
               {productos.map((producto) => (
                 <ProductCard
                   key={producto.id_producto}
-                  id={producto.id_producto}
-                  nombre={producto.titulo}
+                  titulo={producto.titulo}
+                  descripcion={producto.descripcion_producto}
                   precio={producto.precio}
-                  descripcion={producto.descripcion}
-                  tipo_producto={producto.tipo_producto}
-                  imagen={producto.imagen}
+                  foto={producto.foto}
                 />
               ))}
             </div>
@@ -176,7 +178,9 @@ export default function Local() {
 
           <div className="space-y-6 max-w-3xl mx-auto mt-6">
             {reseñas.length === 0 ? (
-              <p className="text-gray-600 text-center">Este local aún no tiene reseñas.</p>
+              <p className="text-gray-600 text-center">
+                Este local aún no tiene reseñas.
+              </p>
             ) : (
               reseñas.map((review) => (
                 <ReviewCard key={review.id_resena} review={review} />

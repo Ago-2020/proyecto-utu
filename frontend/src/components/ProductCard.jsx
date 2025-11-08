@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react'
 
 export default function ProductCard({ titulo, descripcion, precio, foto }) {
   const imageSrc = foto
-    ? foto.startsWith("data:")
+    ? foto.startsWith('data:')
       ? foto // imagen del FileRead
-      : `http://localhost:8000/uploads/${foto}` // imagen del backend
-    : "/default-product.jpg";
+      : `http://localhost:8000/api/getimg.php?file=${foto}` // imagen del backend
+    : '/default-product.jpg'
 
   return (
     <div className="bg-white border border-gray-200 shadow-lg rounded-2xl w-[360px] sm:w-[380px] h-auto flex flex-col overflow-hidden hover:shadow-2xl transition-all duration-300">
@@ -37,5 +37,5 @@ export default function ProductCard({ titulo, descripcion, precio, foto }) {
         )}
       </div>
     </div>
-  );
+  )
 }
