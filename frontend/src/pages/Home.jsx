@@ -102,13 +102,27 @@ export default function Home() {
         >
           {isAuthenticated ? (
             <div>
-              <h1 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '16px' }}>
-                {userName ? `Bienvenido a SaborUY, ${userName}!` : 'Bienvenido a SaborUY!'}
+              <h1
+                style={{
+                  fontSize: '28px',
+                  fontWeight: 'bold',
+                  marginBottom: '16px',
+                }}
+              >
+                {userName
+                  ? `Bienvenido a SaborUY, ${userName}!`
+                  : 'Bienvenido a SaborUY!'}
               </h1>
               <p style={{ marginBottom: '24px' }}>
                 Encuentra y administra tus locales desde tu panel.
               </p>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: '16px',
+                }}
+              >
                 <Link to="/profile">
                   <button
                     style={{
@@ -138,11 +152,15 @@ export default function Home() {
                 Haz que tu negocio llegue a más personas sin complicaciones
               </h1>
               <p style={{ marginBottom: '24px' }}>
-                Crea tu perfil gratis y empieza a darte a conocer en tu comunidad.
-                ¡Es rápido, sencillo y totalmente online!
+                Crea tu perfil gratis y empieza a darte a conocer en tu
+                comunidad. ¡Es rápido, sencillo y totalmente online!
               </p>
               <div
-                style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: '16px',
+                }}
               >
                 <button
                   style={{
@@ -232,10 +250,10 @@ export default function Home() {
               title={shop.nombre_local}
               description={shop.descripcion}
               estrellas={shop.estrellas}
+              etiquetas={shop.etiquetas}
             />
           ))}
         </div>
-
       </section>
     </div>
   )

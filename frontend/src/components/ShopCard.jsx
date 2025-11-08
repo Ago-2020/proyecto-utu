@@ -10,6 +10,7 @@ export default function ShopCard({
   description,
   estrellas,
   onFavoriteChange,
+  etiquetas,
 }) {
   const navigate = useNavigate()
   const [isFavorite, setIsFavorite] = useState(false)
@@ -53,6 +54,8 @@ export default function ShopCard({
     writeFavorites(next)
     if (typeof onFavoriteChange === 'function') onFavoriteChange(next)
   }
+
+  etiquetas = etiquetas || []
 
   return (
     <div
@@ -144,39 +147,20 @@ export default function ShopCard({
               marginBottom: '16px',
             }}
           >
-            <span
-              style={{
-                backgroundColor: '#A8343433',
-                color: '#A83434',
-                padding: '4px 8px',
-                borderRadius: '9999px',
-                fontSize: '12px',
-              }}
-            >
-              Restaurante
-            </span>
-            <span
-              style={{
-                backgroundColor: '#A8343433',
-                color: '#A83434',
-                padding: '4px 8px',
-                borderRadius: '9999px',
-                fontSize: '12px',
-              }}
-            >
-              Comida
-            </span>
-            <span
-              style={{
-                backgroundColor: '#A8343433',
-                color: '#A83434',
-                padding: '4px 8px',
-                borderRadius: '9999px',
-                fontSize: '12px',
-              }}
-            >
-              Café
-            </span>
+            {etiquetas.map((tag, index) => (
+              <span
+                key={index}
+                style={{
+                  backgroundColor: '#A8343433',
+                  color: '#A83434',
+                  padding: '4px 8px',
+                  borderRadius: '9999px',
+                  fontSize: '12px',
+                }}
+              >
+                {tag}
+              </span>
+            ))}
           </div>
           <button
             onClick={() => navigate(`/local/${id}`)}

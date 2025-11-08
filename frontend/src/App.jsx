@@ -23,7 +23,7 @@ import MyShops from '@/pages/MyShops'
 import NewShop from '@/pages/NewShop'
 import ShopComments from '@/pages/ShopComments'
 import Reports from '@/pages/Reports'
-import Publication from '@/pages/Publication'
+import NewPublication from '@/pages/NewPublication'
 
 import CursorFollower from '@/components/CursorFollower'
 
@@ -63,7 +63,7 @@ export default function App() {
               <Route path="newshop" element={<NewShop />} />
               <Route path="comments" element={<ShopComments />} />
               <Route path="reports" element={<Reports />} />
-              <Route path="publication" element={<Publication />} />
+              <Route path="newpublication" element={<NewPublication />} />
             </Route>
           </Route>
 

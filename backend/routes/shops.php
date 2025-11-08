@@ -188,9 +188,12 @@ switch (true) {
         $query = "
             SELECT 
                 l.*, 
-                ROUND(AVG(r.estrellas), 1) AS estrellas
+                ROUND(AVG(r.estrellas), 1) AS estrellas,
+                GROUP_CONCAT(DISTINCT e.nombre ORDER BY e.nombre SEPARATOR ', ') AS etiquetas
             FROM local l
             LEFT JOIN resenas r ON r.id_local = l.id_local
+            LEFT JOIN local_etiquetas le ON le.id_local = l.id_local
+            LEFT JOIN etiquetas e ON e.id_etiqueta = le.id_etiqueta
             GROUP BY l.id_local
         ";
 
@@ -198,6 +201,12 @@ switch (true) {
         $stmt->execute();
 
         $locals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // etiquetas a array
+        foreach ($locals as &$local) {
+            $local['etiquetas'] = $local['etiquetas'] ? explode(', ', $local['etiquetas']) : [];
+        }
+
         echo json_encode($locals);
     break;
 
@@ -659,6 +668,36 @@ switch (true) {
             'success' => true,
             'data' => $results
         ]);
+    break;
+
+    // Obtener todas las etiquetas
+    case preg_match('%/api/shops/tags$%', $requestUri) && $requestMethod == 'GET':
+        $query = "SELECT * FROM etiquetas";
+        $stmt = $db->prepare($query);
+        $stmt->execute();
+
+        $etiquetas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode($etiquetas);
+    break;
+
+    // Agregar etiquetas a un local
+    case preg_match('%/api/shops/(\d+)/tags$%', $requestUri, $matches) && $requestMethod == 'POST':
+        $id_local = $matches[1];
+        $data = json_decode(file_get_contents('php://input'), true);
+        $etiquetas = $data['etiquetas'] ?? [];
+
+        // Limpia etiquetas anteriores (opcional)
+        $stmt = $db->prepare("DELETE FROM local_etiquetas WHERE id_local = ?");
+        $stmt->execute([$id_local]);
+
+        // Inserta las nuevas relaciones
+        $stmt = $db->prepare("INSERT INTO local_etiquetas (id_local, id_etiqueta) VALUES (?, ?)");
+
+        foreach ($etiquetas as $id_etiqueta) {
+            $stmt->execute([$id_local, $id_etiqueta]);
+        }
+
+        echo json_encode(["message" => "Etiquetas actualizadas correctamente"]);
     break;
 }
 
