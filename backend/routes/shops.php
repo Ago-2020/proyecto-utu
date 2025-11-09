@@ -629,6 +629,25 @@ switch (true) {
          }
     break;
 
+    // Obtener local favoritos del usuario (nose si es optimo)
+    case preg_match('%/api/shops/(\d+)/favorite$%', $requestUri, $matches) && $requestMethod == 'GET':
+        $userData = verifyToken();
+        $id_local = $matches[1] ?? null;
+
+        $query = "SELECT COUNT(*) FROM favoritos WHERE id_usuario = :id_usuario AND id_local = :id_local";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(":id_usuario", $userData->id);
+        $stmt->bindParam(":id_local", $id_local);
+        $stmt->execute();
+        $exists = $stmt->fetchColumn();
+
+        echo json_encode([
+            'success' => true,
+            'isFavorite' => $exists > 0,
+        ]);
+    break;
+
+
     // Buscar tienda por nombre
     case preg_match('%/api/shops/search/?$%', $requestUri) && $requestMethod === 'GET':
         $searchTerm = trim($_GET['q'] ?? '');

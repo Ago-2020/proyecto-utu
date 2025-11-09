@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom'
 import cardImage from '@/img/card.jpg'
 import { FaStar, FaRegStar, FaUser, FaHeart, FaRegHeart } from 'react-icons/fa'
 import React, { useEffect, useState, useCallback } from 'react'
-import { useAuth } from '@/AuthProvider'
 
 export default function ShopCard({
   id,
@@ -14,45 +13,82 @@ export default function ShopCard({
 }) {
   const navigate = useNavigate()
   const [isFavorite, setIsFavorite] = useState(false)
-  const { token } = useAuth()
+  const [token, setToken] = useState(null)
+
+  useEffect(() => {
+    const userToken = localStorage.getItem('token') // o desde tu contexto
+    setToken(userToken)
+    const fetchFavoriteStatus = async () => {
+      if (!token) return
+
+      try {
+        const response = await fetch(
+          `http://localhost:8000/api/shops/${id}/favorite`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+
+        const data = await response.json()
+        if (data.success) setIsFavorite(data.isFavorite)
+      } catch (error) {
+        console.error('Error al obtener favorito:', error)
+      }
+    }
+
+    fetchFavoriteStatus()
+  }, [id, token]) // se ejecuta al cargar el componente
 
   const STORAGE_KEY = 'favorite_shops'
 
-  const readFavorites = useCallback(() => {
+  const [loading, setLoading] = useState(false)
+
+  const toggleFavorite = async () => {
+    if (loading) return
+    setLoading(true)
+
+    if (!token) {
+      alert('Debes iniciar sesión para usar favoritos')
+      return
+    }
+
     try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      return raw ? JSON.parse(raw) : []
-    } catch (e) {
-      return []
-    }
-  }, [])
+      const method = isFavorite ? 'DELETE' : 'POST'
 
-  const writeFavorites = useCallback((arr) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(arr))
-    } catch (e) {
-      console.error('Error writing favorites', e)
-    }
-  }, [])
+      const response = await fetch(
+        `http://localhost:8000/api/shops/${id}/favorite`,
+        {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
 
-  useEffect(() => {
-    const favs = readFavorites()
-    setIsFavorite(favs.includes(Number(id) || id))
-  }, [id, readFavorites])
+      const text = await response.text()
+      let data = {}
+      if (text) {
+        try {
+          data = JSON.parse(text)
+        } catch {
+          console.error('Respuesta no válida del servidor:', text)
+        }
+      }
 
-  const toggleFavorite = () => {
-    const favs = readFavorites()
-    const key = Number(id) || id
-    let next
-    if (favs.includes(key)) {
-      next = favs.filter((i) => i !== key)
-      setIsFavorite(false)
-    } else {
-      next = [...favs, key]
-      setIsFavorite(true)
+      if (response.ok) {
+        setIsFavorite(!isFavorite)
+        console.log(data.message)
+      } else {
+        alert(data.message || 'Error al actualizar favoritos')
+      }
+    } catch (error) {
+      console.error('Error al conectar con el servidor:', error)
+      alert('Error al conectar con el servidor')
     }
-    writeFavorites(next)
-    if (typeof onFavoriteChange === 'function') onFavoriteChange(next)
+    setLoading(false)
   }
 
   etiquetas = etiquetas || []
@@ -99,10 +135,12 @@ export default function ShopCard({
               justifyContent: 'center',
             }}
           >
-            {isFavorite ? (
-              <FaHeart style={{ color: '#ef4444' }} />
+            {loading ? (
+              '...'
+            ) : isFavorite ? (
+              <FaHeart style={{ color: '#dc2626' }} />
             ) : (
-              <FaRegHeart style={{ color: '#ef4444' }} />
+              <FaRegHeart style={{ color: '#dc2626' }} />
             )}
           </button>
         )}
