@@ -22,8 +22,10 @@ import DeleteAcc from '@/pages/DeleteAcc'
 import MyShops from '@/pages/MyShops'
 import NewShop from '@/pages/NewShop'
 import ShopComments from '@/pages/ShopComments'
-import Reports from '@/pages/Reports'
 import NewPublication from '@/pages/NewPublication'
+
+import ReportedReviews from '@/pages/ReportedReviews'
+import ReportedShops from '@/pages/ReportedShops'
 
 import CursorFollower from '@/components/CursorFollower'
 
@@ -62,7 +64,8 @@ export default function App() {
               <Route path="myshops" element={<MyShops />} />
               <Route path="newshop" element={<NewShop />} />
               <Route path="comments" element={<ShopComments />} />
-              <Route path="reports" element={<Reports />} />
+              <Route path="reportedreviews" element={<ReportedReviews />} />
+              <Route path="reportedshops" element={<ReportedShops />} />
               <Route path="newpublication" element={<NewPublication />} />
             </Route>
           </Route>

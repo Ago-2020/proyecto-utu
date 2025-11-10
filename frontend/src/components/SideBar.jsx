@@ -113,9 +113,15 @@ export default function SideBar() {
                 Moderación y Reportes
               </span>
 
-              <Link to="/profile/reports">
+              <Link to="/profile/reportedreviews">
                 <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
-                  Ver reportes
+                  Reseñas reportadas
+                </button>
+              </Link>
+
+              <Link to="/profile/reportedshops">
+                <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
+                  Locales reportados
                 </button>
               </Link>
             </>

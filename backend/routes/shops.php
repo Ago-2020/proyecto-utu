@@ -548,56 +548,109 @@ switch (true) {
          }
     break;
     
-    case preg_match('%/api/shops/upload-test$%', $requestUri) && $requestMethod == 'POST':
-    
-        if (!isset($_FILES['imagen'])) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'No se envió ninguna imagen.']);
+    // Dar like a una reseña
+    case preg_match('%/api/shops/(\d+)/review/(\d+)/like$%', $requestUri, $matches) && $requestMethod == 'POST':
+
+        $userData = verifyToken();
+        $id_usuario = $userData->id;
+
+        $id_local = intval($matches[1] ?? 0);
+        $id_resena = intval($matches[2] ?? 0);
+
+        // reseña existe
+        $stmt = $db->prepare("SELECT * FROM resenas WHERE id_local = :id_local AND id_resena = :id_resena");
+        $stmt->execute([':id_local' => $id_local, ':id_resena' => $id_resena]);
+        $resena = $stmt->fetch(PDO::FETCH_OBJ);
+
+        if (!$resena) {
+            http_response_code(404);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Reseña no encontrada',
+                'code' => 404
+            ]);
             break;
         }
-    
-        $uploadResult = uploadImage($_FILES['imagen']);
-    
-        if ($uploadResult['success']) {
-            http_response_code(201);
-            echo json_encode(['success' => true, 'message' => 'Imagen subida correctamente', 'path' => $uploadResult['path']]);
-        } else {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => $uploadResult['message']]);
+
+        // no auto-like
+        if ($resena->id_usuario == $id_usuario) {
+            http_response_code(403);
+            echo json_encode([
+                'success' => false,
+                'message' => 'No puedes dar like a tu propia reseña',
+                'code' => 403
+            ]);
+            break;
         }
+
+        try {
+            // se necesita crear una tabla para los likes en las reseñas
+            $stmt = $db->prepare("INSERT INTO likes_resenas (id_resena, id_usuario) VALUES (:id_resena, :id_usuario)");
+            $stmt->execute([':id_resena' => $id_resena, ':id_usuario' => $id_usuario]);
+
+            $stmt = $db->prepare("UPDATE resenas SET likes = likes + 1 WHERE id_resena = :id_resena");
+            $stmt->execute([':id_resena' => $id_resena]);
+
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Reseña gustada con éxito',
+                'code' => 200
+            ]);
+
+        } catch (PDOException $e) {
+            if ($e->getCode() == 23000) {
+                http_response_code(409);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Ya has dado like a esta reseña',
+                    'code' => 409
+                ]);
+            } else {
+                http_response_code(500);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Error al dar like a la reseña: ',
+                    'code' => 500
+                ]);
+            }
+        }
+
     break;
 
+
+            
     // Agregar local a favoritos
     case preg_match('%/api/shops/(\d+)/favorite$%', $requestUri, $matches) && $requestMethod == 'POST':
         $userData = verifyToken();
-
+                
         $id_local = $matches[1] ?? null;
-
+                
         $checkQuery = "SELECT COUNT(*) FROM favoritos WHERE id_usuario = :id_usuario AND id_local = :id_local";
         $checkStmt = $db->prepare($checkQuery);
         $checkStmt->bindParam(":id_usuario", $userData->id);
         $checkStmt->bindParam(":id_local", $id_local);
         $checkStmt->execute();
         $exists = $checkStmt->fetchColumn();
-
+                
         if ($exists > 0) {
             http_response_code(409);
             echo json_encode(['success' => false, 'message' => 'Este local ya está en tus favoritos', 'code' => 409]);
             break;
         }
-
+                
         $query = "INSERT INTO favoritos (id_usuario, id_local) VALUES (:id_usuario, :id_local)";
         $stmt = $db->prepare($query);
         $stmt->bindParam(":id_usuario", $userData->id);
         $stmt->bindParam(":id_local", $id_local);
-
+        
         if ($stmt->execute()) {
-            http_response_code(201);
-            echo json_encode([
-                'success' => true,
-                'message' => 'Local agregado a favoritos con éxito',
-                'code' => 201
-            ]);
+                http_response_code(201);
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Local agregado a favoritos con éxito',
+                    'code' => 201
+                ]);
         } else {
             http_response_code(500);
             echo json_encode([
@@ -607,7 +660,6 @@ switch (true) {
             ]);
         }
     break;
-
 
     // Eliminar local de favoritos
     case preg_match('%/api/shops/(\d+)/favorite$%', $requestUri, $matches) && $requestMethod == 'DELETE':
@@ -717,6 +769,26 @@ switch (true) {
         }
 
         echo json_encode(["message" => "Etiquetas actualizadas correctamente"]);
+    break;
+
+    // Subir imagen de prueba
+    case preg_match('%/api/shops/upload-test$%', $requestUri) && $requestMethod == 'POST':
+        
+            if (!isset($_FILES['imagen'])) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'No se envió ninguna imagen.']);
+                break;
+            }
+        
+            $uploadResult = uploadImage($_FILES['imagen']);
+        
+            if ($uploadResult['success']) {
+                http_response_code(201);
+                echo json_encode(['success' => true, 'message' => 'Imagen subida correctamente', 'path' => $uploadResult['path']]);
+            } else {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => $uploadResult['message']]);
+            }
     break;
 }
 
