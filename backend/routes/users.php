@@ -138,8 +138,47 @@ switch (true) {
 
 
     // Cambiar de contraseña
-    case preg_match('%/api/users/%', $requestUri) && $requestMethod == 'POST':
-        
+    case preg_match('%/api/users/passchange%', $requestUri) && $requestMethod == 'POST':
+        $userData = verifyToken();
+        $id_usuario = $userData->id;
+
+        $data = json_decode(file_get_contents("php://input"));
+        $password_antigua = $data->password_antigua ?? null;
+        $password_nueva = $data->password_nueva ?? null;
+
+        if (!$password_antigua || !$password_nueva) {
+            echo json_encode(['success' => false, 'message' => 'Ambas contraseñas (antigua y nueva) son requeridas.']);
+            break;
+        }
+
+        $query = "SELECT password_usuario FROM usuario WHERE id_usuario = :id_usuario LIMIT 1";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':id_usuario', $id_usuario);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            echo json_encode(['success' => false, 'message' => 'Usuario no encontrado.']);
+            break;
+        }
+
+        if (!password_verify($password_antigua, $user['password_usuario'])) {
+            echo json_encode(['success' => false, 'message' => 'Contraseña antigua incorrecta.']);
+            break;
+        }
+
+        $passwordHash = password_hash($password_nueva, PASSWORD_BCRYPT);
+
+        $query = "UPDATE usuario SET password_usuario = :password_usuario WHERE id_usuario = :id_usuario";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':id_usuario', $id_usuario);
+        $stmt->bindParam(':password_usuario', $passwordHash);
+
+        if ($stmt->execute()) {
+            echo json_encode(['success' => true, 'message' => 'Contraseña actualizada con éxito.']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Error al actualizar la contraseña.']);
+        }
     break;
 
     // Eliminar usuario

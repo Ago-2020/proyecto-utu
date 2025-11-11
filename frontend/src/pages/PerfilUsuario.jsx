@@ -3,8 +3,12 @@ import { useNavigate } from 'react-router-dom'
 
 export default function PerfilUsuario() {
   const [user, setUser] = useState(null)
+  const [passwordAntigua, setPasswordAntigua] = useState('')
+  const [passwordNueva, setPasswordNueva] = useState('')
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
+  // Cargar los datos del usuario desde el backend
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem('token')
@@ -34,6 +38,50 @@ export default function PerfilUsuario() {
     fetchUser()
   }, [])
 
+  // Manejar el submit del formulario de cambio de contraseña
+  const handleChangePassword = async (e) => {
+    e.preventDefault() // Evitar que el formulario se recargue al hacer submit
+
+    if (!passwordAntigua || !passwordNueva) {
+      setError('Ambas contraseñas son requeridas.')
+      return
+    }
+
+    const token = localStorage.getItem('token')
+    if (!token) {
+      setError('No estás autenticado.')
+      return
+    }
+
+    try {
+      const res = await fetch('http://localhost:8000/api/users/passchange', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          password_antigua: passwordAntigua,
+          password_nueva: passwordNueva,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        setError('')
+        alert('Contraseña cambiada con éxito.')
+        setPasswordAntigua('')
+        setPasswordNueva('')
+      } else {
+        setError(data.message || 'Error al cambiar la contraseña.')
+      }
+    } catch (error) {
+      console.error('Error al cambiar la contraseña:', error)
+      setError('Hubo un error al intentar cambiar la contraseña.')
+    }
+  }
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 ml-[250px]">
       <main className="bg-white shadow-lg rounded-2xl p-10 w-full max-w-3xl">
@@ -57,7 +105,7 @@ export default function PerfilUsuario() {
           <p className="text-gray-600">{user?.email_usuario || 'Sin Email'}</p>
         </div>
 
-        {/* Botón crear local */}
+        {/* Botones para crear local o borrar cuenta */}
         <div className="flex justify-center mb-12 gap-6">
           <button
             onClick={() => navigate('/profile/newshop')}
@@ -71,7 +119,6 @@ export default function PerfilUsuario() {
           >
             Borrar cuenta
           </button>
-
         </div>
 
         {/* Formulario de cambio de contraseña */}
@@ -79,33 +126,49 @@ export default function PerfilUsuario() {
           <h3 className="text-xl font-semibold mb-6 text-center">
             Cambiar Contraseña
           </h3>
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          {/* Mostrar errores */}
+          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
+          <form
+            className="grid grid-cols-1 gap-6"
+            onSubmit={handleChangePassword}
+          >
             {[
-              'Contraseña Antigua',
-              'Contraseña Nueva',
-            ].map((label, i) => (
+              {
+                label: 'Contraseña Antigua',
+                value: passwordAntigua,
+                setValue: setPasswordAntigua,
+              },
+              {
+                label: 'Contraseña Nueva',
+                value: passwordNueva,
+                setValue: setPasswordNueva,
+              },
+            ].map((field, i) => (
               <div key={i} className="flex flex-col">
                 <label className="text-sm mb-2 font-medium text-gray-700">
-                  {label}
+                  {field.label}
                 </label>
                 <input
                   type="password"
-                  placeholder={`${
-                    label.includes('Nueva')
-                      ? 'Introduce la nueva'
-                      : 'Introduce la'
-                  } contraseña`}
+                  placeholder={`Introduce la ${field.label.toLowerCase()}`}
                   className="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-800"
+                  value={field.value}
+                  onChange={(e) => field.setValue(e.target.value)}
                 />
               </div>
             ))}
-          </form>
 
-          <div className="flex justify-center mt-8">
-            <button className="bg-red-600 hover:bg-red-700 text-white px-10 py-3 rounded-lg font-medium shadow-md transition-all transform hover:scale-105">
-              Guardar Cambios
-            </button>
-          </div>
+            <div className="flex justify-center mt-8">
+              <button
+                type="submit"
+                className="bg-red-600 hover:bg-red-700 text-white px-10 py-3 rounded-lg font-medium shadow-md transition-all transform hover:scale-105"
+              >
+                Guardar Cambios
+              </button>
+            </div>
+          </form>
         </div>
       </main>
     </div>
