@@ -10,6 +10,7 @@ export default function ShopCard({
   estrellas,
   onFavoriteChange,
   etiquetas,
+  banner,
 }) {
   const navigate = useNavigate()
   const [isFavorite, setIsFavorite] = useState(false)
@@ -93,6 +94,10 @@ export default function ShopCard({
 
   etiquetas = etiquetas || []
 
+  const bannerURL = banner
+    ? `http://localhost:8000/api/getimg.php?file=${banner}`
+    : cardImage
+
   return (
     <div
       style={{
@@ -146,7 +151,7 @@ export default function ShopCard({
         )}
 
         <img
-          src={cardImage}
+          src={bannerURL}
           alt={title || 'Negocio'}
           style={{ width: '100%', height: '180px', objectFit: 'cover' }}
         />

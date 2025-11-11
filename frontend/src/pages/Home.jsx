@@ -251,6 +251,7 @@ export default function Home() {
               description={shop.descripcion}
               estrellas={shop.estrellas}
               etiquetas={shop.etiquetas}
+              banner={shop.banner}
             />
           ))}
         </div>
