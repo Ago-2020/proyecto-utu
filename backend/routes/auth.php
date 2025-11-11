@@ -95,7 +95,8 @@ switch (true) {
                     echo json_encode(
                         array(
                             "message" => "Inicio de sesión exitoso",
-                            "token" => $jwt
+                            "token" => $jwt,
+                            "id_usuario" => $id_usuario
                         )
                     );
                 } else {

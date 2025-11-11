@@ -182,8 +182,26 @@ switch (true) {
     break;
 
     // Eliminar usuario
-    case preg_match('%/api/users/%', $requestUri) && $requestMethod == 'POST':
-        
+    case preg_match('%/api/users/%', $requestUri) && $requestMethod == 'DELETE':
+        $userData = verifyToken();
+        $authenticatedUserId = $userData->id;
+
+        try {
+            $stmt = $db->prepare('DELETE FROM users WHERE id = :id');
+            $stmt->bindParam(':id', $authenticatedUserId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+                http_response_code(200);
+                echo json_encode(['message' => 'Cuenta eliminada con éxito']);
+            } else {
+                http_response_code(404);
+                echo json_encode(['message' => 'Usuario no encontrado']);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['message' => 'Error al eliminar la cuenta', 'error' => $e->getMessage()]);
+        }
     break;
 
     // Ver locales favoritos del usuario

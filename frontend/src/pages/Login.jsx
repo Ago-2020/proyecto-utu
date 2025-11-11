@@ -28,6 +28,7 @@ export default function Login() {
 
       if (res.ok && data.token) {
         localStorage.setItem('token', data.token)
+        localStorage.setItem('userId', data.id_usuario)
         navigate('/')
       } else {
         setResponse({
@@ -81,7 +82,9 @@ export default function Login() {
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700">Email</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700">
+                Email
+              </label>
               <input
                 type="email"
                 placeholder="ejemplo@correo.com"
@@ -94,7 +97,9 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700">Contraseña</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700">
+                Contraseña
+              </label>
               <input
                 type="password"
                 placeholder="Escribe tu contraseña"
@@ -116,7 +121,10 @@ export default function Login() {
 
             <div className="text-center mt-4 text-sm text-black">
               ¿No tienes cuenta?{' '}
-              <Link to="/register" style={{ color: '#FF3131', textDecoration: 'underline' }}>
+              <Link
+                to="/register"
+                style={{ color: '#FF3131', textDecoration: 'underline' }}
+              >
                 Regístrate
               </Link>
             </div>
@@ -124,10 +132,15 @@ export default function Login() {
             {response && (
               <div
                 className={`mt-6 p-4 rounded-lg text-center font-semibold ${
-                  response.success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                  response.success
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-red-100 text-red-700'
                 }`}
               >
-                {response.message || (response.success ? 'Inicio de sesión exitoso' : 'Error en el inicio de sesión')}
+                {response.message ||
+                  (response.success
+                    ? 'Inicio de sesión exitoso'
+                    : 'Error en el inicio de sesión')}
               </div>
             )}
           </form>

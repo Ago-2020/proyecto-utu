@@ -2,9 +2,17 @@ import { FaStar, FaRegStar, FaUser, FaHeart, FaTrash } from 'react-icons/fa'
 import React, { useState } from 'react'
 
 export default function Review({ review, currentUserId, onDelete, onLike }) {
-  const { id, nombre_usuario, estrellas, comentario, likes: initialLikes, perfil_url, user_id } = review
+  const {
+    id_resena: id,
+    nombre_usuario,
+    estrellas,
+    comentario,
+    likes: initialLikes,
+    perfil_url,
+    id_usuario: user_id,
+  } = review
 
-  const isMine = currentUserId === user_id
+  const isMine = currentUserId == user_id
   const [likes, setLikes] = useState(initialLikes)
   const [liked, setLiked] = useState(false) // si ya dio like
 
@@ -31,7 +39,11 @@ export default function Review({ review, currentUserId, onDelete, onLike }) {
         {/* Perfil */}
         <div className="flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center bg-gray-200 overflow-hidden">
           {perfil_url ? (
-            <img src={perfil_url} alt={nombre_usuario} className="w-full h-full object-cover" />
+            <img
+              src={perfil_url}
+              alt={nombre_usuario}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <FaUser className="text-gray-500 text-2xl" />
           )}
@@ -41,7 +53,9 @@ export default function Review({ review, currentUserId, onDelete, onLike }) {
         <div className="flex-1 flex flex-col">
           {/* Nombre y basura */}
           <div className="flex justify-between items-start">
-            <h4 className="font-medium text-gray-900 text-lg">{nombre_usuario}</h4>
+            <h4 className="font-medium text-gray-900 text-lg">
+              {nombre_usuario}
+            </h4>
             {isMine && (
               <button
                 onClick={() => onDelete && onDelete(id)}
@@ -56,7 +70,11 @@ export default function Review({ review, currentUserId, onDelete, onLike }) {
           {/* Estrellas */}
           <div className="flex text-yellow-400 mt-2 text-base">
             {[...Array(5)].map((_, i) =>
-              i < estrellas ? <FaStar key={i} className="text-base" /> : <FaRegStar key={i} className="text-base" />
+              i < estrellas ? (
+                <FaStar key={i} className="text-base" />
+              ) : (
+                <FaRegStar key={i} className="text-base" />
+              ),
             )}
           </div>
 

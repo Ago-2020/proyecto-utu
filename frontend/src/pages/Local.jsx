@@ -15,6 +15,34 @@ export default function Local() {
   const [productos, setProductos] = useState([])
   const [reseñas, setReseñas] = useState([])
 
+  const handleDelete = async (reviewId) => {
+    const token = localStorage.getItem('token')
+    if (!token) return alert('Debe iniciar sesión para eliminar una reseña.')
+
+    if (!window.confirm('¿Seguro que quieres eliminar esta reseña?')) return
+
+    try {
+      const res = await fetch(`http://localhost:8000/api/shops/${id}/review`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        alert('Reseña eliminada con éxito')
+        setReseñas((prev) => prev.filter((r) => r.id_resena !== reviewId))
+      } else {
+        alert(data.message || 'Error al eliminar la reseña')
+      }
+    } catch (error) {
+      console.error('Error al eliminar la reseña:', error)
+      alert('Error de conexión con el servidor')
+    }
+  }
+
   const handleSubmit = async ({ estrellas, comentario }) => {
     const token = localStorage.getItem('token')
     if (!token) return alert('Debe iniciar sesión para enviar una reseña.')
@@ -183,7 +211,12 @@ export default function Local() {
               </p>
             ) : (
               reseñas.map((review) => (
-                <ReviewCard key={review.id_resena} review={review} />
+                <ReviewCard
+                  key={review.id_resena}
+                  review={review}
+                  currentUserId={localStorage.getItem('userId')}
+                  onDelete={handleDelete}
+                />
               ))
             )}
           </div>
