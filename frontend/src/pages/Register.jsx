@@ -7,19 +7,12 @@ export default function Register() {
   const [nombre_usuario, setNombre] = useState('')
   const [email_usuario, setEmail] = useState('')
   const [password_usuario, setPassword] = useState('')
-  const [confirm_password, setConfirmPassword] = useState('')
   const [tipo_usuario, setTipoUsuario] = useState('2')
   const [response, setResponse] = useState(null)
   const [showSuccess, setShowSuccess] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
-    // Validar que las contraseñas coincidan
-    if (password_usuario !== confirm_password) {
-      setResponse({ success: false, message: 'Las contraseñas no coinciden' })
-      return
-    }
 
     try {
       const res = await fetch('http://localhost:8000/api/auth/register', {
@@ -45,7 +38,6 @@ export default function Register() {
         setNombre('')
         setEmail('')
         setPassword('')
-        setConfirmPassword('')
       }
     } catch (error) {
       console.error('Error en la conexión con el backend:', error)
@@ -71,11 +63,12 @@ export default function Register() {
         <img
           src={logo}
           alt="Logo"
-          className="z-50 rounded-full border-2 border-black shadow-lg"
+          className="z-50 rounded-xl border-2"
           style={{
             width: '60px',
             height: '60px',
             position: 'absolute',
+            borderColor: "#FF3131",
             top: '20px',
             left: '50%',
             transform: 'translateX(-50%)',
