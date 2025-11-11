@@ -1,10 +1,65 @@
 import React from 'react'
+import { useState } from 'react'
 
-export default function DeleteAcc() {
+export default function DeleteAcc({ token }) {
+  const [password, setPassword] = useState('')
+  const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleDelete = async () => {
+    if (!password) {
+      setMessage('Por favor ingresa tu contraseña')
+      return
+    }
+
+    setLoading(true)
+    setMessage('')
+
+    try {
+      const response = await fetch('http://localhost:8000/api/users/', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + token,
+        },
+        body: JSON.stringify({ password }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setMessage(data.message)
+        // Aquí podrías redirigir al login o limpiar el token localStorage
+      } else {
+        setMessage(data.message || 'Error al eliminar la cuenta')
+      }
+    } catch (error) {
+      setMessage('Error de conexión: ' + error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <div>
-      <h1>Eliminar Cuenta</h1>
-      {/* Aquí puedes agregar el contenido de la página "Eliminar Cuenta" */}
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 ml-[120px] p-6">
+      <main className="bg-white shadow-xl rounded-2xl p-10 w-full h-full max-w-6xl">
+        <h2 className="text-2xl font-bold mb-4">Borrar Cuenta</h2>
+        <input
+          type="password"
+          placeholder="Contraseña"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full mb-4 p-2 border rounded"
+        />
+        <button
+          onClick={handleDelete}
+          disabled={loading}
+          className="bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 rounded-lg shadow-md transition-all transform hover:scale-105"
+        >
+          {loading ? 'Eliminando...' : 'Eliminar cuenta'}
+        </button>
+        {message && <p className="mt-4 text-center">{message}</p>}
+      </main>
     </div>
   )
 }

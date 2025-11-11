@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import DefaultAvatar from '@/img/profile.png'
 
 export default function PerfilUsuario() {
   const [user, setUser] = useState(null)
@@ -95,7 +96,7 @@ export default function PerfilUsuario() {
         {/* Info de usuario */}
         <div className="flex flex-col items-center mb-10">
           <img
-            src={user?.foto}
+            src={user?.foto || DefaultAvatar}
             alt="Avatar"
             className="w-28 h-28 rounded-full border-4 border-red-600 mb-4 object-cover"
           />

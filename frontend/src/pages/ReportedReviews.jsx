@@ -42,32 +42,36 @@ const ReportedReviews = () => {
   if (error) return <p>{error}</p>
 
   return (
-    <div>
-      <h2>Reseñas Reportadas</h2>
-      <table border="1" style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th>ID Reseña</th>
-            <th>Usuario</th>
-            <th>Local</th>
-            <th>Comentario</th>
-            <th>Estrellas</th>
-            <th>Fecha</th>
-          </tr>
-        </thead>
-        <tbody>
-          {reviews.map((review) => (
-            <tr key={review.id_resena}>
-              <td>{review.id_resena}</td>
-              <td>{review.id_usuario}</td>
-              <td>{review.id_local}</td>
-              <td>{review.comentario}</td>
-              <td>{review.estrellas}</td>
-              <td>{new Date(review.fecha_creacion).toLocaleString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 ml-[120px] p-6">
+      <main className="bg-white shadow-xl rounded-2xl p-10 w-full h-full max-w-6xl">
+        <div className="p-4">
+          <h2 className="text-2xl font-bold mb-4">Reseñas Reportadas</h2>
+          <table className="table table-zebra w-full">
+            <thead>
+              <tr>
+                <th>ID Reseña</th>
+                <th>Usuario</th>
+                <th>Local</th>
+                <th>Comentario</th>
+                <th>Estrellas</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reviews.map((review) => (
+                <tr key={review.id_resena}>
+                  <td>{review.id_resena}</td>
+                  <td>{review.id_usuario}</td>
+                  <td>{review.id_local}</td>
+                  <td>{review.comentario}</td>
+                  <td>{review.estrellas}</td>
+                  <td>{new Date(review.fecha_creacion).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </main>
     </div>
   )
 }

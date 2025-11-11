@@ -186,9 +186,37 @@ switch (true) {
         $userData = verifyToken();
         $authenticatedUserId = $userData->id;
 
+        // Leer la contraseña enviada en el cuerpo del request
+        $input = json_decode(file_get_contents('php://input'), true);
+        $password = $input['password_usuario'] ?? '';
+
+        if (empty($password)) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Debe ingresar la contraseña para eliminar la cuenta']);
+            break;
+        }
+
         try {
-            $stmt = $db->prepare('DELETE FROM users WHERE id = :id');
-            $stmt->bindParam(':id', $authenticatedUserId, PDO::PARAM_INT);
+            $stmt = $db->prepare('SELECT password_usuario FROM usuario WHERE id_usuario = :id_usuario');
+            $stmt->bindParam(':id_usuario', $authenticatedUserId, PDO::PARAM_INT);
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$user) {
+                http_response_code(404);
+                echo json_encode(['message' => 'Usuario no encontrado']);
+                break;
+            }
+
+            if (!password_verify($password, $user['password_usuario'])) {
+                http_response_code(401);
+                echo json_encode(['message' => 'Contraseña incorrecta']);
+                break;
+            }
+
+            // Si la contraseña es correcta, eliminar el usuario
+            $stmt = $db->prepare('DELETE FROM usuario WHERE id_usuario = :id_usuario');
+            $stmt->bindParam(':id_usuario', $authenticatedUserId, PDO::PARAM_INT);
             $stmt->execute();
 
             if ($stmt->rowCount() > 0) {
@@ -196,13 +224,14 @@ switch (true) {
                 echo json_encode(['message' => 'Cuenta eliminada con éxito']);
             } else {
                 http_response_code(404);
-                echo json_encode(['message' => 'Usuario no encontrado']);
+                echo json_encode(['message' => 'No se pudo eliminar la cuenta']);
             }
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(['message' => 'Error al eliminar la cuenta', 'error' => $e->getMessage()]);
         }
     break;
+
 
     // Ver locales favoritos del usuario
     case preg_match('%/api/users/favorites$%', $requestUri) && $requestMethod == 'GET':

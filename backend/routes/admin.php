@@ -60,13 +60,15 @@ switch (true) {
         try {
             $query = "
                 SELECT 
-                    r.id AS id_reporte,
+                    r.id_reporte AS id_reporte,
                     r.id_local,
-                    l.nombre AS nombre_local,
+                    l.nombre_local AS nombre_local,
                     r.razon,
-                    r.id_usuario
+                    r.id_usuario,
+                    u.nombre_usuario AS nombre_usuario
                 FROM reportes r
                 INNER JOIN local l ON r.id_local = l.id_local
+                INNER JOIN usuario u ON r.id_usuario = u.id_usuario
                 ORDER BY r.id_local DESC
             ";
             $stmt = $db->prepare($query);
@@ -86,6 +88,29 @@ switch (true) {
                 'error' => $e->getMessage(),
             ]);
         }   
+    break;
+
+    // Eliminar reporte de local
+    case preg_match('%/api/admin/reports/%', $requestUri) && $requestMethod == 'DELETE':
+        $userData = verifyToken(); // Verifica que el usuario tenga acceso
+        $id_reporte = basename($requestUri);
+
+        try {
+            $stmt = $db->prepare('DELETE FROM reportes WHERE id_reporte = :id_reporte');
+            $stmt->bindParam(':id_reporte', $id_reporte, PDO::PARAM_INT);
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+                http_response_code(200);
+                echo json_encode(['message' => 'Reporte eliminado con éxito']);
+            } else {
+                http_response_code(404);
+                echo json_encode(['message' => 'Reporte no encontrado']);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['message' => 'Error al eliminar el reporte', 'error' => $e->getMessage()]);
+        }
     break;
 
     // Obtener todas las reseñas reportadas
