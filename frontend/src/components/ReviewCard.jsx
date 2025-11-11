@@ -13,8 +13,8 @@ export default function Review({ review, currentUserId, onDelete, onLike }) {
   } = review
 
   const isMine = currentUserId == user_id
-  const [likes, setLikes] = useState(initialLikes)
-  const [liked, setLiked] = useState(false) // si ya dio like
+  const [liked, setLiked] = useState(review.liked === 1)
+  const [likes, setLikes] = useState(review.likes)
 
   const handleLike = () => {
     // //Alternar like localmente

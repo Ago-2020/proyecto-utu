@@ -43,6 +43,36 @@ export default function Local() {
     }
   }
 
+  const handleLike = async (id_resena, willLike) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/shops/${id}/review/${id_resena}/like`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      const data = await response.json()
+
+      if (data.success) {
+        // Actualizar likes en la lista de reseñas localmente
+        setReseñas((prev) =>
+          prev.map((r) =>
+            r.id_resena === id_resena
+              ? { ...r, likes: r.likes + (data.liked ? 1 : -1) }
+              : r,
+          ),
+        )
+      } else {
+        alert(data.message || 'Error al dar like')
+      }
+    } catch (err) {
+      console.error('Error al dar like:', err)
+    }
+  }
+
   const handleSubmit = async ({ estrellas, comentario }) => {
     const token = localStorage.getItem('token')
     if (!token) return alert('Debe iniciar sesión para enviar una reseña.')
@@ -81,18 +111,27 @@ export default function Local() {
   useEffect(() => {
     async function fetchData() {
       try {
+        const authHeader = token ? { Authorization: `Bearer ${token}` } : {}
+
         const [localRes, reviewRes, productRes] = await Promise.all([
           fetch(`http://localhost:8000/api/shops/${id}`).then((r) => r.json()),
-          fetch(`http://localhost:8000/api/shops/${id}/review`).then((r) =>
-            r.json(),
-          ),
+          fetch(`http://localhost:8000/api/shops/${id}/review`, {
+            headers: authHeader,
+          }).then((r) => r.json()),
           fetch(`http://localhost:8000/api/shops/${id}/products`).then((r) =>
             r.json(),
           ),
         ])
 
         setLocal(localRes)
-        setReseñas(reviewRes)
+
+        if (Array.isArray(reviewRes)) {
+          setReseñas(reviewRes)
+        } else {
+          console.warn('Respuesta inesperada del backend (reseñas):', reviewRes)
+          setReseñas([])
+        }
+
         setProductos(productRes)
       } catch (err) {
         console.error('Error al cargar datos:', err)
@@ -103,7 +142,7 @@ export default function Local() {
     }
 
     fetchData()
-  }, [id])
+  }, [id, token])
 
   if (loading) return <div className="p-10 text-center">Cargando local...</div>
   if (error) return <div className="p-10 text-center text-red-500">{error}</div>
@@ -216,6 +255,7 @@ export default function Local() {
                   review={review}
                   currentUserId={localStorage.getItem('userId')}
                   onDelete={handleDelete}
+                  onLike={handleLike}
                 />
               ))
             )}

@@ -6,25 +6,32 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 // Verificacion del Token de usuario
-function verifyToken() {
+function verifyToken($required = true) {
     $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
     $arr = explode(" ", $authHeader);
     $token = $arr[1] ?? '';
 
     if (!$token) {
-        http_response_code(401);
-        echo json_encode(["message" => "Acceso denegado."]);
-        exit();
+        if ($required) {
+            http_response_code(401);
+            echo json_encode(["message" => "Acceso denegado."]);
+            exit();
+        } else {
+            return null;
+        }
     }
 
     try {
         $decoded = JWT::decode($token, new Key($_ENV['JWT_SECRET'], 'HS256'));
-        // Devolvemos los datos del usuario para usarlos en la ruta
         return $decoded->data;
     } catch (Exception $e) {
-        http_response_code(403);
-        echo json_encode(["message" => "Acceso prohibido.", "error" => $e->getMessage()]);
-        exit();
+        if ($required) {
+            http_response_code(403);
+            echo json_encode(["message" => "No se puede acceder a la siguiente funcion.", "error" => $e->getMessage()]);
+            exit();
+        } else {
+            return null;
+        }
     }
 }
 
@@ -272,6 +279,7 @@ switch (true) {
     // Registrar producto de un local
     case preg_match('%/api/shops/(\d+)/products$%', $requestUri, $matches) && $requestMethod == 'POST':
         $id_local = $matches[1] ?? null;
+        $userData = verifyToken();
 
         if (!empty($id_local)) {
             $fotoPath = null;
@@ -348,6 +356,7 @@ switch (true) {
     // Registrar publicacion de un local --- [NO CHECKEADO]
     case preg_match('%/api/shops/(\d+)/posts$%', $requestUri, $matches) && $requestMethod == 'POST':
         $id_local = $matches[1] ?? null;
+        $userData = verifyToken();
 
         if (!empty($id_local)) {
                 $fotoPath = null;
@@ -446,22 +455,35 @@ switch (true) {
 
     // Ver reseñas de un local
     case preg_match('%/api/shops/(\d+)/review?$%', $requestUri, $matches) && $requestMethod == 'GET':
-        
         $id_local = $matches[1] ?? null;
+        $userData = verifyToken(false);
 
-        $query = "SELECT * FROM resenas WHERE id_local = :id_local";
+        $id_usuario = $userData ? $userData->id : null;
+
         $query = "
-        SELECT r.*, u.nombre_usuario 
-        FROM resenas r
-        INNER JOIN usuario u ON r.id_usuario = u.id_usuario
-        WHERE r.id_local = :id_local
-    ";
+            SELECT 
+                r.*, 
+                u.nombre_usuario,
+                (SELECT COUNT(*) FROM likes_resena l WHERE l.id_resena = r.id_resena) AS likes,
+                CASE 
+                    WHEN :id_usuario IS NOT NULL AND EXISTS (
+                        SELECT 1 FROM likes_resena l2 
+                        WHERE l2.id_resena = r.id_resena 
+                        AND l2.id_usuario = :id_usuario
+                    ) 
+                    THEN 1 ELSE 0
+                END AS liked
+            FROM resenas r
+            INNER JOIN usuario u ON r.id_usuario = u.id_usuario
+            WHERE r.id_local = :id_local
+        ";
+
         $stmt = $db->prepare($query);
         $stmt->bindParam(':id_local', $id_local);
+        $stmt->bindParam(':id_usuario', $id_usuario);
         $stmt->execute();
 
-        $locals = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        echo json_encode($locals);
+        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
     break;
 
     // Reseñar un local
@@ -550,72 +572,53 @@ switch (true) {
     
     // Dar like a una reseña
     case preg_match('%/api/shops/(\d+)/review/(\d+)/like$%', $requestUri, $matches) && $requestMethod == 'POST':
-
         $userData = verifyToken();
         $id_usuario = $userData->id;
 
         $id_local = intval($matches[1] ?? 0);
         $id_resena = intval($matches[2] ?? 0);
 
-        // reseña existe
+        // Verificar que la reseña exista
         $stmt = $db->prepare("SELECT * FROM resenas WHERE id_local = :id_local AND id_resena = :id_resena");
         $stmt->execute([':id_local' => $id_local, ':id_resena' => $id_resena]);
         $resena = $stmt->fetch(PDO::FETCH_OBJ);
-
+        
         if (!$resena) {
             http_response_code(404);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Reseña no encontrada',
-                'code' => 404
-            ]);
+            echo json_encode(['success' => false, 'message' => 'Reseña no encontrada']);
             break;
         }
 
         // no auto-like
         if ($resena->id_usuario == $id_usuario) {
             http_response_code(403);
-            echo json_encode([
-                'success' => false,
-                'message' => 'No puedes dar like a tu propia reseña',
-                'code' => 403
-            ]);
+            echo json_encode(['success' => false, 'message' => 'No puedes dar like a tu propia reseña']);
             break;
         }
 
-        try {
-            // se necesita crear una tabla para los likes en las reseñas
-            $stmt = $db->prepare("INSERT INTO likes_resenas (id_resena, id_usuario) VALUES (:id_resena, :id_usuario)");
-            $stmt->execute([':id_resena' => $id_resena, ':id_usuario' => $id_usuario]);
+        $stmt = $db->prepare("SELECT * FROM likes_resena WHERE id_usuario = :id_usuario AND id_resena = :id_resena");
+        $stmt->execute([':id_usuario' => $id_usuario, ':id_resena' => $id_resena]);
+        $like = $stmt->fetch(PDO::FETCH_OBJ);
 
-            $stmt = $db->prepare("UPDATE resenas SET likes = likes + 1 WHERE id_resena = :id_resena");
-            $stmt->execute([':id_resena' => $id_resena]);
+        if ($like) {
+            // rem like
+            $db->prepare("DELETE FROM likes_resena WHERE id_usuario = :id_usuario AND id_resena = :id_resena")
+            ->execute([':id_usuario' => $id_usuario, ':id_resena' => $id_resena]);
 
-            http_response_code(200);
-            echo json_encode([
-                'success' => true,
-                'message' => 'Reseña gustada con éxito',
-                'code' => 200
-            ]);
+            $db->prepare("UPDATE resenas SET likes = likes - 1 WHERE id_resena = :id_resena")
+            ->execute([':id_resena' => $id_resena]);
 
-        } catch (PDOException $e) {
-            if ($e->getCode() == 23000) {
-                http_response_code(409);
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Ya has dado like a esta reseña',
-                    'code' => 409
-                ]);
-            } else {
-                http_response_code(500);
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Error al dar like a la reseña: ',
-                    'code' => 500
-                ]);
-            }
+            echo json_encode(['success' => true, 'liked' => false]);
+        } else {
+            // add like
+            $db->prepare("INSERT INTO likes_resena (id_usuario, id_resena) VALUES (:id_usuario, :id_resena)")
+            ->execute([':id_usuario' => $id_usuario, ':id_resena' => $id_resena]);
+
+            $db->prepare("UPDATE resenas SET likes = likes + 1 WHERE id_resena = :id_resena")
+            ->execute([':id_resena' => $id_resena]);
+
+            echo json_encode(['success' => true, 'liked' => true]);
         }
-
     break;
 
 
