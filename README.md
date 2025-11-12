@@ -29,20 +29,35 @@ El objetivo del sistema es ofrecer una plataforma práctica para aprender sobre 
 ## 📂 Estructura del proyecto
 
 proyecto-utu/
+
 ├── backend/
+
 │ ├── routes/ -> Endpoints del servidor
+
 │ ├── vendor/ -> Librerías instaladas con Composer
+
 │ ├── config.php -> Configuración de la conexión a la base de datos
+
 │ ├── index.php -> Punto de entrada del backend
+
 │ ├── composer.json -> Dependencias PHP
+
 │ └── composer.lock -> Control de versiones de librerías
+
 │
+
 ├── frontend/
+
 │ ├── src/ -> Componentes React y vistas
+
 │ ├── public/ -> Archivos públicos
+
 │ └── package.json -> Dependencias del frontend
+
 │
+
 ├── uploads/ -> Carpeta donde se guardan imágenes de usuarios y tiendas
+
 └── README.md -> Documentación del proyecto
 
 /uploads -> Carpeta donde se guardan imágenes de usuarios y tiendas
