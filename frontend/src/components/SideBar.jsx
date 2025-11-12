@@ -99,15 +99,21 @@ export default function SideBar() {
                 </button>
               </Link>
 
+              <Link to="/profile/newproduct">
+                <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
+                  Registrar producto
+                </button>
+              </Link>
+
               <Link to="/profile/newpublication">
                 <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
                   Registrar publicación
                 </button>
               </Link>
 
-              <Link to="/profile/comments">
+              <Link to="/profile/myshopreviews">
                 <button className="flex items-center gap-2 hover:bg-red-700 p-2 rounded">
-                  Comentarios
+                  Reseñas a Tiendas
                 </button>
               </Link>
             </>

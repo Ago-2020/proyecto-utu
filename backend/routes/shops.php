@@ -873,41 +873,59 @@ switch (true) {
     break;
 
     // Ver reseñas de mis locales
-    if (preg_match('%/api/shops/myreviews/?$%', $requestUri) && $requestMethod == 'GET') {
-        // Verificar token obligatorio
-        $userData = verifyToken();
-        $id_usuario = $userData->id;
+    case (preg_match('%/api/shops/myreviews/?$%', $requestUri) && $requestMethod == 'GET'):
+    $userData = verifyToken();
+    $id_usuario = $userData->id;
 
-        // Consulta: obtenemos todas las reseñas de los locales que pertenecen al usuario
-        $query = "
-            SELECT r.*,
-                u.nombre_usuario,
-                l.nombre AS nombre_local,
-                (SELECT COUNT(*) FROM likes_resena lr WHERE lr.id_resena = r.id_resena) AS likes,
-                CASE 
-                    WHEN EXISTS (
-                        SELECT 1 
-                        FROM likes_resena lr2 
-                        WHERE lr2.id_resena = r.id_resena 
-                            AND lr2.id_usuario = :id_usuario
-                    ) THEN 1
-                    ELSE 0
-                END AS liked
-            FROM resenas r
-            INNER JOIN local l ON r.id_local = l.id_local
-            INNER JOIN usuario u ON r.id_usuario = u.id_usuario
-            WHERE l.id_usuario = :id_usuario
-            ORDER BY r.fecha DESC
-        ";
+    // Consulta: obtenemos todas las reseñas de los locales que pertenecen al usuario
+    $query = "
+        SELECT r.*,
+            u.nombre_usuario,
+            l.id_local,
+            l.nombre_local,
+            (SELECT COUNT(*) FROM likes_resena lr WHERE lr.id_resena = r.id_resena) AS likes,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 
+                    FROM likes_resena likesresenas2 
+                    WHERE likesresenas2.id_resena = r.id_resena 
+                        AND likesresenas2.id_usuario = :id_usuario
+                ) THEN 1
+                ELSE 0
+            END AS liked
+        FROM resenas r
+        INNER JOIN local l ON r.id_local = l.id_local
+        INNER JOIN usuario u ON r.id_usuario = u.id_usuario
+        WHERE l.id_usuario = :id_usuario
+    ";
 
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
-        $stmt->execute();
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
+    $stmt->execute();
 
-        $resenas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $resenas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode($resenas);
-        exit;
+    // Agrupar reseñas por local
+    $locales = [];
+    foreach ($resenas as $r) {
+        $id_local = $r['id_local'];
+        if (!isset($locales[$id_local])) {
+            $locales[$id_local] = [
+                'id_local' => $id_local,
+                'nombre_local' => $r['nombre_local'],
+                'resenas' => []
+            ];
+        }
+
+        // Eliminamos datos repetidos del local dentro de cada reseña
+        unset($r['id_local'], $r['nombre_local']);
+        $locales[$id_local]['resenas'][] = $r;
     }
+
+    // Convertir a array indexado para JSON
+    $locales = array_values($locales);
+
+    echo json_encode($locales);
+break;
 }
 
