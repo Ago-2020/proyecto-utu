@@ -1,13 +1,16 @@
 import React from 'react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-export default function DeleteAcc({ token }) {
-  const [password, setPassword] = useState('')
+export default function DeleteAcc() {
+  const token = localStorage.getItem('token')
+  const [password_usuario, setPassword] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   const handleDelete = async () => {
-    if (!password) {
+    if (!password_usuario) {
       setMessage('Por favor ingresa tu contraseña')
       return
     }
@@ -16,20 +19,24 @@ export default function DeleteAcc({ token }) {
     setMessage('')
 
     try {
+      console.log('Token:', token)
+
       const response = await fetch('http://localhost:8000/api/users/', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token,
         },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ password_usuario }),
       })
 
       const data = await response.json()
 
       if (response.ok) {
         setMessage(data.message)
-        // Aquí podrías redirigir al login o limpiar el token localStorage
+        localStorage.removeItem('user')
+        localStorage.removeItem('token')
+        navigate('/login')
       } else {
         setMessage(data.message || 'Error al eliminar la cuenta')
       }
@@ -47,7 +54,7 @@ export default function DeleteAcc({ token }) {
         <input
           type="password"
           placeholder="Contraseña"
-          value={password}
+          value={password_usuario}
           onChange={(e) => setPassword(e.target.value)}
           className="w-full mb-4 p-2 border rounded"
         />
