@@ -28,6 +28,31 @@ export default function MyShops() {
       .catch((err) => console.error(err))
   }, [token])
 
+  const handleDelete = async (id_local) => {
+    if (!window.confirm('¿Seguro que querés eliminar este local?')) return
+
+    try {
+      const res = await fetch(`http://localhost:8000/api/shops/${id_local}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      const data = await res.json()
+      if (res.ok) {
+        alert(data.message)
+        // Actualizar la lista de locales
+        setShops((prev) => prev.filter((shop) => shop.id_local !== id_local))
+      } else {
+        alert(data.message || 'Error al eliminar el local')
+      }
+    } catch (error) {
+      console.error('Error al eliminar el local:', error)
+      alert('No se pudo eliminar el local. Revisá la consola.')
+    }
+  }
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 ml-[120px] p-6">
       <main className="bg-white shadow-xl rounded-2xl p-10 w-full h-full max-w-6xl">
@@ -65,6 +90,12 @@ export default function MyShops() {
                 >
                   + Producto
                 </Link>
+                <button
+                  onClick={() => handleDelete(shop.id_local)}
+                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                >
+                  Eliminar
+                </button>
               </div>
             </div>
           ))}
