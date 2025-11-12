@@ -20,6 +20,7 @@ El objetivo del sistema es ofrecer una plataforma práctica para aprender sobre 
 ### Backend
 
 - PHP con PDO
+- Composer (gestor de dependencias)
 - Servidor local XAMPP
 - MySQL
 
@@ -27,16 +28,22 @@ El objetivo del sistema es ofrecer una plataforma práctica para aprender sobre 
 
 ## 📂 Estructura del proyecto
 
-/backend
-├── routes/ -> Endpoints del servidor
-├── uploads/ -> Carpeta de imágenes
-├── config.php -> Configuración de la conexión a la BD
-└── index.php -> Punto de entrada del backend
-
-/frontend
-├── src/ -> Componentes React y vistas
-├── public/ -> Archivos públicos
-└── package.json -> Dependencias del proyecto
+proyecto-utu/
+├── backend/
+│ ├── routes/ -> Endpoints del servidor
+│ ├── vendor/ -> Librerías instaladas con Composer
+│ ├── config.php -> Configuración de la conexión a la base de datos
+│ ├── index.php -> Punto de entrada del backend
+│ ├── composer.json -> Dependencias PHP
+│ └── composer.lock -> Control de versiones de librerías
+│
+├── frontend/
+│ ├── src/ -> Componentes React y vistas
+│ ├── public/ -> Archivos públicos
+│ └── package.json -> Dependencias del frontend
+│
+├── uploads/ -> Carpeta donde se guardan imágenes de usuarios y tiendas
+└── README.md -> Documentación del proyecto
 
 /uploads -> Carpeta donde se guardan imágenes de usuarios y tiendas
 
@@ -61,6 +68,7 @@ README.md -> Documentación del proyecto
 
 5. Iniciar el backend:
    cd backend
+   composer install
    php -S localhost:8000 index.php
 
 6. Iniciar el frontend:
