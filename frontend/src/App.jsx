@@ -29,6 +29,8 @@ import NewProduct from '@/pages/NewProduct'
 import NewPublication from '@/pages/NewPublication'
 import EditShop from '@/pages/EditShop'
 
+import ReportForm from '@/pages/Reports'
+
 import ReportedReviews from '@/pages/ReportedReviews'
 import ReportedShops from '@/pages/ReportedShops'
 
@@ -52,6 +54,7 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/local/:id" element={<Local />} />
+            <Route path="/report/:id" element={<ReportForm />} />
             <Route path="/search" element={<Discover />} />
 
             {/* Zona protegida del perfil */}

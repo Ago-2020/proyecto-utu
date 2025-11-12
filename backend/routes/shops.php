@@ -673,6 +673,42 @@ switch (true) {
              echo json_encode(['success' => false, 'message' => 'Error al reportar la reseña', 'code' => 500]);
          }
     break;
+
+    // Reportar un local
+    case preg_match('%/api/shops/(\d+)/report$%', $requestUri, $matches) && $requestMethod == 'POST':
+        $userData = verifyToken();
+        $id_usuario = $userData->id;
+        $id_local = $matches[1] ?? null;
+
+        if (!$id_local) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Falta el ID del local']);
+            exit;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $razon = trim($input['razon'] ?? '');
+
+        if (empty($razon)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Debe ingresar una razón para el reporte']);
+            exit;
+        }
+
+        $stmt = $db->prepare("SELECT id_reporte FROM reportes WHERE id_usuario = ? AND id_local = ?");
+        $stmt->execute([$id_usuario, $id_local]);
+        if ($stmt->fetch()) {
+            http_response_code(409);
+            echo json_encode(['error' => 'Ya has reportado este local']);
+            exit;
+        }
+
+        $stmt = $db->prepare("INSERT INTO reportes (id_usuario, id_local, razon) VALUES (?, ?, ?)");
+        $stmt->execute([$id_usuario, $id_local, $razon]);
+
+        http_response_code(201);
+        echo json_encode(['message' => 'Reporte enviado correctamente']);
+    break;
     
     // Dar like a una reseña
     case preg_match('%/api/shops/(\d+)/review/(\d+)/like$%', $requestUri, $matches) && $requestMethod == 'POST':
@@ -724,8 +760,6 @@ switch (true) {
             echo json_encode(['success' => true, 'liked' => true]);
         }
     break;
-
-
             
     // Agregar local a favoritos
     case preg_match('%/api/shops/(\d+)/favorite$%', $requestUri, $matches) && $requestMethod == 'POST':
@@ -805,7 +839,6 @@ switch (true) {
             'isFavorite' => $exists > 0,
         ]);
     break;
-
 
     // Buscar tienda por nombre
     case preg_match('%/api/shops/search/?$%', $requestUri) && $requestMethod === 'GET':

@@ -14,6 +14,24 @@ export default function NewPublication() {
 
   const [preview, setPreview] = useState(null)
 
+  // Lista de etiquetas predefinidas
+  const etiquetas = [
+    { id: 1, nombre: 'Postre' },
+    { id: 2, nombre: 'Bebidas' },
+    { id: 3, nombre: 'Merienda' },
+    { id: 4, nombre: 'Aperitivos' },
+    { id: 5, nombre: 'Desayuno' },
+    { id: 6, nombre: 'Panaderia' },
+    { id: 7, nombre: 'Reposteria' },
+    { id: 8, nombre: 'Sin Gluten' },
+    { id: 9, nombre: 'Ensaladas' },
+    { id: 10, nombre: 'Helados' },
+    { id: 11, nombre: 'Vegana' },
+    { id: 12, nombre: 'Vegetariana' },
+    { id: 13, nombre: 'Sandwiches' },
+    { id: 14, nombre: 'Hamburguesas' },
+  ]
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm({ ...form, [name]: value })
@@ -32,7 +50,6 @@ export default function NewPublication() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // Validaciones
     if (
       !form.titulo ||
       !form.descripcion ||
@@ -60,9 +77,7 @@ export default function NewPublication() {
         `http://localhost:8000/api/shops/${id}/products`,
         {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
           body: formData,
         },
       )
@@ -71,9 +86,9 @@ export default function NewPublication() {
       let data
       try {
         data = JSON.parse(text)
-      } catch (err) {
+      } catch {
         console.error('Respuesta no JSON:', text)
-        throw err
+        throw new Error('Respuesta inválida del servidor')
       }
 
       if (res.ok) {
@@ -143,19 +158,25 @@ export default function NewPublication() {
             />
           </div>
 
+          {/* Select de etiqueta */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700 mb-2">
               Etiqueta
             </label>
-            <input
-              type="text"
+            <select
               name="etiqueta_producto"
               value={form.etiqueta_producto}
               onChange={handleChange}
-              placeholder="Ingrese la etiqueta del producto"
               className="border border-gray-300 rounded-lg p-4 w-full focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-800 transition"
               required
-            />
+            >
+              <option value="">Seleccione una etiqueta</option>
+              {etiquetas.map((etiqueta) => (
+                <option key={etiqueta.id} value={etiqueta.id}>
+                  {etiqueta.nombre}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="flex flex-col">

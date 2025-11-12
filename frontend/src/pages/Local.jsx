@@ -1,4 +1,10 @@
-import { FaFacebook, FaInstagram, FaTwitter, FaYoutube } from 'react-icons/fa'
+import {
+  FaFacebook,
+  FaInstagram,
+  FaTwitter,
+  FaYoutube,
+  FaFlag,
+} from 'react-icons/fa'
 import ReviewCard from '@/components/ReviewCard'
 import ProductCard from '@/components/ProductCard'
 import NewReview from '@/components/NewReview'
@@ -172,7 +178,14 @@ export default function Local() {
         style={{ backgroundImage: `url(${bannerURL})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
-
+        <Link
+          to={`/report/${id}`}
+          className="absolute top-5 right-5 flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-medium shadow-lg transition"
+          title="Reportar este local"
+        >
+          <FaFlag className="text-white" />
+          Reportar
+        </Link>
         {/* Info del local */}
         <div className="absolute bottom-0 left-0 w-full p-6 md:p-10 flex flex-col sm:flex-row sm:items-end sm:justify-between text-white">
           <div className="flex items-center gap-6">
