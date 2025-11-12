@@ -62,7 +62,7 @@ $data = json_decode(file_get_contents("php://input"));
 
 
 switch (true) {
-// Registro de un local
+    // Registro de un local
     case preg_match('%/api/shops/?$%', $requestUri) && $requestMethod == 'POST':
 
         // Middleware de verificación del token
@@ -249,32 +249,110 @@ switch (true) {
         echo json_encode($locals);
     break;
     
-    // --- ACTUALIZAR UN LOCAL (PUT) --- [NO CHECKEADO]
-    case preg_match('%/api/shops/?$%', $requestUri) && $requestMethod == 'PUT':
-        $userData = verifyToken(); // Proteger la ruta
+    // Editar un local
+    case preg_match('%/api/shops/(\d+)/?$%', $requestUri, $matches):
 
-        if (!empty($data->id) && !empty($data->nombre) && !empty($data->direccion)) {
-            $query = "UPDATE local SET nombre = :nombre, direccion = :direccion WHERE IDLocal = :id_local AND EmailUsuario = :email_usuario";
-            $stmt = $db->prepare($query);
-            
-            // Vincular datos
-            $stmt->bindParam(":nombre", $data->nombre);
-            $stmt->bindParam(":direccion", $data->direccion);
-            $stmt->bindParam(":id_local", $data->id);
-            $stmt->bindParam(":email_usuario", $userData->email);
+        $id_local = $matches[1];
+        $userData = verifyToken();
 
-            if ($stmt->execute()) {
-                http_response_code(200);
-                echo json_encode(['success' => true, 'message' => 'Local actualizado con éxito', 'code' => 200]);
-            } else {
-                http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'Error al actualizar el local', 'code' => 500]);
-            }
-        } else {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Datos incompletos.', 'code' => 400]);
+        // detectar posts o put
+        $actualMethod = $requestMethod;
+        if ($requestMethod === 'POST' && !empty($_POST['_method'])) {
+            $actualMethod = strtoupper($_POST['_method']);
         }
+
+        if ($actualMethod !== 'PUT') {
+            http_response_code(405);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Método no permitido. Use PUT o POST con _method=PUT.',
+                'code' => 405
+            ]);
+            break;
+        }
+
+        $nombre_local = $ubicacion = $descripcion = $slogan = $numero = null;
+        $logoPath = $bannerPath = null;
+
+        if ($requestMethod === 'POST') {
+            // form-data
+            $nombre_local = $_POST['nombre_local'] ?? null;
+            $ubicacion    = $_POST['ubicacion'] ?? null;
+            $descripcion  = $_POST['descripcion'] ?? null;
+            $slogan       = $_POST['slogan'] ?? null;
+            $numero       = $_POST['numero'] ?? null;
+
+            if (!empty($_FILES['logo']['tmp_name'])) {
+                $uploadLogo = uploadImage($_FILES['logo'], 'locals/logos/');
+                if ($uploadLogo['success']) $logoPath = $uploadLogo['path'];
+            }
+
+            if (!empty($_FILES['banner']['tmp_name'])) {
+                $uploadBanner = uploadImage($_FILES['banner'], 'locals/banners/');
+                if ($uploadBanner['success']) $bannerPath = $uploadBanner['path'];
+            }
+
+        } else {
+            // si es un put, solo se manda el json sin imagenes
+            $data = json_decode(file_get_contents("php://input"), true);
+            $nombre_local = $data['nombre_local'] ?? null;
+            $ubicacion    = $data['ubicacion'] ?? null;
+            $descripcion  = $data['descripcion'] ?? null;
+            $slogan       = $data['slogan'] ?? null;
+            $numero       = $data['numero'] ?? null;
+        }
+
+        if (empty($nombre_local) || empty($ubicacion)) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Datos incompletos. nombre_local y ubicacion son obligatorios.',
+                'code' => 400
+            ]);
+            break;
+        }
+
+        $query = "UPDATE local SET
+                    nombre_local = :nombre_local,
+                    ubicacion = :ubicacion,
+                    descripcion = :descripcion,
+                    slogan = :slogan,
+                    numero = :numero";
+
+        if ($logoPath)   $query .= ", logo = :logo";
+        if ($bannerPath) $query .= ", banner = :banner";
+
+        $query .= " WHERE id_local = :id_local AND id_usuario = :id_usuario";
+
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(":nombre_local", $nombre_local);
+        $stmt->bindParam(":ubicacion", $ubicacion);
+        $stmt->bindParam(":descripcion", $descripcion);
+        $stmt->bindParam(":slogan", $slogan);
+        $stmt->bindParam(":numero", $numero);
+        $stmt->bindParam(":id_local", $id_local);
+        $stmt->bindParam(":id_usuario", $userData->id);
+        if ($logoPath)   $stmt->bindParam(":logo", $logoPath);
+        if ($bannerPath) $stmt->bindParam(":banner", $bannerPath);
+
+        if ($stmt->execute()) {
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Local actualizado con éxito',
+                'code' => 200
+            ]);
+        } else {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Error al actualizar el local',
+                'code' => 500
+            ]);
+        }
+
     break;
+
 
     // Registrar producto de un local
     case preg_match('%/api/shops/(\d+)/products$%', $requestUri, $matches) && $requestMethod == 'POST':

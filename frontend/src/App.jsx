@@ -23,6 +23,7 @@ import MyShops from '@/pages/MyShops'
 import NewShop from '@/pages/NewShop'
 import ShopComments from '@/pages/ShopComments'
 import NewPublication from '@/pages/NewPublication'
+import EditShop from '@/pages/EditShop'
 
 import ReportedReviews from '@/pages/ReportedReviews'
 import ReportedShops from '@/pages/ReportedShops'
@@ -67,6 +68,7 @@ export default function App() {
               <Route path="reportedreviews" element={<ReportedReviews />} />
               <Route path="reportedshops" element={<ReportedShops />} />
               <Route path="newpublication" element={<NewPublication />} />
+              <Route path="editshop" element={<EditShop></EditShop>}></Route>
             </Route>
           </Route>
 
