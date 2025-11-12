@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
+import { useAuth } from '@/AuthProvider'
 
-export default function EditShop({ shopId, token }) {
+export default function EditShop({ shopId }) {
+  const { token } = useAuth()
+  const { id } = useParams()
   const [form, setForm] = useState({
     nombre_local: '',
     ubicacion: '',
@@ -14,23 +18,20 @@ export default function EditShop({ shopId, token }) {
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // Cargar datos iniciales del local (opcional)
+  // cargar datos iniciales del local
   useEffect(() => {
-    fetch(`http://localhost:8000/api/shops/${shopId}`, {
+    if (!id) return
+    fetch(`http://localhost:8000/api/shops/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          setForm((prev) => ({
-            ...prev,
-            ...data.shop,
-          }))
+          setForm((prev) => ({ ...prev, ...data.shop }))
         }
       })
-  }, [shopId, token])
+  }, [id, token])
 
-  // Manejar cambios de inputs
   const handleChange = (e) => {
     const { name, value, files } = e.target
     if (files) {
@@ -40,11 +41,8 @@ export default function EditShop({ shopId, token }) {
     }
   }
 
-  // Enviar formulario
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
-    setMessage('')
 
     const formData = new FormData()
     formData.append('nombre_local', form.nombre_local)
@@ -52,27 +50,38 @@ export default function EditShop({ shopId, token }) {
     formData.append('descripcion', form.descripcion || '')
     formData.append('slogan', form.slogan || '')
     formData.append('numero', form.numero || '')
-    if (form.logo) formData.append('logo', form.logo)
-    if (form.banner) formData.append('banner', form.banner)
-    // Simular PUT con POST
+
+    // agregar images SI el usuario las cambio sino, chao
+    if (form.logo instanceof File) {
+      formData.append('logo', form.logo)
+    }
+    if (form.banner instanceof File) {
+      formData.append('banner', form.banner)
+    }
+
     formData.append('_method', 'PUT')
 
     try {
-      const res = await fetch(`http://localhost:8000/api/shops/${shopId}`, {
-        method: 'POST', // form-data no funciona con PUT puro
+      const res = await fetch(`http://localhost:8000/api/shops/${id}`, {
+        method: 'POST', // form-data no funciona bien con PUT
         headers: {
           Authorization: `Bearer ${token}`,
         },
         body: formData,
       })
 
-      const data = await res.json()
-      setMessage(data.message)
-    } catch (err) {
-      console.error(err)
-      setMessage('Error al actualizar el local')
-    } finally {
-      setLoading(false)
+      const text = await res.text()
+      console.log('Respuesta texto:', text)
+      const data = text ? JSON.parse(text) : {}
+
+      if (res.ok && data.success) {
+        alert('Local actualizado con éxito!')
+      } else {
+        alert(data.message || 'Error al actualizar')
+      }
+    } catch (error) {
+      console.error('Error al enviar el formulario:', error)
+      alert('Error de conexión con el servidor')
     }
   }
 

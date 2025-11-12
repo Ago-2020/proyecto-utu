@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import ShopCard from '@/components/ShopCard'
 import { useAuth } from '@/AuthProvider'
+import { Link } from 'react-router-dom'
 
 export default function MyShops() {
   const { token } = useAuth()
@@ -40,15 +41,32 @@ export default function MyShops() {
           }}
         >
           {shops.map((shop) => (
-            <ShopCard
-              key={shop.id_local}
-              id={shop.id_local}
-              title={shop.nombre_local}
-              description={shop.descripcion}
-              estrellas={0} // COPILOT COMMENTS MOOOOVEEEEE
-              etiquetas={shop.etiquetas}
-              banner={shop.banner}
-            />
+            <div key={shop.id_local} className="flex flex-col items-center">
+              <ShopCard
+                id={shop.id_local}
+                title={shop.nombre_local}
+                description={shop.descripcion}
+                estrellas={0} // COPILOT COMMENTS MOOOOVEEEEE
+                etiquetas={shop.etiquetas}
+                banner={shop.banner}
+              />
+
+              <div className="flex gap-2 mt-4">
+                <Link
+                  to={`/profile/editshop/${shop.id_local}`}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                  Editar
+                </Link>
+
+                <Link
+                  to={`/profile/newproduct/${shop.id_local}`}
+                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                >
+                  + Producto
+                </Link>
+              </div>
+            </div>
           ))}
         </div>
       </main>

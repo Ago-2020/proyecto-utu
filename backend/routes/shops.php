@@ -375,7 +375,7 @@ switch (true) {
 
             $titulo = $_POST['titulo'] ?? null;
             $precio = $_POST['precio'] ?? null;
-            $descripcion = $_POST['descripcion_producto'] ?? null;
+            $descripcion = $_POST['descripcion'] ?? null;
             $etiqueta = $_POST['etiqueta_producto'] ?? null;
 
             if (!$titulo || !$descripcion) {

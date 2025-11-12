@@ -1,66 +1,92 @@
-import React, { useState } from "react";
-import ProductCard from "@/components/ProductCard";
-export default function NewPublication() {
-  const [form, setForm] = useState({
-    titulo: "",
-    descripcion: "",
-    precio: "",
-    foto: null,
-  });
+import React, { useState } from 'react'
+import { useParams } from 'react-router-dom'
+import ProductCard from '@/components/ProductCard'
 
-  const [preview, setPreview] = useState(null);
+export default function NewPublication() {
+  const { id } = useParams() // ID del local
+  const [form, setForm] = useState({
+    titulo: '',
+    descripcion: '',
+    precio: '',
+    etiqueta_producto: '',
+    foto: null,
+  })
+
+  const [preview, setPreview] = useState(null)
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+    const { name, value } = e.target
+    setForm({ ...form, [name]: value })
+  }
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const file = e.target.files[0]
+    if (!file) return
+    setForm({ ...form, foto: file })
 
-    setForm({ ...form, foto: file });
-
-    const reader = new FileReader();
-    reader.onloadend = () => setPreview(reader.result);
-    reader.readAsDataURL(file);
-  };
+    const reader = new FileReader()
+    reader.onloadend = () => setPreview(reader.result)
+    reader.readAsDataURL(file)
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    if (form.precio <= 0) {
-      return alert("El precio debe ser mayor que 0");
+    // Validaciones
+    if (
+      !form.titulo ||
+      !form.descripcion ||
+      form.precio <= 0 ||
+      !form.etiqueta_producto
+    ) {
+      return alert(
+        'Todos los campos son obligatorios y el precio debe ser mayor que 0',
+      )
     }
 
-    const token = localStorage.getItem("token");
-    if (!token) return alert("Debe iniciar sesión para registrar una publicación.");
+    const token = localStorage.getItem('token')
+    if (!token)
+      return alert('Debe iniciar sesión para registrar una publicación.')
 
-    const formData = new FormData();
-    for (const key in form) {
-      formData.append(key, form[key]);
-    }
+    const formData = new FormData()
+    formData.append('titulo', form.titulo)
+    formData.append('descripcion', form.descripcion)
+    formData.append('precio', form.precio)
+    formData.append('etiqueta_producto', form.etiqueta_producto)
+    if (form.foto) formData.append('foto', form.foto)
 
     try {
-      const res = await fetch("http://localhost:8000/api/publications/", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const res = await fetch(
+        `http://localhost:8000/api/shops/${id}/products`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
         },
-        body: formData,
-      });
+      )
 
-      const data = await res.json();
+      const text = await res.text()
+      let data
+      try {
+        data = JSON.parse(text)
+      } catch (err) {
+        console.error('Respuesta no JSON:', text)
+        throw err
+      }
+
       if (res.ok) {
-        alert("Publicación registrada correctamente 🎉");
-        window.location.href = "/profile/myshops";
+        alert('Producto registrado correctamente!')
+        window.location.href = '/profile/myshops'
       } else {
-        alert(data.message || "Error al registrar la publicación");
+        alert(data.message || 'Error al registrar el producto')
       }
     } catch (error) {
-      console.error("Error:", error);
-      alert("Error de conexión con el servidor");
+      console.error('Error de conexión o parseo:', error)
+      alert('Error al registrar el producto.')
     }
-  };
+  }
 
   return (
     <div className="flex justify-center items-start min-h-screen bg-gray-100 ml-[120px] p-6">
@@ -72,7 +98,9 @@ export default function NewPublication() {
           encType="multipart/form-data"
         >
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-700 mb-2">Título</label>
+            <label className="text-sm font-medium text-gray-700 mb-2">
+              Título
+            </label>
             <input
               type="text"
               name="titulo"
@@ -80,11 +108,14 @@ export default function NewPublication() {
               onChange={handleChange}
               placeholder="Ingrese el título"
               className="border border-gray-300 rounded-lg p-4 w-full focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-800 transition"
+              required
             />
           </div>
 
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-700 mb-2">Descripción</label>
+            <label className="text-sm font-medium text-gray-700 mb-2">
+              Descripción
+            </label>
             <input
               type="text"
               name="descripcion"
@@ -92,11 +123,14 @@ export default function NewPublication() {
               onChange={handleChange}
               placeholder="Ingrese la descripción"
               className="border border-gray-300 rounded-lg p-4 w-full focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-800 transition"
+              required
             />
           </div>
 
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-700 mb-2">Precio</label>
+            <label className="text-sm font-medium text-gray-700 mb-2">
+              Precio
+            </label>
             <input
               type="number"
               name="precio"
@@ -105,11 +139,29 @@ export default function NewPublication() {
               onChange={handleChange}
               placeholder="Ingrese precio mayor que 0"
               className="border border-gray-300 rounded-lg p-4 w-full focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-800 transition"
+              required
             />
           </div>
 
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-700 mb-2">Imagen</label>
+            <label className="text-sm font-medium text-gray-700 mb-2">
+              Etiqueta
+            </label>
+            <input
+              type="text"
+              name="etiqueta_producto"
+              value={form.etiqueta_producto}
+              onChange={handleChange}
+              placeholder="Ingrese la etiqueta del producto"
+              className="border border-gray-300 rounded-lg p-4 w-full focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-800 transition"
+              required
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-2">
+              Imagen
+            </label>
             <input
               type="file"
               accept="image/*"
@@ -123,22 +175,24 @@ export default function NewPublication() {
               type="submit"
               className="bg-red-600 hover:bg-red-700 text-white px-16 py-4 rounded-xl font-semibold shadow-lg transition-transform transform hover:scale-105"
             >
-              Guardar Publicación
+              Guardar Producto
             </button>
           </div>
         </form>
 
         {/* Preview */}
         <div className="flex-1">
-          <h2 className="text-xl font-semibold mb-4 text-center">Preview de la Publicación</h2>
+          <h2 className="text-xl font-semibold mb-4 text-center">
+            Preview del Producto
+          </h2>
           <ProductCard
             titulo={form.titulo}
             descripcion={form.descripcion}
-            precio={form.precio > 0 ? form.precio : ""}
+            precio={form.precio > 0 ? form.precio : ''}
             foto={preview}
           />
         </div>
       </main>
     </div>
-  );
+  )
 }

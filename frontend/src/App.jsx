@@ -68,9 +68,9 @@ export default function App() {
               <Route path="myshopreviews" element={<ShopComments />} />
               <Route path="reportedreviews" element={<ReportedReviews />} />
               <Route path="reportedshops" element={<ReportedShops />} />
-              <Route path="newproduct" element={<NewProduct />} />
-              <Route path="newpublication" element={<NewPublication />} />
-              <Route path="editshop" element={<EditShop></EditShop>}></Route>
+              <Route path="newproduct/:id" element={<NewProduct />} />
+              <Route path="newpublication/:id" element={<NewPublication />} />
+              <Route path="editshop/:id" element={<EditShop />} />
             </Route>
           </Route>
 
