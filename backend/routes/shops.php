@@ -652,27 +652,42 @@ switch (true) {
     break;
 
     // Reportar reseña de un local
-    case preg_match('%/api/shops/(\d+)/review/(\d+)$%', $requestUri, $matches) && $requestMethod == 'PUT':
+    case preg_match('%^/api/shops/(\d+)/review/(\d+)$%', $requestUri, $matches) && $requestMethod == 'PUT':
         $userData = verifyToken();
 
         $id_local = $matches[1] ?? null;
-        $id_usuario = $matches[2] ?? null;
+        $id_resena = $matches[2] ?? null;
 
-        $query = "UPDATE resenas SET reportado = 1 WHERE id_local = :id_local AND id_usuario = :id_usuario";
+        if (!$id_local || !$id_resena) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Faltan parámetros'
+            ]);
+            exit;
+        }
+
+        $query = "UPDATE resenas SET reportado = 1 WHERE id_local = :id_local AND id_resena = :id_resena";
         $stmt = $db->prepare($query);
-        $stmt->bindParam(":id_local", $id_local);
-        $stmt->bindParam(":id_usuario", $id_usuario);
-        
-        echo json_encode($data);
-        
-        if ($stmt->execute()) {
-             http_response_code(200);
-             echo json_encode(['success' => true, 'message' => 'Reseña reportada con éxito', 'code' => 200]);
-         } else {
-             http_response_code(500);
-             echo json_encode(['success' => false, 'message' => 'Error al reportar la reseña', 'code' => 500]);
-         }
+        $stmt->bindParam(":id_local", $id_local, PDO::PARAM_INT);
+        $stmt->bindParam(":id_resena", $id_resena, PDO::PARAM_INT);
+
+        if ($stmt->execute() && $stmt->rowCount() > 0) {
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Reseña reportada con éxito'
+            ]);
+        } else {
+            http_response_code(404);
+            echo json_encode([
+                'success' => false,
+                'message' => 'No se encontró la reseña o ya estaba reportada'
+            ]);
+        }
     break;
+
+
 
     // Reportar un local
     case preg_match('%/api/shops/(\d+)/report$%', $requestUri, $matches) && $requestMethod == 'POST':

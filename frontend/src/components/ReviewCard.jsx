@@ -1,37 +1,62 @@
-import { FaStar, FaRegStar, FaUser, FaHeart, FaTrash } from 'react-icons/fa'
+import {
+  FaStar,
+  FaRegStar,
+  FaUser,
+  FaHeart,
+  FaTrash,
+  FaFlag,
+} from 'react-icons/fa'
 import React, { useState } from 'react'
 
 export default function Review({ review, currentUserId, onDelete, onLike }) {
   const {
-    id_resena: id,
+    id_resena: id_resena,
     nombre_usuario,
     estrellas,
     comentario,
     likes: initialLikes,
     perfil_url,
     id_usuario: user_id,
+    id_local,
   } = review
 
   const isMine = currentUserId == user_id
   const [liked, setLiked] = useState(review.liked === 1)
-  const [likes, setLikes] = useState(review.likes)
+  const [likes, setLikes] = useState(initialLikes)
 
   const handleLike = () => {
-    // //Alternar like localmente
-    if (liked) {
-      setLikes(likes - 1)
-    } else {
-      setLikes(likes + 1)
-    }
     setLiked(!liked)
+    setLikes((prev) => (liked ? prev - 1 : prev + 1))
+    if (onLike) onLike(id_resena, !liked)
+  }
 
-    // Llama al callback para backend
-    if (onLike) onLike(id, !liked)
+  const handleReport = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:8000/api/shops/${id_local}/review/${id_resena}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        },
+      )
+
+      const data = await res.json()
+
+      if (data.success) {
+        alert('Reseña reportada con éxito')
+      } else {
+        alert(data.message || 'No se pudo reportar la reseña')
+      }
+    } catch (err) {
+      alert('Error de conexión: ' + err.message)
+    }
   }
 
   return (
     <div
-      key={id}
+      key={id_resena}
       className="bg-white border border-gray-300 rounded-xl p-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 shadow-sm"
     >
       {/* Columna izquierda */}
@@ -51,23 +76,35 @@ export default function Review({ review, currentUserId, onDelete, onLike }) {
 
         {/* Contenido */}
         <div className="flex-1 flex flex-col">
-          {/* Nombre y basura */}
           <div className="flex justify-between items-start">
             <h4 className="font-medium text-gray-900 text-lg">
               {nombre_usuario}
             </h4>
-            {isMine && (
-              <button
-                onClick={() => onDelete && onDelete(id)}
-                className="text-gray-400 hover:text-red-600"
-                title="Borrar reseña"
-              >
-                <FaTrash className="text-base" />
-              </button>
-            )}
+            <div className="flex gap-3 items-center">
+              {/* Botón de reportar */}
+              {!isMine && (
+                <button
+                  onClick={handleReport}
+                  className="text-gray-400 hover:text-yellow-600"
+                  title="Reportar reseña"
+                >
+                  <FaFlag className="text-base" />
+                </button>
+              )}
+
+              {/* Botón de borrar si es tuya */}
+              {isMine && (
+                <button
+                  onClick={() => onDelete && onDelete(id_resena)}
+                  className="text-gray-400 hover:text-red-600"
+                  title="Borrar reseña"
+                >
+                  <FaTrash className="text-base" />
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Estrellas */}
           <div className="flex text-yellow-400 mt-2 text-base">
             {[...Array(5)].map((_, i) =>
               i < estrellas ? (
@@ -78,12 +115,11 @@ export default function Review({ review, currentUserId, onDelete, onLike }) {
             )}
           </div>
 
-          {/* Comentario */}
           <p className="text-gray-800 mt-2 text-base text-left">{comentario}</p>
         </div>
       </div>
 
-      {/* Columna derecha: Likes clickeable */}
+      {/* Likes */}
       <div className="flex flex-col items-end gap-2 mt-2 sm:mt-0">
         <button
           onClick={handleLike}
