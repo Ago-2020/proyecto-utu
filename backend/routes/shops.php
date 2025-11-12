@@ -27,7 +27,7 @@ function verifyToken($required = true) {
     } catch (Exception $e) {
         if ($required) {
             http_response_code(403);
-            echo json_encode(["message" => "No se puede acceder a la siguiente funcion.", "error" => $e->getMessage()]);
+            echo json_encode(["message" => "No se puede acceder a la siguiente funcion", "error" => $e->getMessage()]);
             exit();
         } else {
             return null;
@@ -59,7 +59,6 @@ function uploadImage($file, $subfolder = 'users/', $allowedTypes = ['jpg', 'jpeg
 $database = new Database();
 $db = $database->getConnection();
 $data = json_decode(file_get_contents("php://input"));
-
 
 switch (true) {
     // Registro de un local
@@ -430,6 +429,33 @@ switch (true) {
 
         echo json_encode($productos);
     break;
+
+    // Eliminar producto de un local
+    case preg_match('%/api/shops/(\d+)/products/(\d+)$%', $requestUri, $matches) && $requestMethod == 'DELETE':
+        $userData = verifyToken(); // usuario autenticado
+        $shopId = $matches[1];
+        $productId = $matches[2];
+
+        // Verificar que el local pertenece al usuario
+        $stmt = $db->prepare("SELECT * FROM local WHERE id_local = ? AND id_usuario = ?");
+        $stmt->execute([$shopId, $userData->id]);
+        $shop = $stmt->fetch();
+
+        if (!$shop) {
+            http_response_code(403);
+            echo json_encode(['error' => 'No tienes permisos']);
+            exit;
+        }
+
+        // Borrar el producto
+        $stmt = $db->prepare("DELETE FROM productos WHERE id_producto = ? AND id_local = ?");
+        $stmt->execute([$productId, $shopId]);
+
+        http_response_code(201);
+        echo json_encode(['success' => true, 'message' => 'Producto eliminado con exito', 'code' => 201]);
+    break;
+
+
 
     // Registrar publicacion de un local --- [NO CHECKEADO]
     case preg_match('%/api/shops/(\d+)/posts$%', $requestUri, $matches) && $requestMethod == 'POST':
@@ -874,58 +900,174 @@ switch (true) {
 
     // Ver reseñas de mis locales
     case (preg_match('%/api/shops/myreviews/?$%', $requestUri) && $requestMethod == 'GET'):
-    $userData = verifyToken();
-    $id_usuario = $userData->id;
+        $userData = verifyToken();
+        $id_usuario = $userData->id;
 
-    // Consulta: obtenemos todas las reseñas de los locales que pertenecen al usuario
-    $query = "
-        SELECT r.*,
-            u.nombre_usuario,
-            l.id_local,
-            l.nombre_local,
-            (SELECT COUNT(*) FROM likes_resena lr WHERE lr.id_resena = r.id_resena) AS likes,
-            CASE 
-                WHEN EXISTS (
-                    SELECT 1 
-                    FROM likes_resena likesresenas2 
-                    WHERE likesresenas2.id_resena = r.id_resena 
-                        AND likesresenas2.id_usuario = :id_usuario
-                ) THEN 1
-                ELSE 0
-            END AS liked
-        FROM resenas r
-        INNER JOIN local l ON r.id_local = l.id_local
-        INNER JOIN usuario u ON r.id_usuario = u.id_usuario
-        WHERE l.id_usuario = :id_usuario
-    ";
+        // Consulta: obtenemos todas las reseñas de los locales que pertenecen al usuario
+        $query = "
+            SELECT r.*,
+                u.nombre_usuario,
+                l.id_local,
+                l.nombre_local,
+                (SELECT COUNT(*) FROM likes_resena lr WHERE lr.id_resena = r.id_resena) AS likes,
+                CASE 
+                    WHEN EXISTS (
+                        SELECT 1 
+                        FROM likes_resena likesresenas2 
+                        WHERE likesresenas2.id_resena = r.id_resena 
+                            AND likesresenas2.id_usuario = :id_usuario
+                    ) THEN 1
+                    ELSE 0
+                END AS liked
+            FROM resenas r
+            INNER JOIN local l ON r.id_local = l.id_local
+            INNER JOIN usuario u ON r.id_usuario = u.id_usuario
+            WHERE l.id_usuario = :id_usuario
+        ";
 
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
-    $stmt->execute();
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
+        $stmt->execute();
 
-    $resenas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $resenas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Agrupar reseñas por local
-    $locales = [];
-    foreach ($resenas as $r) {
-        $id_local = $r['id_local'];
-        if (!isset($locales[$id_local])) {
-            $locales[$id_local] = [
-                'id_local' => $id_local,
-                'nombre_local' => $r['nombre_local'],
-                'resenas' => []
-            ];
+        // Agrupar reseñas por local
+        $locales = [];
+        foreach ($resenas as $r) {
+            $id_local = $r['id_local'];
+            if (!isset($locales[$id_local])) {
+                $locales[$id_local] = [
+                    'id_local' => $id_local,
+                    'nombre_local' => $r['nombre_local'],
+                    'resenas' => []
+                ];
+            }
+
+            // Eliminamos datos repetidos del local dentro de cada reseña
+            unset($r['id_local'], $r['nombre_local']);
+            $locales[$id_local]['resenas'][] = $r;
         }
 
-        // Eliminamos datos repetidos del local dentro de cada reseña
-        unset($r['id_local'], $r['nombre_local']);
-        $locales[$id_local]['resenas'][] = $r;
-    }
+        // Convertir a array indexado para JSON
+        $locales = array_values($locales);
 
-    // Convertir a array indexado para JSON
-    $locales = array_values($locales);
+        echo json_encode($locales);
+    break;
 
-    echo json_encode($locales);
-break;
+    // Agregar red social a un local
+    case preg_match('%/api/shops/(\d+)/socials$%', $requestUri, $matches) && $requestMethod == 'POST':
+        $userData = verifyToken();
+        $id_local = $matches[1] ?? null;
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $id_tipored = $input['id_tipored'] ?? null;
+        $nombre_red = $input['nombre_red'] ?? '';
+        $url_perfil = $input['url_perfil'] ?? '';
+
+        if (!$id_local || !$id_tipored || !$nombre_red || !$url_perfil) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Faltan datos necesarios']);
+            exit;
+        }
+
+        try {
+            // Verificar que el local pertenece al usuario autenticado
+            $stmt = $db->prepare("SELECT id_local FROM local WHERE id_local = ? AND id_usuario = ?");
+            $stmt->execute([$id_local, $userData->id]);
+            $local = $stmt->fetch();
+
+            if (!$local) {
+                http_response_code(403);
+                echo json_encode(['error' => 'No tienes permisos para agregar redes a este local o no existe.']);
+                exit;
+            }
+
+            // Verificar tipo de red
+            $stmt = $db->prepare("SELECT COUNT(*) FROM redes_tipo WHERE id_tipored = ?");
+            $stmt->execute([$id_tipored]);
+            if ($stmt->fetchColumn() == 0) {
+                http_response_code(400);
+                echo json_encode(['error' => 'El tipo de red no existe']);
+                exit;
+            }
+
+            // Insertar red social
+            $stmt = $db->prepare("
+                INSERT INTO redes_sociales (id_local, id_tipored, nombre_red, url_perfil)
+                VALUES (?, ?, ?, ?)
+            ");
+            $stmt->execute([$id_local, $id_tipored, $nombre_red, $url_perfil]);
+
+            http_response_code(201);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Red social agregada correctamente',
+                'id_red' => $db->lastInsertId()
+            ]);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Error al guardar la red social',
+                'detalle' => $e->getMessage()
+            ]);
+        }
+    break;
+
+    // Mostrar todas las redes sociales de un local
+    case preg_match('%/api/shops/(\d+)/socials$%', $requestUri, $matches) && $requestMethod == 'GET':
+        $id_local = $matches[1] ?? null;
+
+        if (!$id_local) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Falta el ID del local']);
+            exit;
+        }
+
+        $stmt = $db->prepare("SELECT * FROM redes_sociales WHERE id_local = ?");
+        $stmt->execute([$id_local]);
+        $socials = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode($socials);
+    break;
+
+    // Borrar una red social
+    case preg_match('%/api/shops/socials/(\d+)$%', $requestUri, $matches) && $requestMethod == 'DELETE':
+        $userData = verifyToken();
+        $id_red = $matches[1] ?? null;
+
+        if (!$id_red) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Falta el ID de la red social']);
+            exit;
+        }
+
+        try {
+            // Verificar que la red social pertenece a un local del usuario
+            $stmt = $db->prepare("
+                SELECT rs.id_red 
+                FROM redes_sociales rs
+                INNER JOIN local l ON rs.id_local = l.id_local
+                WHERE rs.id_red = ? AND l.id_usuario = ?
+            ");
+            $stmt->execute([$id_red, $userData->id]);
+            $red = $stmt->fetch();
+
+            if (!$red) {
+                http_response_code(403);
+                echo json_encode(['error' => 'No tienes permisos para eliminar esta red social']);
+                exit;
+            }
+
+            // Borrar la red social
+            $stmt = $db->prepare("DELETE FROM redes_sociales WHERE id_red = ?");
+            $stmt->execute([$id_red]);
+
+            echo json_encode(['success' => true, 'message' => 'Red social eliminada correctamente']);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'No se pudo eliminar la red social', 'detalle' => $e->getMessage()]);
+        }
+    break;
+
 }
 

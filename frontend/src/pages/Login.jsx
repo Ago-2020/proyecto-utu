@@ -57,11 +57,12 @@ export default function Login() {
         <img
           src={logo}
           alt="Logo"
-          className="z-50 rounded-full border-2 border-black shadow-lg"
+          className="z-50 rounded-xl border-2"
           style={{
             width: '60px',
             height: '60px',
             position: 'absolute',
+            borderColor: '#FF3131',
             top: '20px',
             left: '50%',
             transform: 'translateX(-50%)',

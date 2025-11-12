@@ -85,10 +85,16 @@ export default function MyShops() {
                 </Link>
 
                 <Link
-                  to={`/profile/newproduct/${shop.id_local}`}
+                  to={`/profile/shopproducts/${shop.id_local}`}
                   className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
                 >
-                  + Producto
+                  Productos
+                </Link>
+                <Link
+                  to={`/profile/shopsocials/${shop.id_local}`}
+                  className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+                >
+                  Redes sociales
                 </Link>
                 <button
                   onClick={() => handleDelete(shop.id_local)}

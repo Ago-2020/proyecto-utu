@@ -22,6 +22,9 @@ import DeleteAcc from '@/pages/DeleteAcc'
 import MyShops from '@/pages/MyShops'
 import NewShop from '@/pages/NewShop'
 import ShopComments from '@/pages/MyShopReviews'
+import ShopProducts from '@/pages/ShopProducts'
+import ShopSocials from '@/pages/ShopSocials'
+import NewSocial from '@/pages/NewSocial'
 import NewProduct from '@/pages/NewProduct'
 import NewPublication from '@/pages/NewPublication'
 import EditShop from '@/pages/EditShop'
@@ -69,6 +72,9 @@ export default function App() {
               <Route path="reportedreviews" element={<ReportedReviews />} />
               <Route path="reportedshops" element={<ReportedShops />} />
               <Route path="newproduct/:id" element={<NewProduct />} />
+              <Route path="newsocial/:id" element={<NewSocial />} />
+              <Route path="shopproducts/:id" element={<ShopProducts />} />
+              <Route path="shopsocials/:id" element={<ShopSocials />} />
               <Route path="newpublication/:id" element={<NewPublication />} />
               <Route path="editshop/:id" element={<EditShop />} />
             </Route>

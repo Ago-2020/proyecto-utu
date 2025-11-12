@@ -1,4 +1,4 @@
-import { FaStar, FaRegStar, FaUser, FaHeart } from 'react-icons/fa'
+import { FaFacebook, FaInstagram, FaTwitter, FaYoutube } from 'react-icons/fa'
 import ReviewCard from '@/components/ReviewCard'
 import ProductCard from '@/components/ProductCard'
 import NewReview from '@/components/NewReview'
@@ -14,6 +14,7 @@ export default function Local() {
   const [local, setLocal] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [redes, setRedes] = useState([])
   const [productos, setProductos] = useState([])
   const [reseñas, setReseñas] = useState([])
 
@@ -115,15 +116,22 @@ export default function Local() {
       try {
         const authHeader = token ? { Authorization: `Bearer ${token}` } : {}
 
-        const [localRes, reviewRes, productRes] = await Promise.all([
-          fetch(`http://localhost:8000/api/shops/${id}`).then((r) => r.json()),
-          fetch(`http://localhost:8000/api/shops/${id}/review`, {
-            headers: authHeader,
-          }).then((r) => r.json()),
-          fetch(`http://localhost:8000/api/shops/${id}/products`).then((r) =>
-            r.json(),
-          ),
-        ])
+        const [localRes, reviewRes, productRes, socialsRes] = await Promise.all(
+          [
+            fetch(`http://localhost:8000/api/shops/${id}`).then((r) =>
+              r.json(),
+            ),
+            fetch(`http://localhost:8000/api/shops/${id}/review`, {
+              headers: authHeader,
+            }).then((r) => r.json()),
+            fetch(`http://localhost:8000/api/shops/${id}/products`).then((r) =>
+              r.json(),
+            ),
+            fetch(`http://localhost:8000/api/shops/${id}/socials`).then((r) =>
+              r.json(),
+            ),
+          ],
+        )
 
         setLocal(localRes)
 
@@ -133,7 +141,7 @@ export default function Local() {
           console.warn('Respuesta inesperada del backend (reseñas):', reviewRes)
           setReseñas([])
         }
-
+        setRedes(Array.isArray(socialsRes) ? socialsRes : [])
         setProductos(productRes)
       } catch (err) {
         console.error('Error al cargar datos:', err)
@@ -182,11 +190,28 @@ export default function Local() {
             </div>
           </div>
 
-          <div className="mt-6 sm:mt-0 text-right">
+          <div className="mt-4 flex flex-col gap-4 justify-end">
             <p className="text-gray-200 font-medium">📞 {local.numero}</p>
-            <p className="text-gray-200 font-medium">
-              @instagramejemploeldesafio.uy
-            </p>
+            {redes.length > 0 ? (
+              redes.map((r) => (
+                <a
+                  key={r.id_red}
+                  href={r.url_perfil}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-gray-200 hover:text-red-400 transition"
+                >
+                  {r.id_tipored === 1 && <FaFacebook />}
+                  {r.id_tipored === 2 && <FaInstagram />}
+                  {r.id_tipored === 3 && <FaTwitter />}
+                  {r.id_tipored === 4 && <FaYoutube />}
+                  {!r.id_tipored && <FaLink />}
+                  <span>{r.nombre_red}</span>
+                </a>
+              ))
+            ) : (
+              <p className="text-gray-400 text-sm">Sin redes sociales</p>
+            )}
           </div>
         </div>
       </div>
