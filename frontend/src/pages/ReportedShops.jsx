@@ -48,8 +48,7 @@ export default function ReportedShops() {
 
       if (res.ok) {
         alert(data.message || 'Reporte eliminado con éxito')
-        // Actualizamos la lista sin recargar
-        setReportes(reportes.filter((r) => r.id_reporte !== id))
+        setReportes((prev) => prev.filter((r) => r.id_reporte !== id))
       } else {
         alert(data.message || 'Error al eliminar reporte')
       }
@@ -58,45 +57,52 @@ export default function ReportedShops() {
     }
   }
 
-  if (loading) return <p>Cargando reportes...</p>
-  if (error) return <p className="text-red-500">Error: {error}</p>
+  if (loading) return <p className="p-6 text-gray-700">Cargando reportes...</p>
+  if (error) return <p className="text-red-500 p-6">Error: {error}</p>
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 ml-[120px] p-6">
-      <main className="bg-white shadow-xl rounded-2xl p-10 w-full h-full max-w-6xl">
-        <div className="p-6">
-          <h2 className="text-2xl font-bold mb-4">Locales Reportados</h2>
-          {reportes.length === 0 ? (
-            <p>No hay reportes registrados.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="table table-zebra w-full">
+    <div className="p-4 sm:p-6 bg-gray-100 min-h-screen">
+      <main className="bg-white shadow-lg rounded-2xl p-6 md:p-10 max-w-6xl mx-auto">
+        {/* Título en rojo */}
+        <h2 className="text-2xl font-bold mb-6 text-red-600">
+          Locales Reportados
+        </h2>
+
+        {reportes.length === 0 ? (
+          <p className="text-gray-600">No hay reportes registrados.</p>
+        ) : (
+          <>
+            {/* Tabla para pantallas grandes */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full border-collapse">
                 <thead>
-                  <tr>
-                    <th>ID Reporte</th>
-                    <th>Local</th>
-                    <th>Razón</th>
-                    <th>Usuario</th>
-                    <th className="text-center">Acción</th>
+                  <tr className="bg-gray-100 text-left">
+                    <th className="p-3">ID</th>
+                    <th className="p-3">Local</th>
+                    <th className="p-3">Razón</th>
+                    <th className="p-3">Usuario</th>
+                    <th className="p-3 text-center">Acción</th>
                   </tr>
                 </thead>
                 <tbody>
                   {reportes.map((r) => (
-                    <tr key={r.id_reporte}>
-                      <td>{r.id_reporte}</td>
-                      <td>{r.nombre_local}</td>
-                      <td>{r.razon}</td>
-                      <td>{r.nombre_usuario || `Usuario #${r.id_usuario}`}</td>
-                      <td className="text-center">
+                    <tr key={r.id_reporte} className="hover:bg-gray-50">
+                      <td className="p-3">{r.id_reporte}</td>
+                      <td className="p-3">{r.nombre_local}</td>
+                      <td className="p-3">{r.razon}</td>
+                      <td className="p-3">
+                        {r.nombre_usuario || `Usuario #${r.id_usuario}`}
+                      </td>
+                      <td className="p-3 text-center space-x-2">
                         <Link
                           to={`/local/${r.id_local}`}
-                          className="bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 rounded-lg shadow-md transition-all transform hover:scale-105"
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm"
                         >
                           Ver Local
                         </Link>
                         <button
                           onClick={() => handleDelete(r.id_reporte)}
-                          className="bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 rounded-lg shadow-md transition-all transform hover:scale-105"
+                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm"
                         >
                           Eliminar
                         </button>
@@ -106,8 +112,44 @@ export default function ReportedShops() {
                 </tbody>
               </table>
             </div>
-          )}
-        </div>
+
+            {/* Vista móvil en tarjetas */}
+            <div className="md:hidden flex flex-col gap-4">
+              {reportes.map((r) => (
+                <div
+                  key={r.id_reporte}
+                  className="bg-gray-50 rounded-xl p-4 shadow-sm"
+                >
+                  <p className="text-sm text-gray-600 mb-1">
+                    <span className="font-semibold">Local:</span> {r.nombre_local}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-1">
+                    <span className="font-semibold">Razón:</span> {r.razon}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    <span className="font-semibold">Usuario:</span>{' '}
+                    {r.nombre_usuario || `#${r.id_usuario}`}
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row gap-2 mt-3">
+                    <Link
+                      to={`/local/${r.id_local}`}
+                      className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-2 rounded-lg text-center"
+                    >
+                      Ver Local
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(r.id_reporte)}
+                      className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-2 rounded-lg"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </main>
     </div>
   )

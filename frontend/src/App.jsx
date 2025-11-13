@@ -31,11 +31,13 @@ import NewPublication from '@/pages/NewPublication'
 import EditShop from '@/pages/EditShop'
 
 import ReportForm from '@/pages/Reports'
-
 import ReportedReviews from '@/pages/ReportedReviews'
 import ReportedShops from '@/pages/ReportedShops'
-
 import CursorFollower from '@/components/CursorFollower'
+
+// Páginas de admin
+import AdminPanel from '@/pages/AdminPanel'
+import AdminReports from '@/pages/AdminReports'
 
 export default function App() {
   return (
@@ -82,13 +84,31 @@ export default function App() {
               <Route path="newpublication/:id" element={<NewPublication />} />
               <Route path="editshop/:id" element={<EditShop />} />
             </Route>
+
+            {/* Panel de administración */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminPanel />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/reports"
+              element={
+                <ProtectedRoute>
+                  <AdminReports />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
 
-        {/* seguidor del cursor */}
+        {/* Seguidor del cursor */}
         <CursorFollower />
       </AuthProvider>
     </BrowserRouter>
