@@ -21,8 +21,8 @@ export default function Review({ review, currentUserId, onDelete, onLike }) {
   } = review
 
   const isMine = currentUserId == user_id
-  const [liked, setLiked] = useState(review.liked === 1)
-  const [likes, setLikes] = useState(initialLikes)
+  const [liked, setLiked] = useState(Boolean(Number(review.liked)))
+  const [likes, setLikes] = useState(Number(initialLikes) || 0)
 
   const handleLike = () => {
     setLiked(!liked)
