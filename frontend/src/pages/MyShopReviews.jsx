@@ -1,23 +1,29 @@
 import React, { useEffect, useState } from 'react'
+import { useAuth } from '@/AuthProvider'
 import ReviewCard from '@/components/ReviewCard'
 
 export default function MyShopReviews({ currentUserId }) {
+  const { token } = useAuth()
   const [locales, setLocales] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  const scaleFactor = 0.95
+
   const handleLike = (reviewId, liked) => {
-    // Lógica para manejar el like/dislike de una reseña
     console.log('Toggle like review:', reviewId, liked)
   }
 
   const handleDelete = (reviewId) => {
-    // Lógica para manejar la eliminación de una reseña
     console.log('Delete review:', reviewId)
   }
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
+    if (!token) {
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
     setError(null)
 
@@ -28,7 +34,8 @@ export default function MyShopReviews({ currentUserId }) {
       },
     })
       .then((res) => {
-        if (!res.ok) throw new Error('Error al cargar las reseñas: No autorizado o error interno.')
+        if (!res.ok)
+          throw new Error('Error al cargar las reseñas: No autorizado o error interno.')
         return res.json()
       })
       .then((data) => {
@@ -47,72 +54,75 @@ export default function MyShopReviews({ currentUserId }) {
       .finally(() => {
         setLoading(false)
       })
-  }, [])
+  }, [token])
 
   return (
-    // Contenedor principal: padding y ancho máximo
-    <div className="flex justify-center p-4 sm:p-6 lg:p-8 min-h-[500px] bg-gray-50">
-      <div className="w-full max-w-7xl space-y-8">
-        
-        {/* Título principal */}
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 border-b pb-2 text-center sm:text-left">
-          ⭐ Reseñas de tus locales
-        </h2>
-
-        {/* --- Manejo de estados de carga y error --- */}
-        {loading && (
-          <p className="text-center text-lg text-gray-600 py-10">
-            Cargando reseñas...
-          </p>
-        )}
-        
-        {error && (
-          <p className="text-center text-lg text-red-600 py-10">
-            Error: {error}
-          </p>
-        )}
-
-        {!loading && !error && locales.length === 0 && (
-          <p className="text-gray-500 text-lg text-center py-10">
-            No tienes locales registrados con reseñas, o aún no han recibido ninguna.
-          </p>
-        )}
-        
-        {/* Contenido principal: Iteración sobre locales */}
-        {!loading && locales.map((local) => (
-          <div 
-            key={local.id_local} 
-            className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-100"
-            // 💡 Estilo para evitar desbordamiento de palabras largas en el contenedor
-            style={{ wordBreak: 'break-word' }} 
+    <div className="flex flex-1 min-h-screen bg-gray-100">
+      <div className="flex flex-1 justify-center items-start p-4 overflow-auto pt-6">
+        <main
+          className="bg-white shadow-xl rounded-3xl flex flex-col items-center w-full max-w-[1000px] px-4 sm:px-6 lg:px-10"
+          style={{
+            paddingTop: `${4 * scaleFactor}rem`,
+            paddingBottom: `${4 * scaleFactor}rem`,
+          }}
+        >
+          <h1
+            className="font-semibold text-center mb-8 text-gray-800 text-xl sm:text-2xl"
           >
-            {/* Título del local */}
-            <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">
-              Local: **{local.nombre_local}** ({local.resenas.length} {local.resenas.length === 1 ? 'reseña' : 'reseñas'})
-            </h3>
+            Reseñas de <span className="text-red-600">tus locales</span>
+          </h1>
 
-            {/* Grid responsivo para las ReviewCards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {local.resenas.map((review) => (
-                <div key={review.id_resena} className="col-span-1">
-                  <ReviewCard
-                    review={review}
-                    currentUserId={currentUserId}
-                    onLike={handleLike}
-                    onDelete={handleDelete}
-                  />
+          {loading ? (
+            <p className="text-gray-500 text-center py-8">Cargando reseñas...</p>
+          ) : error ? (
+            <p className="text-red-600 text-center py-8">{error}</p>
+          ) : locales.length === 0 ? (
+            <p className="text-gray-600 text-center py-8">
+              No tenés locales con reseñas aún.
+            </p>
+          ) : (
+            <div className="w-full space-y-10">
+              {locales.map((local) => (
+                <div
+                  key={local.id_local}
+                  className="border border-gray-200 rounded-2xl p-5 sm:p-6 shadow-md hover:shadow-lg transition duration-200 bg-gray-50"
+                >
+                  <h3 className="text-lg sm:text-2xl font-semibold text-gray-800 mb-4  pb-3 flex flex-wrap items-center justify-between gap-2">
+                    <span className="break-words">{local.nombre_local}</span>
+                    <span className="text-gray-500 font-normal text-base sm:text-lg whitespace-nowrap">
+                      ({local.resenas.length}{' '}
+                      {local.resenas.length === 1 ? 'reseña' : 'reseñas'})
+                    </span>
+                  </h3>
+
+                  {local.resenas.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      {local.resenas.map((review) => (
+                        <div
+                          key={review.id_resena}
+                          className="col-span-1 w-full"
+                        >
+                          <div className="w-full h-full">
+                            <ReviewCard
+                              review={review}
+                              currentUserId={currentUserId}
+                              onLike={handleLike}
+                              onDelete={handleDelete}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 italic mt-2">
+                      Este local no tiene reseñas.
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
-            
-            {/* Mensaje si no hay reseñas para este local */}
-            {local.resenas.length === 0 && (
-                <p className="text-gray-500 italic mt-4">Este local no tiene reseñas.</p>
-            )}
-
-          </div>
-        ))}
-
+          )}
+        </main>
       </div>
     </div>
   )

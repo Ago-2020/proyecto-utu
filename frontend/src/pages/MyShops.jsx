@@ -74,7 +74,7 @@ export default function MyShops() {
         {/* Contenedor de la vista, con ancho responsivo y sombras */}
         <main className="bg-white shadow-xl rounded-2xl p-6 w-full max-w-sm sm:max-w-3xl lg:max-w-6xl">
           <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800 text-center">
-            Mis locales 🏪
+            Mis locales
           </h2>
 
           {loading ? (
