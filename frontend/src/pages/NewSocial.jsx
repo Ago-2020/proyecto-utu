@@ -59,74 +59,87 @@ export default function NewSocial() {
     }
   }
 
+  const scaleFactor = 0.95
+
   return (
-    <div className="flex justify-center items-start min-h-screen bg-gray-100 ml-[120px] p-6">
-      <main className="bg-white shadow-xl rounded-2xl p-10 w-full max-w-4xl">
-        <h2 className="text-2xl font-bold mb-6">Agregar red social</h2>
+    <div className="flex flex-1 min-h-screen bg-gray-100">
+      {/* Contenedor principal centrado */}
+      <div className="flex flex-1 justify-center items-start pt-6 sm:pt-10 pb-6 overflow-auto">
+        <main
+          className="bg-white shadow-xl rounded-3xl flex flex-col items-center w-full max-w-[1200px] px-6 sm:px-10 lg:px-16"
+          style={{
+            paddingTop: `${4 * scaleFactor}rem`,
+            paddingBottom: `${4 * scaleFactor}rem`,
+          }}
+        >
+          <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800 text-center">
+            Agregar red social
+          </h2>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6">
-          {/* Select para tipo de red */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Tipo de red
-            </label>
-            <select
-              name="id_tipored"
-              value={form.id_tipored}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-3 w-full"
-              required
-            >
-              <option value="">Seleccione una red</option>
-              <option value="1">Facebook</option>
-              <option value="2">Instagram</option>
-              <option value="3">Twitter</option>
-              <option value="4">Youtube</option>
-            </select>
-          </div>
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6 w-full max-w-2xl">
+            {/* Select para tipo de red */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Tipo de red
+              </label>
+              <select
+                name="id_tipored"
+                value={form.id_tipored}
+                onChange={handleChange}
+                className="border border-gray-300 rounded-lg p-3 w-full"
+                required
+              >
+                <option value="">Seleccione una red</option>
+                <option value="1">Facebook</option>
+                <option value="2">Instagram</option>
+                <option value="3">Twitter</option>
+                <option value="4">Youtube</option>
+              </select>
+            </div>
 
-          {/* Nombre de usuario */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Nombre de usuario o red
-            </label>
-            <input
-              type="text"
-              name="nombre_red"
-              value={form.nombre_red}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-3 w-full"
-              placeholder="@mi_local_uy"
-              required
-            />
-          </div>
+            {/* Nombre de usuario */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Nombre de usuario o red
+              </label>
+              <input
+                type="text"
+                name="nombre_red"
+                value={form.nombre_red}
+                onChange={handleChange}
+                className="border border-gray-300 rounded-lg p-3 w-full"
+                placeholder="@mi_local_uy"
+                required
+              />
+            </div>
 
-          {/* URL */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              URL del perfil
-            </label>
-            <input
-              type="url"
-              name="url_perfil"
-              value={form.url_perfil}
-              onChange={handleChange}
-              className="border border-gray-300 rounded-lg p-3 w-full"
-              placeholder="https://www.instagram.com/mi_local_uy/"
-              required
-            />
-          </div>
+            {/* URL */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                URL del perfil
+              </label>
+              <input
+                type="url"
+                name="url_perfil"
+                value={form.url_perfil}
+                onChange={handleChange}
+                className="border border-gray-300 rounded-lg p-3 w-full"
+                placeholder="https://www.instagram.com/mi_local_uy/"
+                required
+              />
+            </div>
 
-          <div className="flex justify-center mt-6">
-            <button
-              type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white px-10 py-3 rounded-lg font-semibold shadow-md transition"
-            >
-              Guardar Red Social
-            </button>
-          </div>
-        </form>
-      </main>
+            <div className="flex justify-center mt-6">
+              <button
+                type="submit"
+                className="bg-green-600 hover:bg-green-700 text-white px-10 py-3 rounded-lg font-semibold shadow-md transition"
+              >
+                Guardar Red Social
+              </button>
+            </div>
+          </form>
+        </main>
+      </div>
     </div>
   )
 }

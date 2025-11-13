@@ -109,7 +109,9 @@ export default function Navbar() {
                 <button className="btn white">Iniciar sesión</button>
               </Link>
               <Link to="/register">
-                <button className="btn outline">Regístrate</button>
+                <button className="btn red-outline ml-3">
+                  Regístrate
+                </button>
               </Link>
             </div>
           )}
@@ -150,7 +152,7 @@ export default function Navbar() {
                 </button>
               </Link>
               <Link to="/register" onClick={() => setMenuOpen(false)}>
-                <button className="btn outline w-4/5 mx-auto">
+                <button className="btn red-outline w-4/5 mx-auto">
                   Regístrate
                 </button>
               </Link>
@@ -293,15 +295,19 @@ export default function Navbar() {
           color: #dc2626;
         }
 
-        .btn.outline {
-          background: none;
-          border: 2px solid #fff;
+        .btn.red-outline {
+          background-color: #dc2626; /* botón rojo */
           color: #fff;
+          border: 2px solid #fff; /* borde blanco */
         }
 
-        .btn.outline:hover {
+        .btn.red-outline:hover {
           background-color: #fff;
           color: #dc2626;
+        }
+
+        .auth-buttons a + a {
+          margin-left: 10px; /* separación horizontal entre botones */
         }
 
         .mobile-menu {
@@ -352,6 +358,10 @@ export default function Navbar() {
 
           .navbar-right {
             display: none;
+          }
+
+          .auth-buttons a + a {
+            margin-left: 0; /* quitar separación horizontal en móvil */
           }
         }
       `}</style>

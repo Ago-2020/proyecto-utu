@@ -50,17 +50,25 @@ export default function NewShop() {
     }
   }
 
+  const scaleFactor = 0.95
+
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100">
-      <div className="flex flex-1 justify-center items-center px-4 py-6 sm:py-10 overflow-auto">
-        <main className="bg-white shadow-lg rounded-2xl p-6 sm:p-8 w-full max-w-md sm:max-w-4xl md:max-w-5xl">
-          <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-10 text-red-600">
+    <div className="flex flex-1 min-h-screen bg-gray-100">
+      <div className="flex flex-1 justify-center items-start p-4 overflow-auto pt-6">
+        <main
+          className="bg-white shadow-xl rounded-3xl flex flex-col items-center w-full max-w-[900px] px-6 sm:px-10 lg:px-16"
+          style={{
+            paddingTop: `${4 * scaleFactor}rem`,
+            paddingBottom: `${4 * scaleFactor}rem`,
+          }}
+        >
+          <h1 className="font-bold text-center mb-8 sm:mb-10 text-2xl sm:text-3xl text-red-600">
             Registro de Nuevo Local
           </h1>
 
           <form
             onSubmit={handleSubmit}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full"
             encType="multipart/form-data"
           >
             {[
@@ -92,10 +100,7 @@ export default function NewShop() {
 
             {/* Logo */}
             <div className="flex flex-col">
-              <label
-                htmlFor="logo"
-                className="text-sm font-medium text-gray-700 mb-1 sm:mb-2"
-              >
+              <label htmlFor="logo" className="text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                 Logo del Local
               </label>
               <input
@@ -110,10 +115,7 @@ export default function NewShop() {
 
             {/* Banner */}
             <div className="flex flex-col">
-              <label
-                htmlFor="banner"
-                className="text-sm font-medium text-gray-700 mb-1 sm:mb-2"
-              >
+              <label htmlFor="banner" className="text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                 Banner del Local
               </label>
               <input

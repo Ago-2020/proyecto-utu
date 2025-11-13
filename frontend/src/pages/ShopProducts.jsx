@@ -19,7 +19,6 @@ export default function ShopProducts() {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log('Productos recibidos:', data)
         if (Array.isArray(data)) {
           setProducts(data)
         } else {
@@ -44,7 +43,7 @@ export default function ShopProducts() {
         {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` },
-        },
+        }
       )
 
       const data = await res.json()
@@ -60,61 +59,70 @@ export default function ShopProducts() {
     }
   }
 
-  if (loading) return <p className="ml-[120px] p-6">Cargando productos...</p>
-  if (error) return <p className="ml-[120px] p-6 text-red-600">{error}</p>
-  if (products.length === 0)
-    return (
-      <div className="ml-[120px] p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Productos del local</h2>
-          <Link
-            to={`/profile/newproduct/${id}`}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            + Producto
-          </Link>
-        </div>
-        <p>No hay productos aún.</p>
-      </div>
-    )
-
   return (
-    <div className="flex justify-center items-start min-h-screen bg-gray-100 ml-[120px] p-6">
-      <main className="bg-white shadow-xl rounded-2xl p-10 w-full h-full max-w-6xl">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Productos del local</h2>
+    <div className="flex flex-1 justify-center items-start min-h-screen bg-gray-100 p-4 sm:p-6">
+      <main className="bg-white shadow-xl rounded-3xl w-full max-w-7xl p-6 sm:p-10 flex flex-col">
+        <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
+            Productos del local
+          </h2>
           <Link
             to={`/profile/newproduct/${id}`}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition text-sm sm:text-base"
           >
             + Producto
           </Link>
         </div>
 
-        <div className="flex justify-center gap-8 flex-wrap">
-          {products.map((product) => (
-            <div
-              key={product.id_producto}
-              className="flex flex-col items-center"
-            >
-              <ProductCard
-                titulo={product.titulo}
-                descripcion={product.descripcion_producto}
-                precio={product.precio}
-                foto={product.foto}
-              />
+        {loading ? (
+          <p className="text-gray-500 text-center py-10 w-full">Cargando productos...</p>
+        ) : error ? (
+          <p className="text-red-500 text-center py-10 w-full">{error}</p>
+        ) : products.length === 0 ? (
+          <p className="text-gray-600 text-center py-10 w-full">No hay productos aún.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full justify-items-center">
+            {products.map((product) => (
+              <div
+                key={product.id_producto}
+                className="flex flex-col bg-white border border-gray-200 rounded-xl shadow-md p-4 w-full hover:shadow-xl transition duration-300 max-w-[380px]"
+              >
+                {/* Contenido de ProductCard ajustado */}
+                <div className="flex flex-col bg-white border border-gray-200 shadow-lg rounded-2xl w-full h-auto flex flex-col overflow-hidden hover:shadow-2xl transition-all duration-300">
+                  <div className="flex justify-center">
+                    <img
+                      alt={product.titulo}
+                      className="w-full max-w-[320px] sm:max-w-[360px] h-[200px] object-cover rounded-lg mt-4"
+                      src={product.foto}
+                    />
+                  </div>
+                  <div className="px-6 py-4 flex justify-between items-start flex-1">
+                    <div className="text-left">
+                      <h3 className="font-semibold text-lg text-gray-900 line-clamp-1">
+                        {product.titulo}
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-1 line-clamp-2 w-full sm:w-auto">
+                        {product.descripcion_producto}
+                      </p>
+                    </div>
+                    <p className="text-red-600 font-bold text-lg whitespace-nowrap">
+                      ${product.precio}
+                    </p>
+                  </div>
+                </div>
 
-              <div className="flex gap-2 mt-4">
-                <button
-                  onClick={() => handleDelete(product.id_producto)}
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                >
-                  Eliminar
-                </button>
+                <div className="flex gap-2 mt-4">
+                  <button
+                    onClick={() => handleDelete(product.id_producto)}
+                    className="flex-1 text-center bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 transition text-sm"
+                  >
+                    Eliminar
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   )

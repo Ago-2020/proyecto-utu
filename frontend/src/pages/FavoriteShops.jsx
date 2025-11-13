@@ -19,13 +19,9 @@ export default function FavoriteShops() {
 
       try {
         const res = await fetch(`${BASE}/api/users/favorites`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         })
-
         const data = await res.json()
-
         if (data.success) {
           setFavorites(data.data)
         } else {
@@ -42,11 +38,19 @@ export default function FavoriteShops() {
     fetchFavorites()
   }, [])
 
+  const scaleFactor = 0.95
+
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100 p-4 sm:p-6">
+    <div className="flex flex-1 min-h-screen bg-gray-100">
       {/* Contenedor principal centrado */}
       <div className="flex flex-1 justify-center items-start pt-6 sm:pt-10 pb-6 overflow-auto">
-        <main className="bg-white shadow-xl rounded-2xl p-6 w-full max-w-sm sm:max-w-3xl lg:max-w-6xl">
+        <main
+          className="bg-white shadow-xl rounded-3xl flex flex-col items-center w-full max-w-[1200px] px-6 sm:px-10 lg:px-16"
+          style={{
+            paddingTop: `${4 * scaleFactor}rem`,
+            paddingBottom: `${4 * scaleFactor}rem`,
+          }}
+        >
           <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800 text-center">
             Locales Favoritos
           </h2>
@@ -62,11 +66,11 @@ export default function FavoriteShops() {
               No tenés locales guardados como favoritos.
             </p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 justify-items-center w-full">
               {favorites.map((shop) => (
                 <div
                   key={shop.id_local}
-                  className="flex flex-col items-center bg-white border border-gray-200 rounded-xl shadow-md p-4 w-full max-w-xs hover:shadow-xl transition duration-300"
+                  className="flex flex-col items-center bg-white border border-gray-200 rounded-xl shadow-md p-4 w-full max-w-md hover:shadow-xl transition duration-300"
                 >
                   <ShopCard
                     id={shop.id_local}
