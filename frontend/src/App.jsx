@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from '@/AuthProvider'
 import ProtectedRoute from '@/ProtectedRoute'
+import React from 'react'
 
 import Dashboard from '@/layouts/Dashboard'
 import Login from '@/pages/Login'
