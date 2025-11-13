@@ -35,6 +35,22 @@ function verifyToken($required = true) {
     }
 }
 
+// Verificar que sea ADMIN o OWNER
+function verifyRole(array $allowedRoles) {
+    $userData = verifyToken(); // obligatoriamente debe estar autenticado
+
+    $role = property_exists($userData, 'role') ? (int)$userData->role : 0;
+
+    if (!in_array($role, $allowedRoles)) {
+        http_response_code(403);
+        echo json_encode(["message" => "Acceso prohibido. Rol no autorizado."]);
+        exit();
+    }
+
+    return $userData;
+}
+
+
 // Subida de imagenes
 function uploadImage($file, $subfolder = 'users/', $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'], $maxSize = 5 * 1024 * 1024) {
     $uploadBase = dirname(dirname(__DIR__)) . '/uploads/'; // Carpeta donde se suben las imagenes
@@ -65,7 +81,8 @@ switch (true) {
     case preg_match('%/api/shops/?$%', $requestUri) && $requestMethod == 'POST':
 
         // Middleware de verificación del token
-        $userData = verifyToken();
+        $userData = verifyRole([1, 3]);
+        // con esto se protege la ruta , dependiendo de los numeros finales son los usuarios que pueden ingresar al endpoint
 
         // Si se envió un formulario con multipart/form-data (para imagen)
         if (isset($_POST['nombre_local'])) {
@@ -148,27 +165,36 @@ switch (true) {
 
     // Eliminar un local
     case preg_match('%/api/shops/(\d+)$%', $requestUri, $matches) && $requestMethod == 'DELETE':
-         $userData = verifyToken(); // Proteger la ruta
+        $userData = verifyRole([1,3]);
 
-         $id_local = $matches[1] ?? null;
+        $id_local = $matches[1] ?? null;
 
-        if (!empty($id_local)) {
+        if (empty($id_local)) {
+            http_response_code(400);
+            echo json_encode(['message' => 'ID de local no proporcionado.', 'code' => 400]);
+            break;
+        }
+
+        try {
+            // Preparar DELETE solo si el local pertenece al OWNER
             $query = "DELETE FROM local WHERE id_local = :id_local AND id_usuario = :id_usuario";
             $stmt = $db->prepare($query);
             $stmt->bindParam(":id_local", $id_local);
             $stmt->bindParam(":id_usuario", $userData->id);
-            
-            if ($stmt->execute()) {
-                 http_response_code(200);
-                 echo json_encode(['success' => true, 'message' => 'Local eliminado con éxito', 'code' => 200]);
-             } else {
-                 http_response_code(500);
-                 echo json_encode(['success' => false, 'message' => 'Error al eliminar el local', 'code' => 500]);
-             }
-         } else {
-             http_response_code(400);
-             echo json_encode(['message' => 'ID de local no proporcionado.', 'code' => 400]);
-         }
+
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+                http_response_code(200);
+                echo json_encode(['success' => true, 'message' => 'Local eliminado con éxito', 'code' => 200]);
+            } else {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'message' => 'Local no encontrado o Sin permisos', 'code' => 404]);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Error al eliminar el local', 'error' => $e->getMessage(), 'code' => 500]);
+        }
     break;
 
     // Obtener promedio de estrellas de un local
@@ -237,7 +263,7 @@ switch (true) {
     
     // Obtener mis locales
     case preg_match('%/api/shops/?$%', $requestUri) && $requestMethod == 'GET':
-        $userData = verifyToken(); // Proteger la ruta
+        $userData = verifyRole([1,3]);
 
         $query = "SELECT * FROM local WHERE id_usuario = :id_usuario";
         $stmt = $db->prepare($query);
@@ -252,7 +278,7 @@ switch (true) {
     case preg_match('%/api/shops/(\d+)/?$%', $requestUri, $matches):
 
         $id_local = $matches[1];
-        $userData = verifyToken();
+        $userData = verifyRole([1,3]);
 
         // detectar posts o put
         $actualMethod = $requestMethod;
@@ -352,11 +378,10 @@ switch (true) {
 
     break;
 
-
     // Registrar producto de un local
     case preg_match('%/api/shops/(\d+)/products$%', $requestUri, $matches) && $requestMethod == 'POST':
         $id_local = $matches[1] ?? null;
-        $userData = verifyToken();
+        $userData = verifyRole([1,3]);
 
         if (!empty($id_local)) {
             $fotoPath = null;
@@ -432,7 +457,7 @@ switch (true) {
 
     // Eliminar producto de un local
     case preg_match('%/api/shops/(\d+)/products/(\d+)$%', $requestUri, $matches) && $requestMethod == 'DELETE':
-        $userData = verifyToken(); // usuario autenticado
+        $userData = verifyRole([1,3]);
         $shopId = $matches[1];
         $productId = $matches[2];
 
@@ -460,7 +485,7 @@ switch (true) {
     // Registrar publicacion de un local --- [NO CHECKEADO]
     case preg_match('%/api/shops/(\d+)/posts$%', $requestUri, $matches) && $requestMethod == 'POST':
         $id_local = $matches[1] ?? null;
-        $userData = verifyToken();
+        $userData = verifyRole([1,3]);
 
         if (!empty($id_local)) {
                 $fotoPath = null;
@@ -535,6 +560,8 @@ switch (true) {
 
     // Eliminar publicacion de un local
     case preg_match('%/api/shops/(\d+)/posts/(\d+)$%', $requestUri, $matches) && $requestMethod == 'DELETE':
+        $userData = verifyRole([1,3]);
+
         $id_local = $matches[1] ?? null;
         $id_post = $matches[2] ?? null;
 
@@ -946,7 +973,7 @@ switch (true) {
 
     // Ver reseñas de mis locales
     case (preg_match('%/api/shops/myreviews/?$%', $requestUri) && $requestMethod == 'GET'):
-        $userData = verifyToken();
+        $userData = verifyRole([1,3]);
         $id_usuario = $userData->id;
 
         // Consulta: obtenemos todas las reseñas de los locales que pertenecen al usuario
@@ -1002,7 +1029,7 @@ switch (true) {
 
     // Agregar red social a un local
     case preg_match('%/api/shops/(\d+)/socials$%', $requestUri, $matches) && $requestMethod == 'POST':
-        $userData = verifyToken();
+        $userData = verifyRole([1,3]);
         $id_local = $matches[1] ?? null;
 
         $input = json_decode(file_get_contents('php://input'), true);
@@ -1078,7 +1105,7 @@ switch (true) {
 
     // Borrar una red social
     case preg_match('%/api/shops/socials/(\d+)$%', $requestUri, $matches) && $requestMethod == 'DELETE':
-        $userData = verifyToken();
+        $userData = verifyRole([1,3]);
         $id_red = $matches[1] ?? null;
 
         if (!$id_red) {

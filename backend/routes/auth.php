@@ -55,12 +55,12 @@ switch (true) {
             http_response_code(400);
             echo json_encode(['message' => 'Datos incompletos.']);
         }
-        break;
+    break;
 
     // Inicio de sesión de usuario
     case preg_match('%/api/auth/login%', $requestUri) && $requestMethod == 'POST':
         if (!empty($data->email_usuario) && !empty($data->password_usuario)) {
-            $query = "SELECT id_usuario, email_usuario, nombre_usuario, password_usuario FROM usuario WHERE email_usuario = :email_usuario LIMIT 0,1";
+            $query = "SELECT id_usuario, email_usuario, nombre_usuario, password_usuario, tipo_usuario FROM usuario WHERE email_usuario = :email_usuario LIMIT 0,1";
             $stmt = $db->prepare($query);
             $stmt->bindParam(':email_usuario', $data->email_usuario);
             $stmt->execute();
@@ -72,7 +72,7 @@ switch (true) {
                 $id_usuario = $row['id_usuario'];
                 $nombre = $row['nombre_usuario'];
                 $password2 = $row['password_usuario'];
-                $email = $row['email_usuario'];
+                $rol = $row['tipo_usuario'];
 
                 if (password_verify($data->password_usuario, $password2)) {
                     $secret_key = $_ENV['JWT_SECRET'];
@@ -87,6 +87,7 @@ switch (true) {
                         "data" => array(
                             "id" => $id_usuario,
                             "username" => $nombre,
+                            "role" => $rol,
                         )
                     );
 
@@ -96,7 +97,8 @@ switch (true) {
                         array(
                             "message" => "Inicio de sesión exitoso",
                             "token" => $jwt,
-                            "id_usuario" => $id_usuario
+                            "id_usuario" => $id_usuario,
+                            "role" => $rol
                         )
                     );
                 } else {

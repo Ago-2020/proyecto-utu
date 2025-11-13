@@ -186,8 +186,6 @@ switch (true) {
         }
     break;
 
-
-
     // Eliminar usuario
     case preg_match('%/api/users/%', $requestUri) && $requestMethod == 'DELETE':
         $userData = verifyToken();
