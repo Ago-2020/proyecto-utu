@@ -43,30 +43,44 @@ export default function FavoriteShops() {
   }, [])
 
   return (
-    <div style={{ padding: '24px' }}>
-      <h1 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px' }}>
-        Locales Favoritos
-      </h1>
+    <div className="min-h-screen flex flex-col bg-gray-100 p-4 sm:p-6">
+      {/* Contenedor principal centrado */}
+      <div className="flex flex-1 justify-center items-start pt-6 sm:pt-10 pb-6 overflow-auto">
+        <main className="bg-white shadow-xl rounded-2xl p-6 w-full max-w-sm sm:max-w-3xl lg:max-w-6xl">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800 text-center">
+            Locales Favoritos
+          </h2>
 
-      {loading && <p>Cargando favoritos...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      {!loading && !error && favorites.length === 0 && (
-        <p>No tenés locales guardados como favoritos.</p>
-      )}
-
-      <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-        {favorites.map((shop) => (
-          <ShopCard
-            key={shop.id_local}
-            id={shop.id_local}
-            title={shop.nombre_local}
-            description={shop.descripcion}
-            estrellas={shop.estrellas || 0}
-            etiquetas={shop.etiquetas ? shop.etiquetas.split(', ') : []}
-            banner={shop.banner}
-          />
-        ))}
+          {loading ? (
+            <p className="text-gray-500 text-center py-10">
+              Cargando favoritos...
+            </p>
+          ) : error ? (
+            <p className="text-red-500 text-center py-10">{error}</p>
+          ) : favorites.length === 0 ? (
+            <p className="text-gray-600 text-center py-10">
+              No tenés locales guardados como favoritos.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
+              {favorites.map((shop) => (
+                <div
+                  key={shop.id_local}
+                  className="flex flex-col items-center bg-white border border-gray-200 rounded-xl shadow-md p-4 w-full max-w-xs hover:shadow-xl transition duration-300"
+                >
+                  <ShopCard
+                    id={shop.id_local}
+                    title={shop.nombre_local}
+                    description={shop.descripcion}
+                    estrellas={shop.estrellas || 0}
+                    etiquetas={shop.etiquetas ? shop.etiquetas.split(', ') : []}
+                    banner={shop.banner}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </main>
       </div>
     </div>
   )
