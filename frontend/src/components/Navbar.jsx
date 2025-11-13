@@ -45,264 +45,287 @@ export default function Navbar() {
   }, [])
 
   return (
-    <nav
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '5px 20px',
-        backgroundColor: '#FF3131',
-        color: '#fff',
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-        flexWrap: 'wrap',
-      }}
-    >
-      {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <Link to="/">
-          <img src={logo} alt="SaborUY" style={{ width: 65, height: 65 }} />
-        </Link>
+    <>
+      {menuOpen && <div className="menu-blur" onClick={() => setMenuOpen(false)} />}
 
-        {/* Botón menú (solo visible en móvil) */}
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '1.8rem',
-            color: '#fff',
-            display: 'none',
-          }}
-          className="menu-toggle"
-        >
-          {menuOpen ? <FaTimes /> : <FaBars />}
-        </button>
-      </div>
+      <nav className="navbar">
+        {/* Izquierda: Logo + botón */}
+        <div className="navbar-left">
+          <Link to="/" className="logo-container">
+            <img src={logo} alt="SaborUY" className="logo" />
+          </Link>
+          <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+        </div>
 
-      {/* Menú de enlaces */}
-      <ul
-        style={{
-          display: menuOpen ? 'flex' : 'none',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '16px',
-          listStyle: 'none',
-          width: '100%',
-          marginTop: '12px',
-          transition: 'all 0.3s ease',
-        }}
-        className="menu"
-      >
-        <li>
-          <Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>
+        {/* Centro: barra de búsqueda */}
+        <div className="navbar-center">
+          <form onSubmit={handleSubmit} className="search-form">
+            <input
+              type="text"
+              placeholder="Buscar locales o productos..."
+              onChange={(e) => setQuery(e.target.value)}
+              className="search-input"
+            />
+          </form>
+        </div>
+
+        {/* Derecha: usuario o login */}
+        <div className="navbar-right">
+          {user ? (
+            <>
+              <Link to="/profile" className="user-info">
+                {user.imagen_perfil ? (
+                  <img
+                    src={user.imagen_perfil}
+                    alt="perfil"
+                    className="profile-pic"
+                  />
+                ) : (
+                  <FaUser className="default-icon" />
+                )}
+                <span className="username">{user.nombre_usuario}</span>
+              </Link>
+              <button onClick={handleLogout} className="logout-btn">
+                Cerrar sesión
+              </button>
+            </>
+          ) : (
+            <div className="auth-buttons">
+              <Link to="/login">
+                <button className="btn white">Iniciar sesión</button>
+              </Link>
+              <Link to="/register">
+                <button className="btn outline">Regístrate</button>
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Menú móvil */}
+        <div className={`mobile-menu ${menuOpen ? 'open' : ''}`}>
+          <Link to="/" onClick={() => setMenuOpen(false)}>
             Inicio
           </Link>
-        </li>
-        <li>
-          <Link to="/about" style={{ color: '#fff', textDecoration: 'none' }}>
+          <Link to="/about" onClick={() => setMenuOpen(false)}>
             Sobre Nosotros
           </Link>
-        </li>
-        <li>
-          <Link to="/contact" style={{ color: '#fff', textDecoration: 'none' }}>
+          <Link to="/contact" onClick={() => setMenuOpen(false)}>
             Contacto
           </Link>
-        </li>
-      </ul>
-
-      {/* Buscador */}
-      <div
-        style={{
-          flexGrow: 1,
-          maxWidth: '400px',
-          margin: '8px auto',
-          width: '100%',
-        }}
-        className="search-box"
-      >
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Buscar..."
-            onChange={(e) => setQuery(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '8px 16px',
-              borderRadius: '9999px',
-              border: '1px solid #a3a3a3ff',
-              backgroundColor: '#ffffffe6',
-              color: '#000000ff',
-            }}
-          />
-        </form>
-      </div>
-
-      {/* Perfil */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '20px',
-          flexWrap: 'wrap',
-        }}
-        className="user-actions"
-      >
-        {user ? (
-          <>
-            <span>{user.nombre_usuario}</span>
-            <Link to="/profile">
-              {user.imagen_perfil ? (
-                <img
-                  src={user.imagen_perfil}
-                  alt="profile"
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    cursor: 'pointer',
-                    transition: 'transform 0.2s',
-                  }}
-                  className="profile-hover"
-                />
-              ) : (
-                <FaUser
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    backgroundColor: '#fff',
-                    color: '#dc2626',
-                    padding: '4px',
-                    cursor: 'pointer',
-                    transition: 'transform 0.2s',
-                  }}
-                  className="profile-hover"
-                />
-              )}
+          {user && (
+            <Link to="/profile" onClick={() => setMenuOpen(false)}>
+              Mi Perfil
             </Link>
-            <button
-              onClick={handleLogout}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '6px',
-                border: 'none',
-                backgroundColor: '#fff',
-                color: '#dc2626',
-                cursor: 'pointer',
-                fontWeight: '500',
-              }}
-            >
-              Cerrar sesión
-            </button>
-          </>
-        ) : (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: '8px',
-            }}
-            className="auth-buttons"
-          >
-            <Link to="/login">
-              <button
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '6px',
-                  border: 'none',
-                  backgroundColor: '#fff',
-                  color: '#dc2626',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  width: '120px',
-                }}
-              >
-                Iniciar sesión
-              </button>
-            </Link>
-            <Link to="/register">
-              <button
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '6px',
-                  border: 'none',
-                  backgroundColor: '#fff',
-                  color: '#dc2626',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  width: '120px',
-                }}
-              >
-                Regístrate
-              </button>
-            </Link>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      </nav>
 
-      {/* Estilos Responsivos */}
       <style>
         {`
-      .profile-hover:hover {
-        transform: scale(1.1);
-      }
-
-      @media (min-width: 768px) {
-        nav {
-          flex-wrap: nowrap;
-        }
-        .menu {
-          display: flex !important;
-          flex-direction: row !important;
-          width: auto !important;
-          margin: 0 !important;
-          gap: 24px !important;
-          padding-left: 40px; /* desplazamos a la derecha */
-        }
-        .menu-toggle {
-          display: none !important;
-        }
-        .search-box {
-          order: 1;
-          margin: 0 20px;
-        }
-        .user-actions {
-          order: 2;
-          justify-content: flex-end !important;
-        }
-        .auth-buttons {
-          gap: 8px;
-        }
-      }
-
-      @media (max-width: 767px) {
-        .menu-toggle {
-          display: block !important;
-        }
-        .menu {
-          animation: fadeIn 0.3s ease-in-out;
-        }
-        .search-box {
-          order: 3;
+        /* ==== BASE ==== */
+        .navbar {
+          position: sticky;
+          top: 0;
           width: 100%;
-        }
-        .auth-buttons {
-          flex-direction: row;
+          background-color: #ff3131;
+          color: white;
+          display: flex;
+          align-items: center;
           justify-content: space-between;
-          width: 100%;
-          margin-top: 3px;
+          padding: 10px 25px;
+          z-index: 1001;
+          border-bottom: 3px solid #e10000;
+          transition: all 0.3s ease;
         }
-      }
 
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-    `}
+        /* ==== FONDO DIFUMINADO ==== */
+        .menu-blur {
+          position: fixed;
+          inset: 0;
+          backdrop-filter: blur(6px);
+          background-color: rgba(0, 0, 0, 0.4);
+          z-index: 1000;
+          transition: all 0.3s ease;
+        }
+
+        /* ==== IZQUIERDA ==== */
+        .navbar-left {
+          display: flex;
+          align-items: center;
+          gap: 25px;
+          margin-right: 25px; /* 🔹 Extra separación con la barra de búsqueda */
+        }
+
+        .logo {
+          width: 55px;
+          height: 55px;
+          transition: transform 0.2s ease;
+        }
+
+        .logo:hover {
+          transform: rotate(-5deg) scale(1.05);
+        }
+
+        .menu-toggle {
+          background: none;
+          border: none;
+          color: white;
+          font-size: 1.8rem;
+          cursor: pointer;
+          display: none;
+        }
+
+        /* ==== CENTRO ==== */
+        .navbar-center {
+          flex: 1;
+          display: flex;
+          justify-content: center;
+        }
+
+        .search-form {
+          width: 100%;
+          max-width: 450px;
+        }
+
+        .search-input {
+          width: 100%;
+          padding: 10px 18px;
+          border-radius: 9999px;
+          border: none;
+          background-color: #fff;
+          color: #333;
+          font-size: 0.95rem;
+          outline: none;
+          transition: box-shadow 0.2s ease;
+        }
+
+        .search-input:focus {
+          box-shadow: 0 0 0 2px #ffd6d6;
+        }
+
+        /* ==== DERECHA ==== */
+        .navbar-right {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .profile-pic, .default-icon {
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          background-color: #fff;
+          color: #ff3131;
+          padding: 4px;
+          cursor: pointer;
+          transition: transform 0.2s;
+        }
+
+        .profile-pic:hover, .default-icon:hover {
+          transform: scale(1.1);
+        }
+
+        .username {
+          font-weight: 500;
+          margin-left: 6px;
+        }
+
+        .logout-btn {
+          background-color: white;
+          color: #dc2626;
+          border: none;
+          border-radius: 6px;
+          padding: 7px 14px;
+          cursor: pointer;
+          font-weight: 500;
+          transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+          background-color: #ffe5e5;
+        }
+
+        .btn {
+          padding: 7px 14px;
+          border-radius: 6px;
+          font-weight: 500;
+          cursor: pointer;
+          border: none;
+          transition: all 0.3s;
+        }
+
+        .btn.white {
+          background-color: #fff;
+          color: #dc2626;
+        }
+
+        .btn.outline {
+          background: none;
+          border: 2px solid #fff;
+          color: #fff;
+        }
+
+        .btn.outline:hover {
+          background-color: #fff;
+          color: #dc2626;
+        }
+
+        /* ==== MENÚ MÓVIL ==== */
+        .mobile-menu {
+          display: none;
+          flex-direction: column;
+          background-color: #ff3131;
+          position: absolute;
+          top: 70px;
+          left: 0;
+          width: 100%;
+          border-top: 2px solid #e10000;
+          text-align: center;
+          padding: 15px 0;
+          transform: translateY(-20px);
+          opacity: 0;
+          transition: all 0.3s ease;
+          z-index: 1002;
+        }
+
+        .mobile-menu.open {
+          display: flex;
+          transform: translateY(0);
+          opacity: 1;
+        }
+
+        .mobile-menu a {
+          color: white;
+          text-decoration: none;
+          padding: 10px;
+          font-weight: 500;
+          transition: background 0.2s;
+        }
+
+        .mobile-menu a:hover {
+          background-color: #e10000;
+        }
+
+        /* ==== RESPONSIVE ==== */
+        @media (max-width: 900px) {
+          .menu-toggle {
+            display: block;
+          }
+
+          .navbar-center {
+            order: 3;
+            width: 100%;
+            margin-top: 10px;
+          }
+
+          .navbar-right {
+            display: none;
+          }
+        }
+      `}
       </style>
-    </nav>
+    </>
   )
 }
