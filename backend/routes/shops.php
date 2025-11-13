@@ -687,8 +687,6 @@ switch (true) {
         }
     break;
 
-
-
     // Reportar un local
     case preg_match('%/api/shops/(\d+)/report$%', $requestUri, $matches) && $requestMethod == 'POST':
         $userData = verifyToken();

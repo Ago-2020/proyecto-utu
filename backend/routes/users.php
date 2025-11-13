@@ -238,15 +238,26 @@ switch (true) {
         $userData = verifyToken();
         $id_usuario = $userData->id;
 
-        $query = "SELECT l.id_local, l.nombre_local, l.descripcion, l.foto, l.etiquetas, l.numero
-                  FROM favoritos f
-                  INNER JOIN local l ON f.id_local = l.id_local
-                  WHERE f.id_usuario = :id_usuario";
+        $query = "
+            SELECT l.id_local,
+                l.nombre_local,
+                l.descripcion,
+                l.banner,
+                l.etiquetas,
+                l.numero
+            FROM favoritos f
+            INNER JOIN local l ON f.id_local = l.id_local
+            WHERE f.id_usuario = :id_usuario
+        ";
+        
         $stmt = $db->prepare($query);
         $stmt->bindParam(':id_usuario', $id_usuario);
         $stmt->execute();
         $favorites = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode(['success' => true, 'data' => $favorites]);
+        echo json_encode([
+            'success' => true,
+            'data' => $favorites
+        ]);
     break;
 }
