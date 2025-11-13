@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import DefaultAvatar from '@/img/profile.png'
-import SideBar from "../components/SideBar"
+import SideBar from '../components/SideBar'
 
 export default function PerfilUsuario() {
   const [user, setUser] = useState(null)
@@ -56,12 +56,22 @@ export default function PerfilUsuario() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          password_antigua: passwordAntigua,
-          password_nueva: passwordNueva,
+          password_antigua: passwordAntigua.trim(), // trim para evitar espacios
+          password_nueva: passwordNueva.trim(),
         }),
       })
-      const data = await res.json()
-      if (res.ok) {
+
+      let data
+      try {
+        data = await res.json()
+      } catch {
+        const text = await res.text()
+        console.error('Respuesta inesperada del backend:', text)
+        setError('Error inesperado del servidor.')
+        return
+      }
+
+      if (res.ok && data.success) {
         setError('')
         alert('Contraseña cambiada con éxito.')
         setPasswordAntigua('')
@@ -92,7 +102,10 @@ export default function PerfilUsuario() {
             className="font-semibold text-center mb-6"
             style={{ fontSize: `${20 * scaleFactor}px` }}
           >
-            Cuenta de <span className="text-red-600">{user?.tipo_usuario || 'Usuario'}</span>
+            Cuenta de{' '}
+            <span className="text-red-600">
+              {user?.tipo_usuario || 'Usuario'}
+            </span>
           </h1>
 
           {/* Información de usuario */}
@@ -148,14 +161,28 @@ export default function PerfilUsuario() {
               Cambiar Contraseña
             </h3>
             {error && (
-              <p className="text-red-500 text-center mb-2" style={{ fontSize: `${14 * scaleFactor}px` }}>
+              <p
+                className="text-red-500 text-center mb-2"
+                style={{ fontSize: `${14 * scaleFactor}px` }}
+              >
                 {error}
               </p>
             )}
-            <form className="grid grid-cols-1 gap-4 w-full" onSubmit={handleChangePassword}>
+            <form
+              className="grid grid-cols-1 gap-4 w-full"
+              onSubmit={handleChangePassword}
+            >
               {[
-                { label: 'Contraseña Antigua', value: passwordAntigua, setValue: setPasswordAntigua },
-                { label: 'Contraseña Nueva', value: passwordNueva, setValue: setPasswordNueva },
+                {
+                  label: 'Contraseña Antigua',
+                  value: passwordAntigua,
+                  setValue: setPasswordAntigua,
+                },
+                {
+                  label: 'Contraseña Nueva',
+                  value: passwordNueva,
+                  setValue: setPasswordNueva,
+                },
               ].map((field, i) => (
                 <div key={i} className="flex flex-col w-full">
                   <label

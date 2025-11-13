@@ -136,23 +136,25 @@ switch (true) {
     }
     break;
 
-
     // Cambiar de contraseña
-    case preg_match('%/api/users/passchange%', $requestUri) && $requestMethod == 'POST':
+    case preg_match('%/api/users/passchange$%', $requestUri) && $requestMethod == 'POST':
         $userData = verifyToken();
         $id_usuario = $userData->id;
 
         $data = json_decode(file_get_contents("php://input"));
-        $password_antigua = $data->password_antigua ?? null;
-        $password_nueva = $data->password_nueva ?? null;
+        $password_antigua = trim($data->password_antigua ?? '');
+        $password_nueva = trim($data->password_nueva ?? '');
 
         if (!$password_antigua || !$password_nueva) {
-            echo json_encode(['success' => false, 'message' => 'Ambas contraseñas (antigua y nueva) son requeridas.']);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Ambas contraseñas (antigua y nueva) son requeridas.'
+            ]);
             break;
         }
 
-        $query = "SELECT password_usuario FROM usuario WHERE id_usuario = :id_usuario LIMIT 1";
-        $stmt = $db->prepare($query);
+        // Ver contraseñas dentro de la bd
+        $stmt = $db->prepare("SELECT password_usuario FROM usuario WHERE id_usuario = :id_usuario LIMIT 1");
         $stmt->bindParam(':id_usuario', $id_usuario);
         $stmt->execute();
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -162,17 +164,20 @@ switch (true) {
             break;
         }
 
-        if (!password_verify($password_antigua, $user['password_usuario'])) {
+        $hashGuardado = $user['password_usuario'];
+        error_log("DEBUG: Hash guardado bytes: " . bin2hex($hashGuardado));
+
+        // Verificar contraseña antigua
+        if (!password_verify($password_antigua, $hashGuardado)) {
             echo json_encode(['success' => false, 'message' => 'Contraseña antigua incorrecta.']);
             break;
         }
 
+        // Hashear nueva contraseña y actualizar
         $passwordHash = password_hash($password_nueva, PASSWORD_BCRYPT);
-
-        $query = "UPDATE usuario SET password_usuario = :password_usuario WHERE id_usuario = :id_usuario";
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(':id_usuario', $id_usuario);
+        $stmt = $db->prepare("UPDATE usuario SET password_usuario = :password_usuario WHERE id_usuario = :id_usuario");
         $stmt->bindParam(':password_usuario', $passwordHash);
+        $stmt->bindParam(':id_usuario', $id_usuario);
 
         if ($stmt->execute()) {
             echo json_encode(['success' => true, 'message' => 'Contraseña actualizada con éxito.']);
@@ -180,6 +185,8 @@ switch (true) {
             echo json_encode(['success' => false, 'message' => 'Error al actualizar la contraseña.']);
         }
     break;
+
+
 
     // Eliminar usuario
     case preg_match('%/api/users/%', $requestUri) && $requestMethod == 'DELETE':
