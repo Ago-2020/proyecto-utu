@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import ShopCard from '@/components/ShopCard'
-import banner from '@/img/caption.jpg'
-import cardImage from '@/img/card.jpg'
+import banner from '@/img/HomeBanner.webp'
+import cardImage from '@/img/ShopCardBanner.webp'
 import React, { useEffect, useState } from 'react'
 
 export default function Home() {

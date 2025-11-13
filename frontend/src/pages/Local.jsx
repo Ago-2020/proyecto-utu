@@ -13,6 +13,7 @@ import { Link, useParams } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
 
 import defaultBanner from '@/img/defaultBanner.png'
+import defaultIcon from '@/img/defaultShopIcon.png'
 
 export default function Local() {
   const { token } = useAuth()
@@ -165,7 +166,9 @@ export default function Local() {
   if (!local)
     return <div className="p-10 text-center">No se encontró el local.</div>
 
-  const logoURL = `http://localhost:8000/api/getimg.php?file=${local.logo}`
+  const logoURL = local.logo
+    ? `http://localhost:8000/api/getimg.php?file=${local.logo}`
+    : defaultIcon
   const bannerURL = local.banner
     ? `http://localhost:8000/api/getimg.php?file=${local.banner}`
     : defaultBanner

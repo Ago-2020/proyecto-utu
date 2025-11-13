@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import kyotoImage from '../img/kyoto-sushi-and-grill.jpg'
+import kyotoImage from '@/img/AuthBackground.webp'
 import logo from '../img/logo.png'
 import React, { useState } from 'react'
 
@@ -68,7 +68,7 @@ export default function Register() {
             width: '60px',
             height: '60px',
             position: 'absolute',
-            borderColor: "#FF3131",
+            borderColor: '#FF3131',
             top: '20px',
             left: '50%',
             transform: 'translateX(-50%)',
@@ -87,7 +87,11 @@ export default function Register() {
             <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 animate-fade-in">
               <div
                 className="bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center p-6 border border-green-500"
-                style={{ minWidth: '280px', textAlign: 'center', animation: 'pop 0.3s ease' }}
+                style={{
+                  minWidth: '280px',
+                  textAlign: 'center',
+                  animation: 'pop 0.3s ease',
+                }}
               >
                 <div className="text-green-600 text-5xl mb-3">:D</div>
                 <h3 className="text-xl font-bold text-green-700 mb-1">
@@ -107,7 +111,9 @@ export default function Register() {
           <form className="space-y-4" onSubmit={handleSubmit}>
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700">Email</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700">
+                Email
+              </label>
               <input
                 type="email"
                 placeholder="ejemplo@correo.com"
@@ -121,7 +127,9 @@ export default function Register() {
 
             {/* Nombre de usuario */}
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700">Nombre de usuario</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700">
+                Nombre de usuario
+              </label>
               <input
                 type="text"
                 placeholder="Tu nombre de usuario"
@@ -135,7 +143,9 @@ export default function Register() {
 
             {/* Contraseña */}
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700">Contraseña</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700">
+                Contraseña
+              </label>
               <input
                 type="password"
                 placeholder="Escribe tu contraseña"
@@ -147,10 +157,11 @@ export default function Register() {
               />
             </div>
 
-            
             {/* Tipo de usuario (Normal / Emprendedor) */}
             <div className="mt-2">
-              <label className="block text-sm font-medium mb-1 text-gray-700">Soy:</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700">
+                Soy:
+              </label>
               <div className="flex flex-col gap-2">
                 <label className="flex items-center gap-2">
                   <input
@@ -188,7 +199,10 @@ export default function Register() {
               />
               <label htmlFor="terms" className="ml-2 text-sm text-black">
                 Acepto los{' '}
-                <a href="/terms" style={{ color: '#FF3131', textDecoration: 'underline' }}>
+                <a
+                  href="/terms"
+                  style={{ color: '#FF3131', textDecoration: 'underline' }}
+                >
                   Términos y Condiciones
                 </a>
               </label>
@@ -206,14 +220,19 @@ export default function Register() {
             {/* Link a login */}
             <div className="text-center mt-4 text-sm text-black">
               ¿Ya tenés una cuenta?{' '}
-              <Link to="/login" style={{ color: '#FF3131', textDecoration: 'underline' }}>
+              <Link
+                to="/login"
+                style={{ color: '#FF3131', textDecoration: 'underline' }}
+              >
                 Iniciar sesión
               </Link>
             </div>
 
             {/* Mensaje de error o respuesta */}
             {response && !response.success && (
-              <p className="mt-2 text-center text-red-600">{response.message}</p>
+              <p className="mt-2 text-center text-red-600">
+                {response.message}
+              </p>
             )}
           </form>
         </div>

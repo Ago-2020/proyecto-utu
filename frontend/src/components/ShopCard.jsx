@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import cardImage from '@/img/card.jpg'
+import cardImage from '@/img/ShopCardBanner.webp'
 import { FaStar, FaRegStar, FaUser, FaHeart, FaRegHeart } from 'react-icons/fa'
 import React, { useEffect, useState, useCallback } from 'react'
 

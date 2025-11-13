@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import kyotoImage from '../img/kyoto-sushi-and-grill.jpg'
+import kyotoImage from '@/img/AuthBackground.webp'
 import logo from '../img/logo.png'
 import React, { useState } from 'react'
 
