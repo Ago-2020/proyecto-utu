@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
+
+// Componentes
+import Tag from '@/components/Tag'
 import ShopCard from '@/components/ShopCard'
+
+// Imagenes
 import banner from '@/img/HomeBanner.webp'
 import cardImage from '@/img/ShopCardBanner.webp'
 import React, { useEffect, useState } from 'react'
@@ -204,20 +207,7 @@ export default function Home() {
           textAlign: 'center',
         }}
       >
-        <span
-          style={{
-            display: 'inline-block',
-            backgroundColor: '#A8343433',
-            color: '#A83434',
-            padding: '6px 14px',
-            borderRadius: '9999px',
-            fontSize: '14px',
-            fontWeight: '500',
-            marginBottom: '16px',
-          }}
-        >
-          Locales
-        </span>
+        <Tag>Locales</Tag>
 
         <h2
           style={{

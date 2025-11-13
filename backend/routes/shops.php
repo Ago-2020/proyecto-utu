@@ -435,17 +435,19 @@ switch (true) {
     case preg_match('%/api/shops/(\d+)/products$%', $requestUri, $matches) && $requestMethod == 'GET':
         $id_local = $matches[1] ?? null;
 
-        $query = "
-            SELECT 
-                p.id_producto,
-                p.titulo,
-                p.precio,
-                p.descripcion_producto,
-                p.etiqueta_producto,
-                p.foto
-            FROM productos p
-            WHERE p.id_local = :id_local
-        ";
+       $query = "
+        SELECT 
+            p.id_producto,
+            p.titulo,
+            p.precio,
+            p.descripcion_producto,
+            p.etiqueta_producto,
+            t.tipo AS nombre_etiqueta,
+            p.foto
+        FROM productos p
+        LEFT JOIN productos_tipo t ON p.etiqueta_producto = t.id_tipoproducto
+        WHERE p.id_local = :id_local";
+        
         $stmt = $db->prepare($query);
         $stmt->bindParam(':id_local', $matches[1]);
         $stmt->execute();

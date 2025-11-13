@@ -45,6 +45,11 @@ switch (true) {
         require __DIR__ . '/routes/admin.php';
         break;
 
+    // Rutas de notifaciones
+    case strpos($requestUri, '/api/notifications') !== false:
+        require __DIR__ . '/routes/notifications.php';
+        break;
+
     // Ruta para obtener imágenes
     case strpos($requestUri, '/getimg.php') !== false:
         require __DIR__ . '/getimg.php';
