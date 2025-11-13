@@ -32,7 +32,7 @@ export default function ReportedShops() {
     fetchReportes()
   }, [])
 
-  const handleDelete = async (id) => {
+  const handleDeleteReport = async (id) => {
     const confirmar = window.confirm('¿Estás seguro de eliminar este reporte?')
     if (!confirmar) return
 
@@ -57,13 +57,38 @@ export default function ReportedShops() {
     }
   }
 
+  const handleDeleteLocal = async (id_local) => {
+    const confirmar = window.confirm('¿Estás seguro de eliminar este local definitivamente?')
+    if (!confirmar) return
+
+    try {
+      const res = await fetch(`http://localhost:8000/api/admin/shops/${id_local}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        alert(data.message || 'Local eliminado con éxito')
+        // Opcional: también eliminar los reportes de ese local de la vista
+        setReportes((prev) => prev.filter((r) => r.id_local !== id_local))
+      } else {
+        alert(data.message || 'Error al eliminar local')
+      }
+    } catch (err) {
+      alert('Error de conexión: ' + err.message)
+    }
+  }
+
   if (loading) return <p className="p-6 text-gray-700">Cargando reportes...</p>
   if (error) return <p className="text-red-500 p-6">Error: {error}</p>
 
   return (
     <div className="p-4 sm:p-6 bg-gray-100 min-h-screen">
       <main className="bg-white shadow-lg rounded-2xl p-6 md:p-10 max-w-6xl mx-auto">
-        {/* Título en rojo */}
         <h2 className="text-2xl font-bold mb-6 text-red-600">
           Locales Reportados
         </h2>
@@ -90,9 +115,7 @@ export default function ReportedShops() {
                       <td className="p-3">{r.id_reporte}</td>
                       <td className="p-3">{r.nombre_local}</td>
                       <td className="p-3">{r.razon}</td>
-                      <td className="p-3">
-                        {r.nombre_usuario || `Usuario #${r.id_usuario}`}
-                      </td>
+                      <td className="p-3">{r.nombre_usuario || `Usuario #${r.id_usuario}`}</td>
                       <td className="p-3 text-center space-x-2">
                         <Link
                           to={`/local/${r.id_local}`}
@@ -101,10 +124,16 @@ export default function ReportedShops() {
                           Ver Local
                         </Link>
                         <button
-                          onClick={() => handleDelete(r.id_reporte)}
+                          onClick={() => handleDeleteReport(r.id_reporte)}
                           className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm"
                         >
-                          Eliminar
+                          Eliminar Reporte
+                        </button>
+                        <button
+                          onClick={() => handleDeleteLocal(r.id_local)}
+                          className="bg-red-800 hover:bg-red-900 text-white px-3 py-1 rounded-md text-sm"
+                        >
+                          Borrar Local
                         </button>
                       </td>
                     </tr>
@@ -127,8 +156,7 @@ export default function ReportedShops() {
                     <span className="font-semibold">Razón:</span> {r.razon}
                   </p>
                   <p className="text-sm text-gray-600 mb-2">
-                    <span className="font-semibold">Usuario:</span>{' '}
-                    {r.nombre_usuario || `#${r.id_usuario}`}
+                    <span className="font-semibold">Usuario:</span> {r.nombre_usuario || `#${r.id_usuario}`}
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-2 mt-3">
@@ -139,10 +167,16 @@ export default function ReportedShops() {
                       Ver Local
                     </Link>
                     <button
-                      onClick={() => handleDelete(r.id_reporte)}
+                      onClick={() => handleDeleteReport(r.id_reporte)}
                       className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-2 rounded-lg"
                     >
-                      Eliminar
+                      Eliminar Reporte
+                    </button>
+                    <button
+                      onClick={() => handleDeleteLocal(r.id_local)}
+                      className="bg-red-800 hover:bg-red-900 text-white text-sm px-3 py-2 rounded-lg"
+                    >
+                      Borrar Local
                     </button>
                   </div>
                 </div>

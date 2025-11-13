@@ -77,11 +77,7 @@ export default function Navbar() {
             <>
               <Link to="/profile" className="user-info">
                 {user.imagen_perfil ? (
-                  <img
-                    src={user.imagen_perfil}
-                    alt="perfil"
-                    className="profile-pic"
-                  />
+                  <img src={user.imagen_perfil} alt="perfil" className="profile-pic" />
                 ) : (
                   <FaUser className="default-icon" />
                 )}
@@ -105,25 +101,37 @@ export default function Navbar() {
 
         {/* Menú móvil */}
         <div className={`mobile-menu ${menuOpen ? 'open' : ''}`}>
-          <Link to="/" onClick={() => setMenuOpen(false)}>
-            Inicio
-          </Link>
-          <Link to="/about" onClick={() => setMenuOpen(false)}>
-            Sobre Nosotros
-          </Link>
-          <Link to="/contact" onClick={() => setMenuOpen(false)}>
-            Contacto
-          </Link>
-          {user && (
-            <Link to="/profile" onClick={() => setMenuOpen(false)}>
-              Mi Perfil
-            </Link>
+          <Link to="/" onClick={() => setMenuOpen(false)}>Inicio</Link>
+          <Link to="/about" onClick={() => setMenuOpen(false)}>Sobre Nosotros</Link>
+          <Link to="/contact" onClick={() => setMenuOpen(false)}>Contacto</Link>
+
+          {user ? (
+            <>
+              <Link to="/profile" onClick={() => setMenuOpen(false)}>Mi Perfil</Link>
+              <button
+                onClick={() => {
+                  handleLogout()
+                  setMenuOpen(false)
+                }}
+                className="logout-btn mt-2 w-4/5 mx-auto"
+              >
+                Cerrar sesión
+              </button>
+            </>
+          ) : (
+            <div className="auth-buttons flex flex-col gap-2 mt-2">
+              <Link to="/login" onClick={() => setMenuOpen(false)}>
+                <button className="btn white w-4/5 mx-auto">Iniciar sesión</button>
+              </Link>
+              <Link to="/register" onClick={() => setMenuOpen(false)}>
+                <button className="btn outline w-4/5 mx-auto">Regístrate</button>
+              </Link>
+            </div>
           )}
         </div>
       </nav>
 
-      <style>
-        {`
+      <style>{`
         /* ==== BASE ==== */
         .navbar {
           position: sticky;
@@ -140,7 +148,6 @@ export default function Navbar() {
           transition: all 0.3s ease;
         }
 
-        /* ==== FONDO DIFUMINADO ==== */
         .menu-blur {
           position: fixed;
           inset: 0;
@@ -150,12 +157,11 @@ export default function Navbar() {
           transition: all 0.3s ease;
         }
 
-        /* ==== IZQUIERDA ==== */
         .navbar-left {
           display: flex;
           align-items: center;
           gap: 25px;
-          margin-right: 25px; /* 🔹 Extra separación con la barra de búsqueda */
+          margin-right: 25px;
         }
 
         .logo {
@@ -177,7 +183,6 @@ export default function Navbar() {
           display: none;
         }
 
-        /* ==== CENTRO ==== */
         .navbar-center {
           flex: 1;
           display: flex;
@@ -205,7 +210,6 @@ export default function Navbar() {
           box-shadow: 0 0 0 2px #ffd6d6;
         }
 
-        /* ==== DERECHA ==== */
         .navbar-right {
           display: flex;
           align-items: center;
@@ -272,7 +276,6 @@ export default function Navbar() {
           color: #dc2626;
         }
 
-        /* ==== MENÚ MÓVIL ==== */
         .mobile-menu {
           display: none;
           flex-direction: column;
@@ -308,7 +311,6 @@ export default function Navbar() {
           background-color: #e10000;
         }
 
-        /* ==== RESPONSIVE ==== */
         @media (max-width: 900px) {
           .menu-toggle {
             display: block;
@@ -324,8 +326,7 @@ export default function Navbar() {
             display: none;
           }
         }
-      `}
-      </style>
+      `}</style>
     </>
   )
 }
