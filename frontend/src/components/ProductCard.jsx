@@ -1,6 +1,13 @@
 import React from 'react'
+import Tag from '@/components/Tag'
 
-export default function ProductCard({ titulo, descripcion, precio, foto }) {
+export default function ProductCard({
+  titulo,
+  descripcion,
+  precio,
+  foto,
+  etiqueta,
+}) {
   const imageSrc = foto
     ? foto.startsWith('data:')
       ? foto // imagen del FileRead
@@ -9,12 +16,16 @@ export default function ProductCard({ titulo, descripcion, precio, foto }) {
 
   return (
     <div className="bg-white border border-gray-200 shadow-lg rounded-2xl w-[360px] sm:w-[380px] h-auto flex flex-col overflow-hidden hover:shadow-2xl transition-all duration-300">
+      <div className="w-full my-4 h-fit">
+        <Tag>{etiqueta}</Tag>
+      </div>
+
       {/* Imagen */}
       <div className="flex justify-center">
         <img
           src={imageSrc}
           alt={titulo}
-          className="w-[320px] h-[200px] object-cover rounded-lg mt-4"
+          className="w-[320px] h-[200px] object-cover rounded-lg"
         />
       </div>
 

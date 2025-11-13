@@ -1,15 +1,26 @@
-import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
+import Tag from '@/components/Tag'
 import React from 'react'
 import { FaUser } from 'react-icons/fa'
 
 export default function About() {
   const team = [
-    { name: 'Ezequiel', role: 'Desarrollor Front-End', img: '/img/Ezequiel.jpg' },
-    { name: 'Santiago', role: 'Desarrollor Back-End', img: '/img/Santiago.jpg' },
+    {
+      name: 'Ezequiel',
+      role: 'Desarrollor Front-End',
+      img: '/img/Ezequiel.jpg',
+    },
+    {
+      name: 'Santiago',
+      role: 'Desarrollor Back-End',
+      img: '/img/Santiago.jpg',
+    },
     { name: 'Ayrton', role: 'Desarrollador SQL', img: '/img/Ayrton.jpg' },
     { name: 'Johnatan', role: 'Gestor del proyecto', img: '/img/Johnatan.jpg' },
-    { name: 'Sirio', role: 'Testing y Control de Calidad (QA)', img: '/img/Sirio.jpg' },
+    {
+      name: 'Sirio',
+      role: 'Testing y Control de Calidad (QA)',
+      img: '/img/Sirio.jpg',
+    },
   ]
 
   const checkImage = (path) => {
@@ -25,6 +36,7 @@ export default function About() {
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-grow flex flex-col items-center px-4 py-20 text-center">
+        <Tag>Historia</Tag>
         <h1 className="text-3xl font-bold mb-6">Sobre Nosotros</h1>
         <p className="text-gray-600 max-w-2xl mb-12">
           Somos una plataforma dedicada a ayudar a los negocios locales a ganar

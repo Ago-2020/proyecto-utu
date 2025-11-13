@@ -261,6 +261,7 @@ export default function Local() {
                   descripcion={producto.descripcion_producto}
                   precio={producto.precio}
                   foto={producto.foto}
+                  etiqueta={producto.nombre_etiqueta}
                 />
               ))}
             </div>
