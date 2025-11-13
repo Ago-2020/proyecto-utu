@@ -231,7 +231,7 @@ export default function PerfilUsuario() {
               />
             </div>
 
-            {/* --- CAMPOS EDITABLES --- */}
+            {/* Campos de texto */}
             <div className="flex flex-col gap-3 w-full max-w-xs">
               {/* Nombre */}
               <div className="flex items-center gap-2">
@@ -247,6 +247,7 @@ export default function PerfilUsuario() {
                     onChange={handleFieldChange}
                     onBlur={handleFieldBlur}
                     onKeyDown={handleFieldKeyDown}
+                    maxLength={25}
                     autoFocus
                     className="border-b border-gray-400 outline-none flex-1 text-gray-700"
                   />

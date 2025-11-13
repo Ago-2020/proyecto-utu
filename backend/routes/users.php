@@ -95,8 +95,18 @@ switch (true) {
         $userData = verifyToken();
 
         $id_usuario = $userData->id;
-        $nombre_usuario = $_POST['nombre_usuario'] ?? null;
-        $email_usuario = $_POST['email_usuario'] ?? null;
+        $nombre_usuario = trim($_POST['nombre_usuario'] ?? '');
+        $email_usuario = trim($_POST['email_usuario'] ?? '');
+
+        // Validar nombre de usuario
+        if (strlen($nombre_usuario) < 3 || strlen($nombre_usuario) > 25) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'El nombre de usuario debe tener entre 3 y 25 caracteres.'
+            ]);
+            break;
+        }
 
         if (!empty($id_usuario)) {
             $imagePath = null;

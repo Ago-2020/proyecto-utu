@@ -23,17 +23,33 @@ switch (true) {
             !empty($data->password_usuario) &&
             !empty($data->tipo_usuario)
         ) {
-            $query = "INSERT INTO usuario (email_usuario, nombre_usuario, password_usuario, tipo_usuario) VALUES (:email_usuario, :nombre_usuario, :password_usuario, :tipo_usuario)"; // Cambiar la consulta de tabla
+            $nombre_usuario = trim($data->nombre_usuario);
+            $email_usuario = trim($data->email_usuario);
+
+            // Validar longitud del nombre de usuario
+            if (strlen($nombre_usuario) < 3 || strlen($nombre_usuario) > 25) {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'El nombre de usuario debe tener entre 3 y 25 caracteres.',
+                    'code' => 400
+                ]);
+                exit;
+            }
+
+            $query = "INSERT INTO usuario (email_usuario, nombre_usuario, password_usuario, tipo_usuario) 
+                    VALUES (:email_usuario, :nombre_usuario, :password_usuario, :tipo_usuario)";
             $stmt = $db->prepare($query);
 
             // Hashear la contraseña
             $passwordHash = password_hash($data->password_usuario, PASSWORD_BCRYPT);
 
             // Vincular datos
-            $stmt->bindParam(":email_usuario", $data->email_usuario);
-            $stmt->bindParam(":nombre_usuario", $data->nombre_usuario);
+            $stmt->bindParam(":email_usuario", $email_usuario);
+            $stmt->bindParam(":nombre_usuario", $nombre_usuario);
             $stmt->bindParam(":tipo_usuario", $data->tipo_usuario);
             $stmt->bindParam(":password_usuario", $passwordHash);
+
             try {
                 if ($stmt->execute()) {
                     http_response_code(201);
@@ -48,7 +64,7 @@ switch (true) {
                     echo json_encode(['success' => false, 'message' => 'El email ya está registrado', 'code' => 400]);
                     exit;
                 } else {
-                    throw $e; // En caso de ser otro error
+                    throw $e; // En caso de otro error
                 }
             }
         } else {
@@ -56,6 +72,7 @@ switch (true) {
             echo json_encode(['message' => 'Datos incompletos.']);
         }
     break;
+
 
     // Inicio de sesión de usuario
     case preg_match('%/api/auth/login%', $requestUri) && $requestMethod == 'POST':
