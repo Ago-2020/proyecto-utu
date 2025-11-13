@@ -81,17 +81,23 @@ README.md -> Documentación del proyecto
    backend/config.php
    (actualizar usuario, contraseña y nombre de la base de datos)
 
-5. Iniciar el backend:
+5. Se debe crear un archivo .env con los siguentes datos:
+   DB_NAME=
+   DB_PASS=
+   DB_HOST=
+   JWT_SECRET=
+
+6. Iniciar el backend:
    cd backend
    composer install
    php -S localhost:8000 index.php
 
-6. Iniciar el frontend:
+7. Iniciar el frontend:
    cd frontend
    pnpm install
    pnpm dev
 
-7. Acceder al sistema:
+8. Acceder al sistema:
    Abrir el navegador y entrar al frontend (ej: http://localhost:5173)
 
 ## Autores
