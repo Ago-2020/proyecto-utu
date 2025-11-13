@@ -12,8 +12,8 @@ $db = $database->getConnection();
 // Decodificar el cuerpo de la petición JSON
 $data = json_decode(file_get_contents("php://input"));
 
-// Verificación del Token de usuario
-function verifyToken() {
+// Verificación del Token de usuario (Solo Admin)
+function verifyAdmin() {
     $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
     $arr = explode(" ", $authHeader);
     $token = $arr[1] ?? '';
@@ -26,7 +26,17 @@ function verifyToken() {
 
     try {
         $decoded = JWT::decode($token, new Key($_ENV['JWT_SECRET'], 'HS256'));
-        return $decoded->data;
+        $userData = $decoded->data;
+
+        $role = property_exists($userData, 'role') ? (int)$userData->role : 0;
+
+        if ($role !== 1) {
+            http_response_code(403);
+            echo json_encode(["message" => "Acceso prohibido. Solo administradores."]);
+            exit();
+        }
+
+        return $userData;
     } catch (Exception $e) {
         http_response_code(403);
         echo json_encode(["message" => "Acceso prohibido.", "error" => $e->getMessage()]);
@@ -38,7 +48,7 @@ function verifyToken() {
 switch (true) {
     // Obtener reportes de locales
     case preg_match('%/api/admin/reports?$%', $requestUri) && $requestMethod == 'GET':
-        $userData = verifyToken();
+        $userData = verifyAdmin();
         try {
             $query = "
                 SELECT 
@@ -67,7 +77,7 @@ switch (true) {
 
     // Obtener todas las reseñas reportadas
     case preg_match('%/api/admin/reports/reviews?$%', $requestUri) && $requestMethod == 'GET':
-        $userData = verifyToken();
+        $userData = verifyAdmin();
         try {
             $query = "
                 SELECT
@@ -96,7 +106,7 @@ switch (true) {
 
     // Quitar estado de reportado
     case preg_match('%/api/admin/reports/reviews/(\d+)$%', $requestUri, $matches) && $requestMethod == 'PUT':
-        $userData = verifyToken();
+        $userData = verifyAdmin();
         $id_resena = $matches[1];
         $stmt = $db->prepare("UPDATE resenas SET reportado = 0 WHERE id_resena = ?");
         if ($stmt->execute([$id_resena])) {
@@ -109,7 +119,7 @@ switch (true) {
 
     // Eliminar reseña
     case preg_match('%^/api/admin/reports/reviews/(\d+)/?$%', $requestUri, $matches) && $requestMethod == 'DELETE':
-        $userData = verifyToken();
+        $userData = verifyAdmin();
         $id_resena = $matches[1];
 
         $stmt = $db->prepare("DELETE FROM resenas WHERE id_resena = ?");
@@ -128,7 +138,7 @@ switch (true) {
 
     // Eliminar reporte de local
     case preg_match('%/api/admin/reports/%', $requestUri) && $requestMethod == 'DELETE':
-        $userData = verifyToken();
+        $userData = verifyAdmin();
         $id_reporte = basename($requestUri);
 
         try {
@@ -151,7 +161,7 @@ switch (true) {
 
     // Eliminar un local
     case preg_match('%/api/admin/shops/(\d+)$%', $requestUri, $matches) && $requestMethod == 'DELETE':
-        $userData = verifyToken();
+        $userData = verifyAdmin();
         $id_local = $matches[1];
 
         try {
