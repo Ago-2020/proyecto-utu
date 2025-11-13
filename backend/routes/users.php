@@ -90,50 +90,49 @@ switch (true) {
 
 
     // Editar usuario
-    case preg_match('%/api/users/?$%', $requestUri)
-     && ($requestMethod == 'PUT' || ($requestMethod == 'POST' && ($_POST['_method'] ?? '') === 'PUT')):
+    case preg_match('%/api/users/?$%', $requestUri) && ($requestMethod == 'PUT' || ($requestMethod == 'POST' && ($_POST['_method'] ?? '') === 'PUT')):
 
-    $userData = verifyToken();
+        $userData = verifyToken();
 
-    $id_usuario = $userData->id;
-    $nombre_usuario = $_POST['nombre_usuario'] ?? null;
-    $email_usuario = $_POST['email_usuario'] ?? null;
+        $id_usuario = $userData->id;
+        $nombre_usuario = $_POST['nombre_usuario'] ?? null;
+        $email_usuario = $_POST['email_usuario'] ?? null;
 
-    if (!empty($id_usuario)) {
-        $imagePath = null;
-        if (isset($_FILES['imagen'])) {
-            $uploadResult = uploadImage($_FILES['imagen']);
-            if ($uploadResult['success']) {
-                $imagePath = $uploadResult['path'];
-            } else {
-                echo json_encode(['success' => false, 'message' => $uploadResult['message']]);
-                break;
+        if (!empty($id_usuario)) {
+            $imagePath = null;
+            if (isset($_FILES['imagen'])) {
+                $uploadResult = uploadImage($_FILES['imagen']);
+                if ($uploadResult['success']) {
+                    $imagePath = $uploadResult['path'];
+                } else {
+                    echo json_encode(['success' => false, 'message' => $uploadResult['message']]);
+                    break;
+                }
             }
-        }
 
-        $query = "UPDATE usuario 
-                  SET nombre_usuario = :nombre_usuario, email_usuario = :email_usuario";
-        if ($imagePath) {
-            $query .= ", foto = :foto";
-        }
-        $query .= " WHERE id_usuario = :id_usuario";
+            $query = "UPDATE usuario 
+                    SET nombre_usuario = :nombre_usuario, email_usuario = :email_usuario";
+            if ($imagePath) {
+                $query .= ", foto = :foto";
+            }
+            $query .= " WHERE id_usuario = :id_usuario";
 
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(':id_usuario', $id_usuario);
-        $stmt->bindParam(':nombre_usuario', $nombre_usuario);
-        $stmt->bindParam(':email_usuario', $email_usuario);
-        if ($imagePath) {
-            $stmt->bindParam(':foto', $imagePath);
-        }
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':id_usuario', $id_usuario);
+            $stmt->bindParam(':nombre_usuario', $nombre_usuario);
+            $stmt->bindParam(':email_usuario', $email_usuario);
+            if ($imagePath) {
+                $stmt->bindParam(':foto', $imagePath);
+            }
 
-        if ($stmt->execute()) {
-            echo json_encode(['success' => true, 'message' => 'Usuario actualizado con éxito']);
+            if ($stmt->execute()) {
+                echo json_encode(['success' => true, 'message' => 'Usuario actualizado con éxito']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Error al actualizar el usuario']);
+            }
         } else {
-            echo json_encode(['success' => false, 'message' => 'Error al actualizar el usuario']);
+            echo json_encode(['success' => false, 'message' => 'ID de usuario requerido']);
         }
-    } else {
-        echo json_encode(['success' => false, 'message' => 'ID de usuario requerido']);
-    }
     break;
 
     // Cambiar de contraseña

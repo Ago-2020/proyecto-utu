@@ -29,14 +29,19 @@ export default function Navbar() {
       if (!token) return
 
       try {
-        const res = await fetch('http://localhost:8000/api/auth/user', {
+        const res = await fetch('http://localhost:8000/api/users/', {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         })
         const data = await res.json()
-        if (res.ok) setUser(data)
+        if (res.ok && data.success) {
+          setUser({
+            ...data.data,
+            imagen_perfil: data.data.foto || null,
+          })
+        }
       } catch (error) {
         console.error('Error al obtener usuario:', error)
       }
@@ -46,7 +51,9 @@ export default function Navbar() {
 
   return (
     <>
-      {menuOpen && <div className="menu-blur" onClick={() => setMenuOpen(false)} />}
+      {menuOpen && (
+        <div className="menu-blur" onClick={() => setMenuOpen(false)} />
+      )}
 
       <nav className="navbar">
         {/* Izquierda: Logo + botón */}
@@ -54,7 +61,10 @@ export default function Navbar() {
           <Link to="/" className="logo-container">
             <img src={logo} alt="SaborUY" className="logo" />
           </Link>
-          <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+          <button
+            className="menu-toggle"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
             {menuOpen ? <FaTimes /> : <FaBars />}
           </button>
         </div>
@@ -76,12 +86,18 @@ export default function Navbar() {
           {user ? (
             <>
               <Link to="/profile" className="user-info">
-                {user.imagen_perfil ? (
-                  <img src={user.imagen_perfil} alt="perfil" className="profile-pic" />
-                ) : (
-                  <FaUser className="default-icon" />
-                )}
-                <span className="username">{user.nombre_usuario}</span>
+                <div className="flex flex-row items-center">
+                  {user.imagen_perfil ? (
+                    <img
+                      src={user.imagen_perfil}
+                      alt="perfil"
+                      className="profile-pic"
+                    />
+                  ) : (
+                    <FaUser className="default-icon" />
+                  )}
+                  <span className="username">{user.nombre_usuario}</span>
+                </div>
               </Link>
               <button onClick={handleLogout} className="logout-btn">
                 Cerrar sesión
@@ -101,13 +117,21 @@ export default function Navbar() {
 
         {/* Menú móvil */}
         <div className={`mobile-menu ${menuOpen ? 'open' : ''}`}>
-          <Link to="/" onClick={() => setMenuOpen(false)}>Inicio</Link>
-          <Link to="/about" onClick={() => setMenuOpen(false)}>Sobre Nosotros</Link>
-          <Link to="/contact" onClick={() => setMenuOpen(false)}>Contacto</Link>
+          <Link to="/" onClick={() => setMenuOpen(false)}>
+            Inicio
+          </Link>
+          <Link to="/about" onClick={() => setMenuOpen(false)}>
+            Sobre Nosotros
+          </Link>
+          <Link to="/contact" onClick={() => setMenuOpen(false)}>
+            Contacto
+          </Link>
 
           {user ? (
             <>
-              <Link to="/profile" onClick={() => setMenuOpen(false)}>Mi Perfil</Link>
+              <Link to="/profile" onClick={() => setMenuOpen(false)}>
+                Mi Perfil
+              </Link>
               <button
                 onClick={() => {
                   handleLogout()
@@ -121,10 +145,14 @@ export default function Navbar() {
           ) : (
             <div className="auth-buttons flex flex-col gap-2 mt-2">
               <Link to="/login" onClick={() => setMenuOpen(false)}>
-                <button className="btn white w-4/5 mx-auto">Iniciar sesión</button>
+                <button className="btn white w-4/5 mx-auto">
+                  Iniciar sesión
+                </button>
               </Link>
               <Link to="/register" onClick={() => setMenuOpen(false)}>
-                <button className="btn outline w-4/5 mx-auto">Regístrate</button>
+                <button className="btn outline w-4/5 mx-auto">
+                  Regístrate
+                </button>
               </Link>
             </div>
           )}
