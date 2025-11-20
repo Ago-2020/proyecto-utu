@@ -26,7 +26,6 @@ export default function DiscoverPage() {
 
   return (
     <div className="page-container">
-      <Navbar />
 
       <main className="content">
         <div className="discover-container">
